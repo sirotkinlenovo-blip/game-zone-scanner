@@ -1,0 +1,8 @@
+{
+  "name": "GAME ZONE Scanner",
+  "short_name": "GAME ZONE",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#0078D7",
+  "background_color": "#ffffff"
+}
