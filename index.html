@@ -442,7 +442,7 @@
 
         <!-- Версия приложения -->
         <div class="app-version">
-            Версия 1.5 | GAME ZONE Scanner
+            Версия 1.6 | GAME ZONE Scanner
         </div>
     </div>
 
@@ -487,13 +487,14 @@
                 this.dataUpdateInterval = null;
                 this.scanningTimeout = null;
                 this.quaggaInitialized = false;
-                this.currentScanSessionId = null; // Уникальный ID для каждой сессии сканирования
+                this.lastScannedCode = null;
+                this.scanCooldown = false;
                 
                 // Массив для хранения отсканированных игр
                 this.scannedGames = [];
                 
                 // Версия приложения
-                this.appVersion = "1.5";
+                this.appVersion = "1.6";
                 
                 this.init();
             }
@@ -614,11 +615,7 @@
                 
                 console.log('🚀 Запуск сканера v' + this.appVersion);
                 
-                // Создаем новую сессию сканирования
-                this.currentScanSessionId = Date.now().toString();
-                console.log('🆕 Новая сессия сканирования:', this.currentScanSessionId);
-                
-                // Полностью сбрасываем состояние
+                // Сбрасываем состояние
                 this.resetScannerState();
                 
                 if (this.cameraPermissionGranted) {
@@ -645,6 +642,8 @@
             resetScannerState() {
                 this.isScanning = false;
                 this.quaggaInitialized = false;
+                this.lastScannedCode = null;
+                this.scanCooldown = false;
                 
                 // Очищаем все таймауты
                 if (this.scanningTimeout) {
@@ -693,11 +692,6 @@
                         this.cameraStream = null;
                     }
                     
-                    // Полностью останавливаем Quagga
-                    try {
-                        Quagga.stop();
-                    } catch (e) {}
-                    
                     this.cameraStream = await navigator.mediaDevices.getUserMedia({ 
                         video: { 
                             facingMode: "environment",
@@ -726,7 +720,6 @@
 
             startQuaggaScanner() {
                 this.isScanning = true;
-                const sessionId = this.currentScanSessionId;
                 
                 // Очищаем предыдущий таймаут
                 if (this.scanningTimeout) {
@@ -734,9 +727,9 @@
                     this.scanningTimeout = null;
                 }
                 
-                console.log('🎯 Инициализация Quagga сканера для сессии:', sessionId);
+                console.log('🎯 Инициализация Quagga сканера');
                 
-                // Полностью переинициализируем Quagga каждый раз
+                // Полностью останавливаем Quagga если был запущен
                 try {
                     Quagga.stop();
                 } catch (e) {}
@@ -777,44 +770,53 @@
                         return;
                     }
                     
-                    console.log('✅ Quagga сканер успешно инициализирован для сессии:', sessionId);
+                    console.log('✅ Quagga сканер успешно инициализирован');
                     Quagga.start();
                     this.quaggaInitialized = true;
                     
                     // Убираем старые обработчики и добавляем новый
                     Quagga.offDetected();
                     Quagga.onDetected((result) => {
-                        // Проверяем что это текущая сессия сканирования
-                        if (this.currentScanSessionId === sessionId && this.isScanning) {
-                            this.handleBarcodeDetection(result, sessionId);
+                        if (this.isScanning && !this.scanCooldown) {
+                            this.handleBarcodeDetection(result);
                         }
                     });
                 });
             }
 
-            handleBarcodeDetection(result, sessionId) {
+            handleBarcodeDetection(result) {
                 if (!result.codeResult.code) {
                     return;
                 }
                 
                 const code = result.codeResult.code.toString().trim();
-                console.log('📷 Сканирован штрих-код:', code, 'в сессии:', sessionId);
+                console.log('📷 Сканирован штрих-код:', code);
                 
-                // Останавливаем сканер на время обработки
-                Quagga.stop();
+                // Защита от повторного сканирования того же кода
+                if (this.lastScannedCode === code) {
+                    console.log('🔄 Пропускаем повторное сканирование:', code);
+                    return;
+                }
+                
+                // Блокируем дальнейшее сканирование на время обработки
+                this.scanCooldown = true;
+                this.lastScannedCode = code;
+                
+                // Останавливаем Quagga на время обработки
+                try {
+                    Quagga.stop();
+                } catch (e) {}
                 
                 // Обновляем статус
                 this.updateCameraStatus(`📷 Найден код: ${code}`, 'scanning-success');
                 
-                // НЕ записываем в поле ввода!
-                
                 // Обрабатываем код
-                this.processScannedBarcode(code, sessionId);
+                this.processScannedBarcode(code);
             }
 
-            async processScannedBarcode(barcode, sessionId) {
+            async processScannedBarcode(barcode) {
                 const normalizedBarcode = barcode.toString().trim();
-                console.log('🔍 Ищем в базе код:', normalizedBarcode, 'сессия:', sessionId);
+                console.log('🔍 Ищем в базе код:', normalizedBarcode);
                 
                 const game = this.gamesData.find(g => {
                     if (!g.barcode) return false;
@@ -845,33 +847,37 @@
                     
                     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                     
-                    // Автоматически перезапускаем сканер через 1.5 секунды
+                    // Автоматически перезапускаем сканер через 2 секунды
                     setTimeout(() => {
-                        // Проверяем что мы все еще в той же сессии сканирования
-                        if (this.isScanning && this.currentScanSessionId === sessionId) {
-                            console.log('🔄 Автоматический перезапуск после ошибки для сессии:', sessionId);
-                            this.restartCameraScanning(sessionId);
+                        if (this.isScanning) {
+                            console.log('🔄 Автоматический перезапуск после ошибки');
+                            this.restartCameraScanning();
                         }
-                    }, 1500);
+                    }, 2000);
                 }
             }
 
-            // Перезапуск только сканирования
-            restartCameraScanning(sessionId) {
-                console.log('🔄 Перезапуск сканирования для сессии:', sessionId);
+            // Перезапуск сканирования после ошибки
+            restartCameraScanning() {
+                console.log('🔄 Перезапуск сканирования');
                 this.updateCameraStatus('🔍 Сканирую...');
                 
+                // Сбрасываем cooldown и последний код
+                this.scanCooldown = false;
+                this.lastScannedCode = null;
+                
                 try {
+                    // Полностью перезапускаем Quagga
                     Quagga.stop();
                     setTimeout(() => {
-                        // Проверяем что мы все еще в той же сессии
-                        if (this.isScanning && this.currentScanSessionId === sessionId) {
+                        if (this.isScanning) {
                             Quagga.start();
-                            console.log('✅ Сканирование перезапущено для сессии:', sessionId);
+                            console.log('✅ Сканирование перезапущено');
                         }
-                    }, 300);
+                    }, 500);
                 } catch (e) {
                     console.log('❌ Ошибка перезапуска Quagga:', e);
+                    // Если не получилось, показываем кнопку ручного перезапуска
                     this.updateCameraStatus('❌ Ошибка сканера. Нажмите "Перезапустить камеру"', 'scanning-error');
                 }
             }
@@ -879,6 +885,8 @@
             stopScanner() {
                 console.log('🛑 Остановка сканера');
                 this.isScanning = false;
+                this.scanCooldown = false;
+                this.lastScannedCode = null;
                 
                 // Очищаем таймаут
                 if (this.scanningTimeout) {
