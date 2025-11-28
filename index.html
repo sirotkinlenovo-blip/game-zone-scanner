@@ -345,6 +345,21 @@
             padding: 10px;
             border-top: 1px solid #eee;
         }
+
+        /* Иконка платформы */
+        .platform-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            vertical-align: middle;
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+        .ps4-icon { background-color: #0070d1; border-radius: 3px; }
+        .ps5-icon { background-color: #000; border-radius: 3px; }
+        .ns-icon { background-color: #e60012; border-radius: 3px; }
+        .xbox-icon { background-color: #107c10; border-radius: 3px; }
     </style>
 </head>
 <body>
@@ -403,13 +418,13 @@
                 <span class="info-label">Платформа:</span>
                 <span class="info-value" id="game-platform"></span>
             </div>
+            <div class="info-row" id="game-code-row">
+                <span class="info-label" id="game-code-label">CUSA:</span>
+                <span class="info-value" id="game-code"></span>
+            </div>
             <div class="info-row">
                 <span class="info-label">Штрих-код:</span>
                 <span class="info-value" id="game-barcode"></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">CUSA:</span>
-                <span class="info-value" id="game-cusa"></span>
             </div>
             <div class="info-row">
                 <span class="info-label">Цена в Маркетплейсе:</span>
@@ -442,7 +457,7 @@
 
         <!-- Версия приложения -->
         <div class="app-version">
-            Версия 1.7 | GAME ZONE Scanner
+            Версия 2.0 | GAME ZONE Scanner
         </div>
     </div>
 
@@ -494,7 +509,7 @@
                 this.scannedGames = [];
                 
                 // Версия приложения
-                this.appVersion = "1.7";
+                this.appVersion = "2.0";
                 
                 this.init();
             }
@@ -554,7 +569,7 @@
                     const csvText = await response.text();
                     this.gamesData = this.parseCSV(csvText);
                     
-                    document.getElementById('status').textContent = `✅ Данные загружены! Найдено ${this.gamesData.length} игр PS4`;
+                    document.getElementById('status').textContent = `✅ Данные загружены! Найдено ${this.gamesData.length} игр`;
                     
                     setTimeout(() => {
                         if (document.getElementById('status').textContent.includes('Найдено')) {
@@ -586,24 +601,84 @@
                     const cleanRow = row.replace(/"/g, '');
                     const cells = cleanRow.split(',');
                     
+                    // PS4 игры (столбцы A-H)
                     if (cells.length >= 7) {
-                        const game = {
+                        const ps4Game = {
                             platform: cells[0]?.trim() || '',
                             barcode: cells[1]?.trim() || '',
                             name: cells[2]?.trim() || '',
-                            cusa: cells[3]?.trim() || '',
+                            code: cells[3]?.trim() || '', // CUSA для PS4
                             language: cells[4]?.trim() || '',
                             optPrice: cells[5]?.trim() || '',
-                            marketplace: cells[6]?.trim() || ''
+                            marketplace: cells[6]?.trim() || '',
+                            codeType: 'CUSA'
                         };
                         
-                        if (game.platform && game.platform.toUpperCase().includes('PS4') && 
-                            game.name && game.barcode) {
-                            games.push(game);
+                        if (ps4Game.platform && ps4Game.platform.toUpperCase().includes('PS4') && 
+                            ps4Game.name && ps4Game.barcode) {
+                            games.push(ps4Game);
+                        }
+                    }
+                    
+                    // PS5 игры (столбцы J-O)
+                    if (cells.length >= 15) {
+                        const ps5Game = {
+                            platform: cells[9]?.trim() || '',
+                            barcode: cells[10]?.trim() || '',
+                            name: cells[11]?.trim() || '',
+                            code: cells[12]?.trim() || '', // PPSA для PS5
+                            language: cells[13]?.trim() || '',
+                            optPrice: cells[14]?.trim() || '',
+                            marketplace: '', // Для PS5 нет маркетплейса
+                            codeType: 'PPSA'
+                        };
+                        
+                        if (ps5Game.platform && ps5Game.platform.toUpperCase().includes('PS5') && 
+                            ps5Game.name && ps5Game.barcode) {
+                            games.push(ps5Game);
+                        }
+                    }
+                    
+                    // Nintendo Switch игры (столбцы R-V)
+                    if (cells.length >= 22) {
+                        const nsGame = {
+                            platform: cells[17]?.trim() || '',
+                            barcode: cells[18]?.trim() || '',
+                            name: cells[19]?.trim() || '',
+                            code: '', // Для NS нет кода
+                            language: cells[20]?.trim() || '',
+                            optPrice: cells[21]?.trim() || '',
+                            marketplace: '', // Для NS нет маркетплейса
+                            codeType: ''
+                        };
+                        
+                        if (nsGame.platform && nsGame.platform.toUpperCase().includes('NS') && 
+                            nsGame.name && nsGame.barcode) {
+                            games.push(nsGame);
+                        }
+                    }
+                    
+                    // Xbox One игры (столбцы Y-AC)
+                    if (cells.length >= 29) {
+                        const xboxGame = {
+                            platform: cells[24]?.trim() || '',
+                            barcode: cells[25]?.trim() || '',
+                            name: cells[26]?.trim() || '',
+                            code: '', // Для Xbox нет кода
+                            language: cells[27]?.trim() || '',
+                            optPrice: cells[28]?.trim() || '',
+                            marketplace: '', // Для Xbox нет маркетплейса
+                            codeType: ''
+                        };
+                        
+                        if (xboxGame.platform && xboxGame.platform.toUpperCase().includes('XBOX') && 
+                            xboxGame.name && xboxGame.barcode) {
+                            games.push(xboxGame);
                         }
                     }
                 }
                 
+                console.log(`Загружено игр: ${games.length} (PS4: ${games.filter(g => g.platform.includes('PS4')).length}, PS5: ${games.filter(g => g.platform.includes('PS5')).length}, NS: ${games.filter(g => g.platform.includes('NS')).length}, Xbox: ${games.filter(g => g.platform.includes('XBOX')).length})`);
                 return games;
             }
 
@@ -826,7 +901,7 @@
                 
                 if (game) {
                     // Игра найдена
-                    console.log('✅ Игра найдена:', game.name);
+                    console.log('✅ Игра найдена:', game.name, 'Платформа:', game.platform);
                     this.displayGameInfo(game);
                     this.addToScannedGames(game);
                     document.getElementById('status').textContent = '✅ Игра найдена!';
@@ -943,12 +1018,39 @@
                 document.getElementById('game-final-price').textContent = finalPrice > 0 ? finalPrice : '—';
                 document.getElementById('game-name').textContent = game.name;
                 document.getElementById('game-language').textContent = languageText || '—';
-                document.getElementById('game-platform').textContent = game.platform;
+                
+                // Отображаем платформу с иконкой
+                const platformElement = document.getElementById('game-platform');
+                platformElement.innerHTML = this.getPlatformIcon(game.platform) + game.platform;
+                
                 document.getElementById('game-barcode').textContent = game.barcode;
-                document.getElementById('game-cusa').textContent = game.cusa || '—';
+                
+                // Настраиваем отображение кода (CUSA/PPSA) или скрываем если нет
+                const codeRow = document.getElementById('game-code-row');
+                const codeLabel = document.getElementById('game-code-label');
+                const codeValue = document.getElementById('game-code');
+                
+                if (game.code && game.codeType) {
+                    codeLabel.textContent = game.codeType + ':';
+                    codeValue.textContent = game.code || '—';
+                    codeRow.style.display = 'flex';
+                } else {
+                    codeRow.style.display = 'none';
+                }
+                
+                // Маркетплейс (только для PS4)
                 document.getElementById('game-marketplace').textContent = game.marketplace || '—';
                 
                 document.getElementById('game-info').classList.add('visible');
+            }
+
+            // Получаем иконку для платформы
+            getPlatformIcon(platform) {
+                if (platform.includes('PS4')) return '<span class="platform-icon ps4-icon" title="PlayStation 4">PS4</span>';
+                if (platform.includes('PS5')) return '<span class="platform-icon ps5-icon" title="PlayStation 5">PS5</span>';
+                if (platform.includes('NS')) return '<span class="platform-icon ns-icon" title="Nintendo Switch">NS</span>';
+                if (platform.includes('XBOX')) return '<span class="platform-icon xbox-icon" title="Xbox One">XB</span>';
+                return '';
             }
 
             hideGameInfo() {
@@ -965,7 +1067,8 @@
                         name: game.name,
                         barcode: game.barcode,
                         price: finalPrice,
-                        platform: game.platform
+                        platform: game.platform,
+                        platformIcon: this.getPlatformIcon(game.platform)
                     });
                 } else {
                     console.log('Игра уже в списке:', game.name);
@@ -1000,7 +1103,7 @@
                     gameElement.className = 'scanned-game-item';
                     gameElement.innerHTML = `
                         <span class="game-number">${index + 1}.</span>
-                        <span class="game-name">${game.name}</span>
+                        <span class="game-name">${game.platformIcon} ${game.name}</span>
                         <span class="game-price">${game.price} руб</span>
                     `;
                     listContainer.appendChild(gameElement);
@@ -1038,7 +1141,12 @@
                 const languageMap = {
                     'ENG': 'Английский язык',
                     'SUB': 'Русские субтитры и интерфейс', 
-                    'RUS': 'Полностью на русском'
+                    'RUS': 'Полностью на русском',
+                    'MULTI': 'Мульти язык',
+                    'DE': 'Немецкий язык',
+                    'FR': 'Французский язык',
+                    'ES': 'Испанский язык',
+                    'IT': 'Итальянский язык'
                 };
                 return languageMap[languageCode.toUpperCase()] || languageCode || '';
             }
