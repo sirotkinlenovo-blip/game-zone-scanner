@@ -366,6 +366,22 @@
         .ps5-icon { background-color: #000; }
         .ns-icon { background-color: #e60012; }
         .xbox-icon { background-color: #107c10; }
+
+        /* Лоадер */
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0078D7;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -398,7 +414,7 @@
         <div id="scanning-status" class="scanning-status" style="display: none;"></div>
 
         <div id="status" class="status">
-            Загружаем данные...
+            <div class="loader"></div>Загружаем данные...
         </div>
 
         <div id="game-info" class="game-info">
@@ -463,7 +479,7 @@
 
         <!-- Версия приложения -->
         <div class="app-version">
-            Версия 2.1 | GAME ZONE Scanner
+            Версия 2.2 | GAME ZONE Scanner
         </div>
     </div>
 
@@ -510,20 +526,23 @@
                 this.quaggaInitialized = false;
                 this.lastScannedCode = null;
                 this.scanCooldown = false;
+                this.isDataLoaded = false;
                 
                 // Массив для хранения отсканированных игр
                 this.scannedGames = [];
                 
                 // Версия приложения
-                this.appVersion = "2.1";
+                this.appVersion = "2.2";
                 
                 this.init();
             }
 
             async init() {
                 this.setupEventListeners();
-                await this.loadGamesData();
-                this.startDataAutoUpdate();
+                // Загружаем данные в фоновом режиме
+                this.loadGamesData().then(() => {
+                    this.isDataLoaded = true;
+                });
                 this.displayAppVersion();
             }
 
@@ -563,8 +582,6 @@
             }
 
             async loadGamesData() {
-                document.getElementById('status').textContent = '🔄 Загружаем данные...';
-                
                 try {
                     const response = await fetch(this.sheetsUrl + '&t=' + Date.now());
                     
@@ -575,22 +592,21 @@
                     const csvText = await response.text();
                     this.gamesData = this.parseCSVOptimized(csvText);
                     
-                    document.getElementById('status').textContent = `✅ Данные загружены! Найдено ${this.gamesData.length} игр`;
+                    document.getElementById('status').innerHTML = `✅ Данные загружены! Найдено ${this.gamesData.length} игр`;
                     
                     setTimeout(() => {
-                        if (document.getElementById('status').textContent.includes('Найдено')) {
-                            document.getElementById('status').textContent = 'Готов к работе!';
-                        }
+                        document.getElementById('status').textContent = 'Готов к работе!';
                     }, 3000);
                     
                 } catch (error) {
                     document.getElementById('status').textContent = '❌ Ошибка загрузки данных';
                     console.error('Ошибка загрузки:', error);
+                    // Пробуем снова через 10 секунд
                     setTimeout(() => this.loadGamesData(), 10000);
                 }
             }
 
-            // ОПТИМИЗИРОВАННЫЙ ПАРСИНГ CSV
+            // ОПТИМИЗИРОВАННЫЙ ПАРСИНГ CSV с правильными индексами
             parseCSVOptimized(csvText) {
                 const games = [];
                 const rows = csvText.split('\n');
@@ -633,43 +649,43 @@
                         });
                     }
                     
-                    // PS5 игры (столбцы J-O: 9-14)
-                    if (cells[9] && cells[9].toUpperCase().includes('PS5') && cells[10] && cells[11]) {
+                    // PS5 игры (столбцы I-N: 8-13) - ИСПРАВЛЕНО!
+                    if (cells[8] && cells[8].toUpperCase().includes('PS5') && cells[9] && cells[10]) {
                         games.push({
-                            platform: cells[9],
-                            barcode: cells[10],
-                            name: cells[11],
-                            code: cells[12] || '', // PPSA
-                            language: cells[13] || '',
-                            optPrice: cells[14] || '',
+                            platform: cells[8],
+                            barcode: cells[9],
+                            name: cells[10],
+                            code: cells[11] || '', // PPSA
+                            language: cells[12] || '',
+                            optPrice: cells[13] || '',
                             marketplace: '',
                             codeType: 'PPSA'
                         });
                     }
                     
-                    // Nintendo Switch игры (столбцы R-V: 17-21)
-                    if (cells[17] && cells[17].toUpperCase().includes('NS') && cells[18] && cells[19]) {
+                    // Nintendo Switch игры (столбцы Q-U: 16-20) - ИСПРАВЛЕНО!
+                    if (cells[16] && cells[16].toUpperCase().includes('NS') && cells[17] && cells[18]) {
                         games.push({
-                            platform: cells[17],
-                            barcode: cells[18],
-                            name: cells[19],
+                            platform: cells[16],
+                            barcode: cells[17],
+                            name: cells[18],
                             code: '', // Для NS нет кода
-                            language: cells[20] || '',
-                            optPrice: cells[21] || '',
+                            language: cells[19] || '',
+                            optPrice: cells[20] || '',
                             marketplace: '',
                             codeType: ''
                         });
                     }
                     
-                    // Xbox One игры (столбцы Y-AC: 24-28)
-                    if (cells[24] && cells[24].toUpperCase().includes('XBOX') && cells[25] && cells[26]) {
+                    // Xbox One игры (столбцы X-AB: 23-27) - ИСПРАВЛЕНО!
+                    if (cells[23] && cells[23].toUpperCase().includes('XBOX') && cells[24] && cells[25]) {
                         games.push({
-                            platform: cells[24],
-                            barcode: cells[25],
-                            name: cells[26],
+                            platform: cells[23],
+                            barcode: cells[24],
+                            name: cells[25],
                             code: '', // Для Xbox нет кода
-                            language: cells[27] || '',
-                            optPrice: cells[28] || '',
+                            language: cells[26] || '',
+                            optPrice: cells[27] || '',
                             marketplace: '',
                             codeType: ''
                         });
@@ -688,14 +704,8 @@
                 return games;
             }
 
-            startDataAutoUpdate() {
-                this.dataUpdateInterval = setInterval(() => {
-                    this.loadGamesData();
-                }, 5 * 60 * 1000);
-            }
-
             async startScanner() {
-                if (this.gamesData.length === 0) {
+                if (!this.isDataLoaded) {
                     alert('Данные еще загружаются. Подождите немного.');
                     return;
                 }
@@ -872,12 +882,19 @@
             }
 
             handleBarcodeDetection(result) {
-                if (!result.codeResult.code) {
+                if (!result.codeResult || !result.codeResult.code) {
+                    console.log('📷 Quagga обнаружил что-то, но не смог распознать код');
                     return;
                 }
                 
                 const code = result.codeResult.code.toString().trim();
-                console.log('📷 Сканирован штрих-код:', code);
+                console.log('📷 Сканирован штрих-код:', code, 'Формат:', result.codeResult.format);
+                
+                // Проверяем что код действительно валидный (должен быть минимум 8 цифр для EAN)
+                if (code.length < 8 || !/^\d+$/.test(code)) {
+                    console.log('🔄 Пропускаем невалидный код:', code);
+                    return;
+                }
                 
                 // Защита от повторного сканирования того же кода
                 if (this.lastScannedCode === code) {
@@ -928,20 +945,34 @@
                     }, 1000);
                     
                 } else {
-                    // Игра не найдена - ВЫЗЫВАЕМ ТО ЖЕ САМОЕ, ЧТО И ПРИ НАЖАТИИ КНОПКИ "ПЕРЕЗАПУСТИТЬ КАМЕРУ"
+                    // Игра не найдена - ТОЛЬКО ПЕРЕЗАПУСКАЕМ СКАНИРОВАНИЕ, НЕ КАМЕРУ
                     console.log('❌ Игра не найдена для кода:', normalizedBarcode);
-                    this.updateCameraStatus('❌ Игра не найдена. Перезапускаю камеру...', 'scanning-error');
+                    this.updateCameraStatus('❌ Игра не найдена. Продолжаю сканирование...', 'scanning-error');
                     document.getElementById('status').textContent = '❌ Игра не найдена';
                     
                     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                     
-                    // ВАЖНО: Вызываем тот же метод, что и при нажатии кнопки "Перезапустить камеру"
+                    // Просто продолжаем сканирование через 2 секунды
                     setTimeout(() => {
                         if (this.isScanning) {
-                            console.log('🔄 АВТОМАТИЧЕСКИЙ ПЕРЕЗАПУСК КАМЕРЫ ПОСЛЕ ОШИБКИ');
-                            this.restartCamera(); // ТОЧНО ТАКОЙ ЖЕ МЕТОД КАК ПРИ НАЖАТИИ КНОПКИ
+                            console.log('🔄 Продолжаю сканирование после ошибки');
+                            this.scanCooldown = false;
+                            this.lastScannedCode = null;
+                            this.updateCameraStatus('🔍 Сканирую...');
+                            
+                            // Перезапускаем только Quagga, не камеру
+                            try {
+                                Quagga.stop();
+                                setTimeout(() => {
+                                    if (this.isScanning) {
+                                        Quagga.start();
+                                    }
+                                }, 300);
+                            } catch (e) {
+                                console.log('Ошибка перезапуска Quagga:', e);
+                            }
                         }
-                    }, 1500);
+                    }, 2000);
                 }
             }
 
@@ -983,12 +1014,12 @@
                 }, 500);
             }
 
-            // МЕТОД, КОТОРЫЙ ВЫЗЫВАЕТСЯ И ПРИ НАЖАТИИ КНОПКИ, И ПРИ ОШИБКЕ СКАНИРОВАНИЯ
+            // МЕТОД ТОЛЬКО ДЛЯ РУЧНОГО ПЕРЕЗАПУСКА
             restartCamera() {
-                console.log('🔁 Перезапуск камеры (автоматический или ручной)');
+                console.log('🔁 Перезапуск камеры (ручной)');
                 this.updateCameraStatus('🔄 Перезапускаю камеру...');
                 
-                // Полностью перезапускаем камеру - ТОЧНО ТАКОЙ ЖЕ КОД
+                // Полностью перезапускаем камеру
                 this.stopScanner();
                 setTimeout(() => {
                     this.showCameraModal();
@@ -996,7 +1027,7 @@
             }
 
             findGameByBarcode(barcode) {
-                if (this.gamesData.length === 0) {
+                if (!this.isDataLoaded) {
                     alert('Данные еще загружаются. Подождите немного.');
                     return;
                 }
