@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GAME ZONE - Сканер игр</title>
     <meta name="theme-color" content="#0078D7">
-    <link rel="manifest" href="manifest.json">
     <style>
-        /* Стили остаются без изменений */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: Arial, sans-serif;
@@ -91,6 +89,22 @@
             text-align: center;
             font-size: 16px;
         }
+        
+        /* НОВЫЙ СТИЛЬ ДЛЯ ЦЕНЫ В ВЕРХУ */
+        .current-price {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+            font-weight: bold;
+            font-size: 20px;
+            display: none;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        .current-price.visible { display: block; }
+        
         .game-info {
             background: #f8f9fa;
             border-radius: 15px;
@@ -192,6 +206,10 @@
         }
         .camera-btn.secondary {
             background: #6c757d;
+        }
+        .camera-btn.restart {
+            background: #ffc107;
+            color: #000;
         }
         
         /* Затемнение фона */
@@ -346,6 +364,11 @@
             </div>
         </div>
 
+        <!-- НОВЫЙ БЛОК ЦЕНЫ В ВЕРХУ -->
+        <div id="current-price" class="current-price">
+            💰 Цена: <span id="current-price-value">0</span> руб
+        </div>
+
         <div id="scanner-container">
             <div class="scanner-placeholder">
                 <div class="icon">📷</div>
@@ -418,7 +441,7 @@
         </div>
 
         <div class="app-version">
-            Версия 2.6 | GAME ZONE Scanner
+            Версия 2.7 | GAME ZONE Scanner
         </div>
     </div>
 
@@ -431,7 +454,9 @@
             </div>
         </div>
         <div class="camera-controls">
-            <button id="close-camera" class="camera-btn secondary">❌ Остановить сканирование</button>
+            <!-- ДОБАВЛЕНА КНОПКА ПЕРЕЗАПУСКА КАМЕРЫ -->
+            <button id="restart-camera" class="camera-btn restart">🔄 Перезапустить камеру</button>
+            <button id="close-camera" class="camera-btn secondary">❌ Остановить</button>
         </div>
         <div id="camera-status" class="scanning-status" style="margin-top: 10px;"></div>
     </div>
@@ -454,7 +479,7 @@
                 this.isDataLoaded = false;
                 
                 this.scannedGames = [];
-                this.appVersion = "2.6";
+                this.appVersion = "2.7";
                 
                 this.init();
             }
@@ -484,6 +509,7 @@
                 document.getElementById('close-summary-btn').addEventListener('click', () => this.hideSummary());
                 
                 document.getElementById('close-camera').addEventListener('click', () => this.stopScanner());
+                document.getElementById('restart-camera').addEventListener('click', () => this.restartCamera());
                 document.getElementById('modal-overlay').addEventListener('click', () => this.stopScanner());
             }
 
@@ -558,7 +584,6 @@
                     const cells = this.parseCSVRow(rows[i]);
                     if (cells.length < 29) continue;
 
-                    // PS4 (A-H: 0-7)
                     if (cells[0]?.includes('PS4') && cells[1] && cells[2]) {
                         games.push({
                             platform: cells[0],
@@ -572,7 +597,6 @@
                         });
                     }
                     
-                    // PS5 (I-O: 8-14)
                     if (cells[8]?.includes('PS5') && cells[9] && cells[10]) {
                         games.push({
                             platform: cells[8],
@@ -586,11 +610,8 @@
                         });
                     }
                     
-                    // Nintendo Switch (Q-V: 16-21) - УЛУЧШЕННЫЙ ПОИСК
                     if ((cells[16]?.includes('NS') || cells[16]?.includes('Switch')) && cells[17] && cells[18]) {
-                        // Для Nintendo Switch обрабатываем несколько форматов штрих-кодов
                         let barcodes = cells[17];
-                        // Если есть несколько кодов через /, разбиваем их
                         if (barcodes.includes('/')) {
                             barcodes = barcodes.split('/').map(b => b.trim()).join('/');
                         }
@@ -607,7 +628,6 @@
                         });
                     }
                     
-                    // Xbox (X-AC: 23-28)
                     if (cells[23]?.includes('XBOX') && cells[24] && cells[25]) {
                         games.push({
                             platform: cells[23],
@@ -690,7 +710,6 @@
                         this.cameraStream.getTracks().forEach(track => track.stop());
                     }
                     
-                    // Упрощенные настройки камеры
                     this.cameraStream = await navigator.mediaDevices.getUserMedia({ 
                         video: { 
                             facingMode: "environment",
@@ -702,7 +721,6 @@
                     document.getElementById('camera-view').srcObject = this.cameraStream;
                     this.updateCameraStatus('🔍 Сканирую...');
                     
-                    // Даем камере время на инициализацию
                     setTimeout(() => {
                         this.startQuaggaScanner();
                     }, 1000);
@@ -710,6 +728,33 @@
                 } catch (error) {
                     console.error('Ошибка камеры:', error);
                     this.handleCameraError(error);
+                }
+            }
+
+            // НОВЫЙ МЕТОД ДЛЯ ПЕРЕЗАПУСКА КАМЕРЫ
+            async restartCamera() {
+                console.log('🔄 Перезапускаем камеру...');
+                this.updateCameraStatus('🔄 Перезапускаем камеру...');
+                
+                this.stopQuagga();
+                
+                if (this.cameraStream) {
+                    this.cameraStream.getTracks().forEach(track => track.stop());
+                    this.cameraStream = null;
+                }
+                
+                // Даем время на освобождение ресурсов
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                await this.initializeCamera();
+            }
+
+            stopQuagga() {
+                try { 
+                    Quagga.stop(); 
+                    this.quaggaInitialized = false;
+                } catch (e) {
+                    console.log('Quagga уже остановлен');
                 }
             }
 
@@ -732,15 +777,13 @@
                 }
                 
                 this.updateCameraStatus(errorMessage, 'scanning-error');
-                setTimeout(() => this.stopScanner(), 3000);
             }
 
             startQuaggaScanner() {
                 this.isScanning = true;
                 
-                try { Quagga.stop(); } catch (e) {}
+                this.stopQuagga();
                 
-                // Улучшенная конфигурация Quagga для лучшего распознавания
                 Quagga.init({
                     inputStream: {
                         name: "Live",
@@ -772,6 +815,8 @@
                     if (err) {
                         console.error('Ошибка Quagga:', err);
                         this.updateCameraStatus('❌ Ошибка сканера', 'scanning-error');
+                        // АВТОМАТИЧЕСКИЙ ПЕРЕЗАПУСК ПРИ ОШИБКЕ
+                        setTimeout(() => this.restartCamera(), 2000);
                         return;
                     }
                     
@@ -792,13 +837,11 @@
                 const code = result.codeResult.code.toString().trim();
                 console.log('📷 Сканирован код:', code, 'Format:', result.codeResult.format);
                 
-                // РАСШИРЕННАЯ ФИЛЬТРАЦИЯ КОДОВ
                 if (code.length < 6) {
                     console.log('🚫 Слишком короткий код, пропускаем');
                     return;
                 }
                 
-                // Принимаем разные форматы штрих-кодов
                 const validFormats = ['ean_8', 'ean_13', 'code_128', 'upc_a', 'upc_e'];
                 if (!validFormats.includes(result.codeResult.format)) {
                     console.log('🚫 Неподдерживаемый формат:', result.codeResult.format);
@@ -813,8 +856,7 @@
                 this.scanCooldown = true;
                 this.lastScannedCode = code;
                 
-                // Временно останавливаем сканер для обработки
-                try { Quagga.stop(); } catch (e) {}
+                this.stopQuagga();
                 
                 this.updateCameraStatus(`📷 Найден код: ${code}`, 'scanning-success');
                 this.processScannedBarcode(code);
@@ -825,11 +867,10 @@
                 
                 if (!this.isDataLoaded) {
                     this.updateCameraStatus('⏳ Данные еще загружаются...', 'scanning-error');
-                    setTimeout(() => this.restartScanner(), 2000);
+                    setTimeout(() => this.safeRestartScanner(), 2000);
                     return;
                 }
                 
-                // УЛУЧШЕННЫЙ ПОИСК ИГРЫ
                 const game = this.findGameByBarcodeExtended(code);
                 
                 if (game) {
@@ -848,35 +889,65 @@
                     document.getElementById('status').textContent = '❌ Игра не найдена';
                     
                     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-                    // ВОССТАНАВЛИВАЕМ СКАНИРОВАНИЕ ЧЕРЕЗ 2 СЕКУНДЫ
-                    setTimeout(() => this.restartScanner(), 2000);
+                    // АВТОМАТИЧЕСКИЙ ПЕРЕЗАПУСК ЧЕРЕЗ 2 СЕКУНДЫ
+                    setTimeout(() => this.safeRestartScanner(), 2000);
                 }
             }
 
-            // УЛУЧШЕННЫЙ ПОИСК ИГР ПО ШТРИХ-КОДУ
+            // БЕЗОПАСНЫЙ ПЕРЕЗАПУСК СКАНЕРА
+            async safeRestartScanner() {
+                if (!this.isScanning) return;
+                
+                console.log('🔄 Безопасный перезапуск сканера...');
+                this.scanCooldown = false;
+                this.lastScannedCode = null;
+                this.updateCameraStatus('🔍 Сканирую...');
+                
+                try {
+                    this.stopQuagga();
+                    
+                    // Проверяем, что камера еще работает
+                    if (this.cameraStream) {
+                        const videoTrack = this.cameraStream.getVideoTracks()[0];
+                        if (videoTrack.readyState === 'ended') {
+                            console.log('⚠️ Камера перестала работать, перезапускаем...');
+                            await this.restartCamera();
+                            return;
+                        }
+                    }
+                    
+                    // Если камера работает, просто перезапускаем Quagga
+                    setTimeout(() => {
+                        if (this.isScanning) {
+                            Quagga.start();
+                        }
+                    }, 500);
+                    
+                } catch (e) {
+                    console.log('Ошибка безопасного перезапуска:', e);
+                    // При серьезной ошибке полностью перезапускаем камеру
+                    await this.restartCamera();
+                }
+            }
+
             findGameByBarcodeExtended(barcode) {
                 const cleanBarcode = barcode.toString().trim();
                 
-                // Ищем точное совпадение
                 let game = this.gamesData.find(g => {
                     if (!g.barcode) return false;
                     
-                    // Если несколько кодов через /, проверяем каждый
                     if (g.barcode.includes('/')) {
                         const barcodes = g.barcode.split('/').map(b => b.trim());
                         return barcodes.includes(cleanBarcode);
                     }
                     
-                    // Прямое сравнение
                     return g.barcode === cleanBarcode;
                 });
                 
-                // Если не нашли, пробуем найти по частичному совпадению (для длинных кодов)
                 if (!game) {
                     game = this.gamesData.find(g => {
                         if (!g.barcode) return false;
                         
-                        // Для Nintendo Switch иногда коды могут быть длиннее
                         if (g.barcode.includes('/')) {
                             const barcodes = g.barcode.split('/').map(b => b.trim());
                             return barcodes.some(b => cleanBarcode.includes(b) || b.includes(cleanBarcode));
@@ -889,34 +960,6 @@
                 return game;
             }
 
-            // ПЕРЕЗАПУСК СКАНЕРА (вместо continueScanning)
-            restartScanner() {
-                if (!this.isScanning) return;
-                
-                console.log('🔄 Перезапускаем сканер...');
-                this.scanCooldown = false;
-                this.lastScannedCode = null;
-                this.updateCameraStatus('🔍 Сканирую...');
-                
-                try {
-                    Quagga.stop();
-                    setTimeout(() => {
-                        if (this.isScanning) {
-                            Quagga.start();
-                        }
-                    }, 500);
-                } catch (e) {
-                    console.log('Ошибка перезапуска Quagga:', e);
-                    // Если ошибка, полностью перезапускаем камеру
-                    this.stopScanner();
-                    setTimeout(() => {
-                        if (this.isScanning) {
-                            this.initializeCamera();
-                        }
-                    }, 1000);
-                }
-            }
-
             stopScanner() {
                 this.isScanning = false;
                 this.scanCooldown = false;
@@ -927,10 +970,7 @@
                     this.scanningTimeout = null;
                 }
                 
-                try { 
-                    Quagga.stop(); 
-                    this.quaggaInitialized = false;
-                } catch (e) {}
+                this.stopQuagga();
                 
                 if (this.cameraStream) {
                     this.cameraStream.getTracks().forEach(track => track.stop());
@@ -959,6 +999,10 @@
 
             displayGameInfo(game) {
                 const price = this.calculateFinalPrice(game.optPrice);
+                
+                // ОБНОВЛЯЕМ ЦЕНУ В ВЕРХНЕМ БЛОКЕ
+                document.getElementById('current-price-value').textContent = price || '0';
+                document.getElementById('current-price').classList.add('visible');
                 
                 document.getElementById('game-final-price').textContent = price || '—';
                 document.getElementById('game-name').textContent = game.name;
@@ -989,6 +1033,8 @@
 
             hideGameInfo() {
                 document.getElementById('game-info').classList.remove('visible');
+                // СКРЫВАЕМ ЦЕНУ В ВЕРХНЕМ БЛОКЕ
+                document.getElementById('current-price').classList.remove('visible');
             }
 
             addToScannedGames(game) {
@@ -1070,6 +1116,8 @@
                 this.updateSummaryButton();
                 this.hideSummary();
                 document.getElementById('status').textContent = 'Список очищен';
+                // СКРЫВАЕМ ЦЕНУ В ВЕРХНЕМ БЛОКЕ
+                document.getElementById('current-price').classList.remove('visible');
             }
 
             calculateFinalPrice(optPrice) {
