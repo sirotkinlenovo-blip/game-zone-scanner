@@ -248,9 +248,15 @@
             padding: 8px 5px;
             border-bottom: 1px solid #eee;
             font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
-        .scanned-game-item:last-child {
-            border-bottom: none;
+        .scanned-game-item:hover {
+            background-color: #f8f9fa;
+        }
+        .scanned-game-item.removing {
+            background-color: #ffe6e6;
+            text-decoration: line-through;
         }
         .game-number {
             color: #666;
@@ -356,7 +362,7 @@
         <div id="scanning-status" class="scanning-status" style="display: none;"></div>
 
         <div id="status" class="status">
-            Готов к работе! Данные загружаются в фоне...
+            Готов к работе! Используем локальные данные...
         </div>
 
         <div id="game-info" class="game-info">
@@ -394,6 +400,9 @@
 
         <div id="summary-section" class="summary-section">
             <div class="summary-header">📊 Отсканированные игры</div>
+            <div style="text-align: center; margin-bottom: 10px; font-size: 12px; color: #666;">
+                💡 Нажмите на игру чтобы удалить её из списка
+            </div>
             
             <div id="scanned-games-list" class="scanned-games-list"></div>
             
@@ -408,7 +417,7 @@
         </div>
 
         <div class="app-version">
-            Версия 2.3 | GAME ZONE Scanner
+            Версия 2.4 | GAME ZONE Scanner
         </div>
     </div>
 
@@ -432,6 +441,8 @@
         class GameScannerApp {
             constructor() {
                 this.sheetsUrl = 'https://docs.google.com/spreadsheets/d/1fMWJan1HP7tcKwa_hm86oCm0KPtC_zN50UhU72Q8xeA/export?format=csv&gid=1995791598';
+                this.localStorageKey = 'gameZoneData';
+                this.localDataKey = 'gameZoneGamesData';
                 this.isScanning = false;
                 this.gamesData = [];
                 this.cameraStream = null;
@@ -442,15 +453,17 @@
                 this.isDataLoaded = false;
                 
                 this.scannedGames = [];
-                this.appVersion = "2.3";
+                this.appVersion = "2.4";
                 
                 this.init();
             }
 
             async init() {
                 this.setupEventListeners();
-                // Сразу готов к работе, данные грузятся в фоне
-                this.loadGamesDataInBackground();
+                // Загружаем данные из локального хранилища мгновенно
+                this.loadFromLocalStorage();
+                // В фоне обновляем данные если нужно
+                this.checkForUpdates();
                 console.log(`GAME ZONE Scanner v${this.appVersion} - Готов к работе`);
             }
 
@@ -475,23 +488,68 @@
                 document.getElementById('modal-overlay').addEventListener('click', () => this.stopScanner());
             }
 
-            async loadGamesDataInBackground() {
+            // Загрузка из локального хранилища (мгновенно)
+            loadFromLocalStorage() {
                 try {
-                    console.log('🔄 Начинаем загрузку данных в фоне...');
+                    const savedData = localStorage.getItem(this.localDataKey);
+                    const savedScans = localStorage.getItem(this.localStorageKey);
+                    
+                    if (savedData) {
+                        this.gamesData = JSON.parse(savedData);
+                        this.isDataLoaded = true;
+                        console.log(`✅ Загружено ${this.gamesData.length} игр из локального хранилища`);
+                        document.getElementById('status').textContent = `✅ Готов! ${this.gamesData.length} игр в базе`;
+                    } else {
+                        document.getElementById('status').textContent = '⏳ Загружаем данные...';
+                    }
+                    
+                    if (savedScans) {
+                        this.scannedGames = JSON.parse(savedScans);
+                        this.updateSummaryButton();
+                    }
+                    
+                } catch (error) {
+                    console.error('Ошибка загрузки локальных данных:', error);
+                    document.getElementById('status').textContent = '⏳ Загружаем данные...';
+                }
+            }
+
+            // Сохранение в локальное хранилище
+            saveToLocalStorage() {
+                try {
+                    localStorage.setItem(this.localDataKey, JSON.stringify(this.gamesData));
+                    localStorage.setItem(this.localStorageKey, JSON.stringify(this.scannedGames));
+                } catch (error) {
+                    console.error('Ошибка сохранения данных:', error);
+                }
+            }
+
+            // Проверка обновлений в фоне
+            async checkForUpdates() {
+                try {
+                    console.log('🔄 Проверяем обновления данных...');
                     const response = await fetch(this.sheetsUrl + '&t=' + Date.now());
                     
                     if (!response.ok) throw new Error('Ошибка сети');
                     
                     const csvText = await response.text();
-                    this.gamesData = this.parseCSVOptimized(csvText);
-                    this.isDataLoaded = true;
+                    const newGamesData = this.parseCSVOptimized(csvText);
                     
-                    console.log(`✅ Данные загружены: ${this.gamesData.length} игр`);
-                    document.getElementById('status').textContent = `✅ Данные загружены! ${this.gamesData.length} игр`;
+                    // Сравниваем с текущими данными
+                    const currentHash = JSON.stringify(this.gamesData);
+                    const newHash = JSON.stringify(newGamesData);
+                    
+                    if (currentHash !== newHash) {
+                        console.log('🔄 Обнаружены новые данные, обновляем...');
+                        this.gamesData = newGamesData;
+                        this.saveToLocalStorage();
+                        document.getElementById('status').textContent = `✅ Данные обновлены! ${this.gamesData.length} игр`;
+                    } else {
+                        console.log('✅ Данные актуальны');
+                    }
                     
                 } catch (error) {
-                    console.error('Ошибка загрузки:', error);
-                    setTimeout(() => this.loadGamesDataInBackground(), 5000);
+                    console.log('⚠️ Не удалось проверить обновления:', error);
                 }
             }
 
@@ -503,7 +561,7 @@
                     if (!rows[i].trim()) continue;
                     
                     const cells = this.parseCSVRow(rows[i]);
-                    if (cells.length < 28) continue;
+                    if (cells.length < 29) continue;
 
                     // PS4 (A-H: 0-7)
                     if (cells[0]?.includes('PS4') && cells[1] && cells[2]) {
@@ -519,21 +577,21 @@
                         });
                     }
                     
-                    // PS5 (I-N: 8-13)
+                    // PS5 (I-O: 8-14) - ИСПРАВЛЕНО!
                     if (cells[8]?.includes('PS5') && cells[9] && cells[10]) {
                         games.push({
                             platform: cells[8],
                             barcode: cells[9],
                             name: cells[10],
-                            code: cells[11] || '',
+                            code: cells[11] || '', // PPSA
                             language: cells[12] || '',
                             optPrice: cells[13] || '',
-                            marketplace: '',
+                            marketplace: cells[14] || '', // маркетплейс
                             codeType: 'PPSA'
                         });
                     }
                     
-                    // Nintendo Switch (Q-U: 16-20)
+                    // Nintendo Switch (Q-V: 16-21) - ИСПРАВЛЕНО!
                     if (cells[16]?.includes('NS') && cells[17] && cells[18]) {
                         games.push({
                             platform: cells[16],
@@ -542,12 +600,12 @@
                             code: '',
                             language: cells[19] || '',
                             optPrice: cells[20] || '',
-                            marketplace: '',
+                            marketplace: cells[21] || '', // маркетплейс
                             codeType: ''
                         });
                     }
                     
-                    // Xbox (X-AB: 23-27)
+                    // Xbox (X-AC: 23-28) - ИСПРАВЛЕНО!
                     if (cells[23]?.includes('XBOX') && cells[24] && cells[25]) {
                         games.push({
                             platform: cells[23],
@@ -556,7 +614,7 @@
                             code: '',
                             language: cells[26] || '',
                             optPrice: cells[27] || '',
-                            marketplace: '',
+                            marketplace: cells[28] || '', // маркетплейс
                             codeType: ''
                         });
                     }
@@ -586,6 +644,11 @@
             }
 
             async startScanner() {
+                if (!this.isDataLoaded) {
+                    alert('Данные еще загружаются. Подождите немного.');
+                    return;
+                }
+                
                 console.log('🚀 Запуск сканера');
                 this.resetScannerState();
                 this.showCameraModal();
@@ -625,8 +688,13 @@
                         this.cameraStream.getTracks().forEach(track => track.stop());
                     }
                     
+                    // Простая настройка камеры без сложных constraints
                     this.cameraStream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { facingMode: "environment" } 
+                        video: { 
+                            facingMode: "environment",
+                            width: { ideal: 640 },
+                            height: { ideal: 480 }
+                        } 
                     });
                     
                     document.getElementById('camera-view').srcObject = this.cameraStream;
@@ -636,7 +704,12 @@
                 } catch (error) {
                     console.error('Ошибка камеры:', error);
                     this.hideCameraModal();
-                    alert('Ошибка доступа к камере: ' + error.message);
+                    
+                    if (error.name === 'NotAllowedError') {
+                        alert('❌ Доступ к камере запрещен. Разрешите доступ в настройках браузера и обновите страницу.');
+                    } else {
+                        alert('❌ Ошибка доступа к камере: ' + error.message);
+                    }
                 }
             }
 
@@ -650,13 +723,16 @@
                         name: "Live",
                         type: "LiveStream",
                         target: document.getElementById('camera-view'),
-                        constraints: { facingMode: "environment" }
+                        constraints: { 
+                            width: 640,
+                            height: 480 
+                        }
                     },
                     decoder: {
                         readers: ["ean_reader", "ean_8_reader", "code_128_reader", "upc_reader"]
                     },
                     locate: true,
-                    frequency: 10
+                    frequency: 5 // Уменьшили частоту для стабильности
                 }, (err) => {
                     if (err) {
                         console.error('Ошибка Quagga:', err);
@@ -836,9 +912,18 @@
                         platform: game.platform,
                         platformIcon: this.getPlatformIcon(game.platform)
                     });
+                    this.saveToLocalStorage();
                 }
                 
                 this.updateSummaryButton();
+            }
+
+            // Удаление игры из списка
+            removeFromScannedGames(index) {
+                this.scannedGames.splice(index, 1);
+                this.saveToLocalStorage();
+                this.updateSummaryButton();
+                this.showSummary(); // Перерисовываем список
             }
 
             updateSummaryButton() {
@@ -869,6 +954,15 @@
                         <span class="game-name">${game.platformIcon} ${game.name}</span>
                         <span class="game-price">${game.price} руб</span>
                     `;
+                    
+                    // Добавляем обработчик клика для удаления
+                    element.addEventListener('click', () => {
+                        element.classList.add('removing');
+                        setTimeout(() => {
+                            this.removeFromScannedGames(index);
+                        }, 300);
+                    });
+                    
                     list.appendChild(element);
                     total += game.price;
                 });
@@ -883,6 +977,7 @@
 
             resetScannedGames() {
                 this.scannedGames = [];
+                this.saveToLocalStorage();
                 this.updateSummaryButton();
                 this.hideSummary();
                 document.getElementById('status').textContent = 'Список очищен';
