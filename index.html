@@ -7,6 +7,7 @@
     <meta name="theme-color" content="#0078D7">
     <link rel="manifest" href="manifest.json">
     <style>
+        /* Стили остаются без изменений */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: Arial, sans-serif;
@@ -333,6 +334,15 @@
         .ps5-icon { background-color: #000; }
         .ns-icon { background-color: #e60012; }
         .xbox-icon { background-color: #107c10; }
+        
+        /* Новые стили для выбора камеры */
+        .camera-selector {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
     </style>
 </head>
 <body>
@@ -417,12 +427,15 @@
         </div>
 
         <div class="app-version">
-            Версия 2.4 | GAME ZONE Scanner
+            Версия 2.5 | GAME ZONE Scanner
         </div>
     </div>
 
     <div id="modal-overlay"></div>
     <div id="camera-modal">
+        <select id="camera-select" class="camera-selector" style="display: none;">
+            <option value="">Выберите камеру...</option>
+        </select>
         <div class="camera-container">
             <video id="camera-view" class="camera-view" autoplay playsinline></video>
             <div class="camera-overlay">
@@ -430,7 +443,8 @@
             </div>
         </div>
         <div class="camera-controls">
-            <button id="close-camera" class="camera-btn secondary">❌ Остановить сканирование</button>
+            <button id="switch-camera" class="camera-btn secondary">🔄 Сменить камеру</button>
+            <button id="close-camera" class="camera-btn secondary">❌ Остановить</button>
         </div>
         <div id="camera-status" class="scanning-status" style="margin-top: 10px;"></div>
     </div>
@@ -453,16 +467,17 @@
                 this.isDataLoaded = false;
                 
                 this.scannedGames = [];
-                this.appVersion = "2.4";
+                this.appVersion = "2.5";
+                
+                this.availableCameras = [];
+                this.currentCameraIndex = 0;
                 
                 this.init();
             }
 
             async init() {
                 this.setupEventListeners();
-                // Загружаем данные из локального хранилища мгновенно
                 this.loadFromLocalStorage();
-                // В фоне обновляем данные если нужно
                 this.checkForUpdates();
                 console.log(`GAME ZONE Scanner v${this.appVersion} - Готов к работе`);
             }
@@ -485,10 +500,16 @@
                 document.getElementById('close-summary-btn').addEventListener('click', () => this.hideSummary());
                 
                 document.getElementById('close-camera').addEventListener('click', () => this.stopScanner());
+                document.getElementById('switch-camera').addEventListener('click', () => this.switchCamera());
                 document.getElementById('modal-overlay').addEventListener('click', () => this.stopScanner());
+                
+                document.getElementById('camera-select').addEventListener('change', (e) => {
+                    if (e.target.value) {
+                        this.startCamera(e.target.value);
+                    }
+                });
             }
 
-            // Загрузка из локального хранилища (мгновенно)
             loadFromLocalStorage() {
                 try {
                     const savedData = localStorage.getItem(this.localDataKey);
@@ -514,7 +535,6 @@
                 }
             }
 
-            // Сохранение в локальное хранилище
             saveToLocalStorage() {
                 try {
                     localStorage.setItem(this.localDataKey, JSON.stringify(this.gamesData));
@@ -524,7 +544,6 @@
                 }
             }
 
-            // Проверка обновлений в фоне
             async checkForUpdates() {
                 try {
                     console.log('🔄 Проверяем обновления данных...');
@@ -535,7 +554,6 @@
                     const csvText = await response.text();
                     const newGamesData = this.parseCSVOptimized(csvText);
                     
-                    // Сравниваем с текущими данными
                     const currentHash = JSON.stringify(this.gamesData);
                     const newHash = JSON.stringify(newGamesData);
                     
@@ -563,7 +581,6 @@
                     const cells = this.parseCSVRow(rows[i]);
                     if (cells.length < 29) continue;
 
-                    // PS4 (A-H: 0-7)
                     if (cells[0]?.includes('PS4') && cells[1] && cells[2]) {
                         games.push({
                             platform: cells[0],
@@ -577,21 +594,19 @@
                         });
                     }
                     
-                    // PS5 (I-O: 8-14) - ИСПРАВЛЕНО!
                     if (cells[8]?.includes('PS5') && cells[9] && cells[10]) {
                         games.push({
                             platform: cells[8],
                             barcode: cells[9],
                             name: cells[10],
-                            code: cells[11] || '', // PPSA
+                            code: cells[11] || '',
                             language: cells[12] || '',
                             optPrice: cells[13] || '',
-                            marketplace: cells[14] || '', // маркетплейс
+                            marketplace: cells[14] || '',
                             codeType: 'PPSA'
                         });
                     }
                     
-                    // Nintendo Switch (Q-V: 16-21) - ИСПРАВЛЕНО!
                     if (cells[16]?.includes('NS') && cells[17] && cells[18]) {
                         games.push({
                             platform: cells[16],
@@ -600,12 +615,11 @@
                             code: '',
                             language: cells[19] || '',
                             optPrice: cells[20] || '',
-                            marketplace: cells[21] || '', // маркетплейс
+                            marketplace: cells[21] || '',
                             codeType: ''
                         });
                     }
                     
-                    // Xbox (X-AC: 23-28) - ИСПРАВЛЕНО!
                     if (cells[23]?.includes('XBOX') && cells[24] && cells[25]) {
                         games.push({
                             platform: cells[23],
@@ -614,7 +628,7 @@
                             code: '',
                             language: cells[26] || '',
                             optPrice: cells[27] || '',
-                            marketplace: cells[28] || '', // маркетплейс
+                            marketplace: cells[28] || '',
                             codeType: ''
                         });
                     }
@@ -651,7 +665,7 @@
                 
                 console.log('🚀 Запуск сканера');
                 this.resetScannerState();
-                this.showCameraModal();
+                await this.showCameraModal();
             }
 
             resetScannerState() {
@@ -664,10 +678,15 @@
                 }
             }
 
-            showCameraModal() {
+            async showCameraModal() {
                 document.getElementById('modal-overlay').style.display = 'block';
                 document.getElementById('camera-modal').style.display = 'block';
-                this.initializeCamera();
+                
+                // Сначала получаем список камер
+                await this.getAvailableCameras();
+                
+                // Затем запускаем камеру
+                await this.initializeCamera();
             }
 
             hideCameraModal() {
@@ -682,61 +701,185 @@
                 statusEl.style.display = 'block';
             }
 
+            // Получение списка доступных камер
+            async getAvailableCameras() {
+                try {
+                    const devices = await navigator.mediaDevices.enumerateDevices();
+                    this.availableCameras = devices.filter(device => device.kind === 'videoinput');
+                    
+                    const cameraSelect = document.getElementById('camera-select');
+                    
+                    if (this.availableCameras.length > 1) {
+                        cameraSelect.style.display = 'block';
+                        cameraSelect.innerHTML = '<option value="">Выберите камеру...</option>';
+                        
+                        this.availableCameras.forEach((camera, index) => {
+                            const option = document.createElement('option');
+                            option.value = camera.deviceId;
+                            option.textContent = camera.label || `Камера ${index + 1}`;
+                            cameraSelect.appendChild(option);
+                        });
+                    } else {
+                        cameraSelect.style.display = 'none';
+                    }
+                    
+                } catch (error) {
+                    console.error('Ошибка получения списка камер:', error);
+                }
+            }
+
             async initializeCamera() {
                 try {
                     if (this.cameraStream) {
                         this.cameraStream.getTracks().forEach(track => track.stop());
                     }
                     
-                    // Простая настройка камеры без сложных constraints
-                    this.cameraStream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { 
-                            facingMode: "environment",
-                            width: { ideal: 640 },
-                            height: { ideal: 480 }
-                        } 
-                    });
+                    let constraints = {
+                        video: {
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 },
+                            facingMode: "environment"
+                        }
+                    };
+                    
+                    // Если есть выбранная камера, используем её
+                    const cameraSelect = document.getElementById('camera-select');
+                    if (cameraSelect.value) {
+                        constraints.video.deviceId = { exact: cameraSelect.value };
+                    }
+                    
+                    this.cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
                     
                     document.getElementById('camera-view').srcObject = this.cameraStream;
                     this.updateCameraStatus('🔍 Сканирую...');
-                    this.startQuaggaScanner();
+                    
+                    // Ждем немного перед запуском сканера
+                    setTimeout(() => {
+                        this.startQuaggaScanner();
+                    }, 500);
                     
                 } catch (error) {
-                    console.error('Ошибка камеры:', error);
-                    this.hideCameraModal();
-                    
-                    if (error.name === 'NotAllowedError') {
-                        alert('❌ Доступ к камере запрещен. Разрешите доступ в настройках браузера и обновите страницу.');
-                    } else {
-                        alert('❌ Ошибка доступа к камере: ' + error.message);
-                    }
+                    console.error('Ошибка инициализации камеры:', error);
+                    this.handleCameraError(error);
                 }
             }
 
-            startQuaggaScanner() {
-                this.isScanning = true;
+            // Запуск камеры по deviceId
+            async startCamera(deviceId) {
+                try {
+                    this.stopScanner();
+                    
+                    const constraints = {
+                        video: {
+                            deviceId: { exact: deviceId },
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 }
+                        }
+                    };
+                    
+                    this.cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+                    document.getElementById('camera-view').srcObject = this.cameraStream;
+                    this.updateCameraStatus('🔍 Сканирую...');
+                    
+                    setTimeout(() => {
+                        this.startQuaggaScanner();
+                    }, 500);
+                    
+                } catch (error) {
+                    console.error('Ошибка запуска камеры:', error);
+                    this.handleCameraError(error);
+                }
+            }
+
+            // Переключение между камерами
+            async switchCamera() {
+                if (this.availableCameras.length < 2) {
+                    this.updateCameraStatus('⚠️ Доступна только одна камера', 'scanning-error');
+                    return;
+                }
                 
-                try { Quagga.stop(); } catch (e) {}
+                this.currentCameraIndex = (this.currentCameraIndex + 1) % this.availableCameras.length;
+                const nextCamera = this.availableCameras[this.currentCameraIndex];
+                
+                this.updateCameraStatus('🔄 Переключаем камеру...');
+                
+                try {
+                    await this.startCamera(nextCamera.deviceId);
+                } catch (error) {
+                    console.error('Ошибка переключения камеры:', error);
+                    this.handleCameraError(error);
+                }
+            }
+
+            handleCameraError(error) {
+                let errorMessage = 'Неизвестная ошибка камеры';
+                
+                switch (error.name) {
+                    case 'NotAllowedError':
+                        errorMessage = '❌ Доступ к камере запрещен. Разрешите доступ в настройках браузера.';
+                        break;
+                    case 'NotFoundError':
+                        errorMessage = '❌ Камера не найдена. Убедитесь, что камера подключена.';
+                        break;
+                    case 'NotSupportedError':
+                        errorMessage = '❌ Ваш браузер не поддерживает доступ к камере.';
+                        break;
+                    case 'NotReadableError':
+                        errorMessage = '❌ Камера уже используется другим приложением.';
+                        break;
+                    case 'OverconstrainedError':
+                        errorMessage = '❌ Не удалось найти камеру с нужными параметрами.';
+                        break;
+                    case 'ConstraintNotSatisfiedError':
+                        errorMessage = '❌ Запрошенные настройки камеры не поддерживаются.';
+                        break;
+                }
+                
+                this.updateCameraStatus(errorMessage, 'scanning-error');
+                
+                // Автоматическое восстановление через 3 секунды
+                setTimeout(() => {
+                    if (this.isScanning) {
+                        this.initializeCamera();
+                    }
+                }, 3000);
+            }
+
+            startQuaggaScanner() {
+                if (!this.isScanning) {
+                    this.isScanning = true;
+                }
+                
+                try { 
+                    Quagga.stop(); 
+                } catch (e) {}
                 
                 Quagga.init({
                     inputStream: {
                         name: "Live",
                         type: "LiveStream",
                         target: document.getElementById('camera-view'),
-                        constraints: { 
+                        constraints: {
                             width: 640,
-                            height: 480 
+                            height: 480
                         }
                     },
                     decoder: {
                         readers: ["ean_reader", "ean_8_reader", "code_128_reader", "upc_reader"]
                     },
                     locate: true,
-                    frequency: 5 // Уменьшили частоту для стабильности
+                    frequency: 10
                 }, (err) => {
                     if (err) {
-                        console.error('Ошибка Quagga:', err);
-                        this.updateCameraStatus('❌ Ошибка сканера', 'scanning-error');
+                        console.error('Ошибка инициализации Quagga:', err);
+                        this.updateCameraStatus('❌ Ошибка сканера штрих-кодов', 'scanning-error');
+                        
+                        // Пробуем перезапустить через 2 секунды
+                        setTimeout(() => {
+                            if (this.isScanning) {
+                                this.startQuaggaScanner();
+                            }
+                        }, 2000);
                         return;
                     }
                     
@@ -757,7 +900,6 @@
                 const code = result.codeResult.code.toString().trim();
                 console.log('📷 Сканирован код:', code);
                 
-                // Фильтруем мусорные срабатывания
                 if (code.length < 8 || !/^\d+$/.test(code)) {
                     console.log('🚫 Пропускаем невалидный код');
                     return;
@@ -837,10 +979,15 @@
                     this.scanningTimeout = null;
                 }
                 
-                try { Quagga.stop(); } catch (e) {}
+                try { 
+                    Quagga.stop(); 
+                    this.quaggaInitialized = false;
+                } catch (e) {}
                 
                 if (this.cameraStream) {
-                    this.cameraStream.getTracks().forEach(track => track.stop());
+                    this.cameraStream.getTracks().forEach(track => {
+                        track.stop();
+                    });
                     this.cameraStream = null;
                 }
                 
@@ -918,12 +1065,11 @@
                 this.updateSummaryButton();
             }
 
-            // Удаление игры из списка
             removeFromScannedGames(index) {
                 this.scannedGames.splice(index, 1);
                 this.saveToLocalStorage();
                 this.updateSummaryButton();
-                this.showSummary(); // Перерисовываем список
+                this.showSummary();
             }
 
             updateSummaryButton() {
@@ -955,7 +1101,6 @@
                         <span class="game-price">${game.price} руб</span>
                     `;
                     
-                    // Добавляем обработчик клика для удаления
                     element.addEventListener('click', () => {
                         element.classList.add('removing');
                         setTimeout(() => {
@@ -1005,6 +1150,11 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             new GameScannerApp();
+        });
+
+        // Глобальная обработка ошибок для отладки
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e.error);
         });
     </script>
 </body>
