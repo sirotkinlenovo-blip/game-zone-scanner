@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GAME ZONE - Сканер игр</title>
     <meta name="theme-color" content="#0078D7">
+    <meta name="description" content="Сканер игровых дисков для магазина GAME ZONE">
+    
+    <!-- PWA мета-теги -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GAME ZONE">
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -12,6 +22,8 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            /* Защита от pull-to-refresh на мобильных */
+            overscroll-behavior-y: none;
         }
         .container {
             max-width: 400px;
@@ -58,6 +70,10 @@
             font-size: 16px;
             margin: 10px 0;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn:active {
+            transform: scale(0.98);
         }
         #scanner-container {
             width: 100%;
@@ -90,7 +106,7 @@
             font-size: 16px;
         }
         
-        /* НОВЫЙ СТИЛЬ ДЛЯ ЦЕНЫ В ВЕРХУ */
+        /* Стиль для цены в верху */
         .current-price {
             background: linear-gradient(135deg, #28a745, #20c997);
             color: white;
@@ -203,6 +219,10 @@
             border-radius: 10px;
             font-size: 14px;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .camera-btn:active {
+            transform: scale(0.95);
         }
         .camera-btn.secondary {
             background: #6c757d;
@@ -352,9 +372,42 @@
         .ps5-icon { background-color: #000; }
         .ns-icon { background-color: #e60012; }
         .xbox-icon { background-color: #107c10; }
+
+        /* Стиль для уведомления об установке */
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 1001;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+        }
+        .install-prompt button {
+            background: #0078D7;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
+    <!-- Уведомление об установке -->
+    <div id="install-prompt" class="install-prompt">
+        Установите GAME ZONE для быстрого доступа!
+        <button id="install-btn">Установить</button>
+        <button id="dismiss-install" style="background: #6c757d;">Позже</button>
+    </div>
+
     <div class="container">
         <div class="header">
             <div class="store-icon">GZ</div>
@@ -364,7 +417,7 @@
             </div>
         </div>
 
-        <!-- НОВЫЙ БЛОК ЦЕНЫ В ВЕРХУ -->
+        <!-- Блок цены вверху -->
         <div id="current-price" class="current-price">
             💰 Цена: <span id="current-price-value">0</span> руб
         </div>
@@ -441,7 +494,7 @@
         </div>
 
         <div class="app-version">
-            Версия 2.7 | GAME ZONE Scanner
+            Версия 2.8 | GAME ZONE PWA
         </div>
     </div>
 
@@ -454,7 +507,6 @@
             </div>
         </div>
         <div class="camera-controls">
-            <!-- ДОБАВЛЕНА КНОПКА ПЕРЕЗАПУСКА КАМЕРЫ -->
             <button id="restart-camera" class="camera-btn restart">🔄 Перезапустить камеру</button>
             <button id="close-camera" class="camera-btn secondary">❌ Остановить</button>
         </div>
@@ -464,6 +516,73 @@
     <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.1/dist/quagga.min.js"></script>
     
     <script>
+        // PWA функциональность
+        class PWAInstaller {
+            constructor() {
+                this.deferredPrompt = null;
+                this.init();
+            }
+
+            init() {
+                // Обработчик предложения установки
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    this.deferredPrompt = e;
+                    this.showInstallPrompt();
+                });
+
+                // После установки
+                window.addEventListener('appinstalled', () => {
+                    console.log('PWA установлено');
+                    this.hideInstallPrompt();
+                    this.deferredPrompt = null;
+                });
+
+                // Кнопка установки
+                document.getElementById('install-btn').addEventListener('click', () => {
+                    this.installApp();
+                });
+
+                // Кнопка "Позже"
+                document.getElementById('dismiss-install').addEventListener('click', () => {
+                    this.hideInstallPrompt();
+                });
+            }
+
+            showInstallPrompt() {
+                // Показываем уведомление через 5 секунд после загрузки
+                setTimeout(() => {
+                    const prompt = document.getElementById('install-prompt');
+                    prompt.style.display = 'block';
+                    
+                    // Автоматически скрываем через 15 секунд
+                    setTimeout(() => {
+                        this.hideInstallPrompt();
+                    }, 15000);
+                }, 5000);
+            }
+
+            hideInstallPrompt() {
+                const prompt = document.getElementById('install-prompt');
+                prompt.style.display = 'none';
+            }
+
+            async installApp() {
+                if (this.deferredPrompt) {
+                    this.deferredPrompt.prompt();
+                    const { outcome } = await this.deferredPrompt.userChoice;
+                    
+                    if (outcome === 'accepted') {
+                        console.log('Пользователь принял установку');
+                    }
+                    
+                    this.deferredPrompt = null;
+                    this.hideInstallPrompt();
+                }
+            }
+        }
+
+        // Основной класс приложения
         class GameScannerApp {
             constructor() {
                 this.sheetsUrl = 'https://docs.google.com/spreadsheets/d/1fMWJan1HP7tcKwa_hm86oCm0KPtC_zN50UhU72Q8xeA/export?format=csv&gid=1995791598';
@@ -479,7 +598,7 @@
                 this.isDataLoaded = false;
                 
                 this.scannedGames = [];
-                this.appVersion = "2.7";
+                this.appVersion = "2.8";
                 
                 this.init();
             }
@@ -488,7 +607,33 @@
                 this.setupEventListeners();
                 this.loadFromLocalStorage();
                 this.checkForUpdates();
-                console.log(`GAME ZONE Scanner v${this.appVersion} - Готов к работе`);
+                
+                // Инициализируем PWA
+                new PWAInstaller();
+                
+                // Регистрируем Service Worker
+                this.registerServiceWorker();
+                
+                console.log(`GAME ZONE Scanner v${this.appVersion} - PWA готов к работе`);
+            }
+
+            // Регистрация Service Worker для автообновлений
+            async registerServiceWorker() {
+                if ('serviceWorker' in navigator) {
+                    try {
+                        // Для GitHub Pages или хостинга используем относительный путь
+                        const registration = await navigator.serviceWorker.register('./sw.js');
+                        console.log('Service Worker зарегистрирован:', registration);
+                        
+                        // Проверяем обновления каждые 12 часов
+                        setInterval(() => {
+                            registration.update();
+                        }, 12 * 60 * 60 * 1000);
+                        
+                    } catch (error) {
+                        console.log('Service Worker не зарегистрирован:', error);
+                    }
+                }
             }
 
             setupEventListeners() {
@@ -731,7 +876,6 @@
                 }
             }
 
-            // НОВЫЙ МЕТОД ДЛЯ ПЕРЕЗАПУСКА КАМЕРЫ
             async restartCamera() {
                 console.log('🔄 Перезапускаем камеру...');
                 this.updateCameraStatus('🔄 Перезапускаем камеру...');
@@ -743,9 +887,7 @@
                     this.cameraStream = null;
                 }
                 
-                // Даем время на освобождение ресурсов
                 await new Promise(resolve => setTimeout(resolve, 500));
-                
                 await this.initializeCamera();
             }
 
@@ -781,7 +923,6 @@
 
             startQuaggaScanner() {
                 this.isScanning = true;
-                
                 this.stopQuagga();
                 
                 Quagga.init({
@@ -815,7 +956,6 @@
                     if (err) {
                         console.error('Ошибка Quagga:', err);
                         this.updateCameraStatus('❌ Ошибка сканера', 'scanning-error');
-                        // АВТОМАТИЧЕСКИЙ ПЕРЕЗАПУСК ПРИ ОШИБКЕ
                         setTimeout(() => this.restartCamera(), 2000);
                         return;
                     }
@@ -837,25 +977,15 @@
                 const code = result.codeResult.code.toString().trim();
                 console.log('📷 Сканирован код:', code, 'Format:', result.codeResult.format);
                 
-                if (code.length < 6) {
-                    console.log('🚫 Слишком короткий код, пропускаем');
-                    return;
-                }
+                if (code.length < 6) return;
                 
                 const validFormats = ['ean_8', 'ean_13', 'code_128', 'upc_a', 'upc_e'];
-                if (!validFormats.includes(result.codeResult.format)) {
-                    console.log('🚫 Неподдерживаемый формат:', result.codeResult.format);
-                    return;
-                }
+                if (!validFormats.includes(result.codeResult.format)) return;
                 
-                if (this.lastScannedCode === code) {
-                    console.log('🔄 Пропускаем повторный код');
-                    return;
-                }
+                if (this.lastScannedCode === code) return;
                 
                 this.scanCooldown = true;
                 this.lastScannedCode = code;
-                
                 this.stopQuagga();
                 
                 this.updateCameraStatus(`📷 Найден код: ${code}`, 'scanning-success');
@@ -889,12 +1019,10 @@
                     document.getElementById('status').textContent = '❌ Игра не найдена';
                     
                     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-                    // АВТОМАТИЧЕСКИЙ ПЕРЕЗАПУСК ЧЕРЕЗ 2 СЕКУНДЫ
                     setTimeout(() => this.safeRestartScanner(), 2000);
                 }
             }
 
-            // БЕЗОПАСНЫЙ ПЕРЕЗАПУСК СКАНЕРА
             async safeRestartScanner() {
                 if (!this.isScanning) return;
                 
@@ -906,7 +1034,6 @@
                 try {
                     this.stopQuagga();
                     
-                    // Проверяем, что камера еще работает
                     if (this.cameraStream) {
                         const videoTrack = this.cameraStream.getVideoTracks()[0];
                         if (videoTrack.readyState === 'ended') {
@@ -916,7 +1043,6 @@
                         }
                     }
                     
-                    // Если камера работает, просто перезапускаем Quagga
                     setTimeout(() => {
                         if (this.isScanning) {
                             Quagga.start();
@@ -925,7 +1051,6 @@
                     
                 } catch (e) {
                     console.log('Ошибка безопасного перезапуска:', e);
-                    // При серьезной ошибке полностью перезапускаем камеру
                     await this.restartCamera();
                 }
             }
@@ -935,24 +1060,20 @@
                 
                 let game = this.gamesData.find(g => {
                     if (!g.barcode) return false;
-                    
                     if (g.barcode.includes('/')) {
                         const barcodes = g.barcode.split('/').map(b => b.trim());
                         return barcodes.includes(cleanBarcode);
                     }
-                    
                     return g.barcode === cleanBarcode;
                 });
                 
                 if (!game) {
                     game = this.gamesData.find(g => {
                         if (!g.barcode) return false;
-                        
                         if (g.barcode.includes('/')) {
                             const barcodes = g.barcode.split('/').map(b => b.trim());
                             return barcodes.some(b => cleanBarcode.includes(b) || b.includes(cleanBarcode));
                         }
-                        
                         return g.barcode.includes(cleanBarcode) || cleanBarcode.includes(g.barcode);
                     });
                 }
@@ -1000,7 +1121,6 @@
             displayGameInfo(game) {
                 const price = this.calculateFinalPrice(game.optPrice);
                 
-                // ОБНОВЛЯЕМ ЦЕНУ В ВЕРХНЕМ БЛОКЕ
                 document.getElementById('current-price-value').textContent = price || '0';
                 document.getElementById('current-price').classList.add('visible');
                 
@@ -1033,7 +1153,6 @@
 
             hideGameInfo() {
                 document.getElementById('game-info').classList.remove('visible');
-                // СКРЫВАЕМ ЦЕНУ В ВЕРХНЕМ БЛОКЕ
                 document.getElementById('current-price').classList.remove('visible');
             }
 
@@ -1116,7 +1235,6 @@
                 this.updateSummaryButton();
                 this.hideSummary();
                 document.getElementById('status').textContent = 'Список очищен';
-                // СКРЫВАЕМ ЦЕНУ В ВЕРХНЕМ БЛОКЕ
                 document.getElementById('current-price').classList.remove('visible');
             }
 
@@ -1142,6 +1260,14 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             new GameScannerApp();
+        });
+
+        // Предотвращение выхода из полноэкранного режима
+        window.addEventListener('beforeunload', (e) => {
+            if (document.fullscreenElement) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
         });
     </script>
 </body>
