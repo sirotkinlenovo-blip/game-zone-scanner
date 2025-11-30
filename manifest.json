@@ -2,7 +2,7 @@
   "name": "GAME ZONE Scanner",
   "short_name": "GAME ZONE",
   "description": "Сканер игровых дисков для магазина GAME ZONE",
-  "start_url": "./",
+  "start_url": "./?v=2.9",
   "display": "standalone",
   "background_color": "#667eea",
   "theme_color": "#0078D7",
