@@ -8,15 +8,13 @@
     <meta name="description" content="Сканер игровых дисков для магазина GAME ZONE">
     
     <!-- PWA мета-теги -->
-    <link rel="manifest" href="manifest.json?v=2.9">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAFaSURBVHgB7Zc9TsNAEIXf2I6dQkFJQUVLRUNBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBAQDwDfAA1dUjFAAAAAElFTkSuQmCC">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="GAME ZONE">
     
     <style>
-        /* ТВОЙ CSS КОД ОСТАЕТСЯ БЕЗ ИЗМЕНЕНИЙ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: Arial, sans-serif;
@@ -25,10 +23,435 @@
             padding: 20px;
             overscroll-behavior-y: none;
         }
-        /* ... остальные стили ... */
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+        .header { 
+            text-align: center; 
+            margin-bottom: 20px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .header h1 { 
+            color: #333; 
+            font-size: 24px; 
+            margin-bottom: 5px;
+        }
+        .store-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa726);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: #0078D7;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        #scanner-container {
+            width: 100%;
+            height: 200px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin: 15px 0;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #ccc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        #scanner-container:hover {
+            border-color: #0078D7;
+            background: #e8f4ff;
+        }
+        #scanner-container:active {
+            transform: scale(0.98);
+        }
+        .scanner-placeholder {
+            text-align: center;
+            color: #666;
+        }
+        .scanner-placeholder .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .scanner-placeholder .text {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        .current-price {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+            font-weight: bold;
+            font-size: 20px;
+            display: none;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        .current-price.visible { display: block; }
+        
+        .game-info {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        .game-info.visible { display: block; }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .info-label { color: #666; font-weight: 500; min-width: 140px; }
+        .info-value { color: #333; font-weight: 600; text-align: right; flex: 1; }
+        .price-final {
+            color: #0078D7;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 10px;
+            border: 2px solid #0078D7;
+        }
+        .status {
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        #camera-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 400px;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+        }
+        .camera-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: black;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .camera-view {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .camera-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 3px solid #0078D7;
+            pointer-events: none;
+        }
+        .camera-line {
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: #ff0000;
+            animation: scan 2s infinite linear;
+        }
+        @keyframes scan {
+            0%, 100% { top: 10%; }
+            50% { top: 90%; }
+        }
+        .camera-controls {
+            display: flex;
+            gap: 10px;
+        }
+        .camera-btn {
+            flex: 1;
+            padding: 12px;
+            background: #0078D7;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .camera-btn:active {
+            transform: scale(0.95);
+        }
+        .camera-btn.secondary {
+            background: #6c757d;
+        }
+        .camera-btn.restart {
+            background: #ffc107;
+            color: #000;
+        }
+        
+        #modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 999;
+            display: none;
+        }
+        
+        .scanning-status {
+            text-align: center;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .scanning-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .scanning-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .summary-section {
+            margin-top: 20px;
+            display: none;
+        }
+        .summary-section.visible { display: block; }
+        .summary-header {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .scanned-games-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        
+        .scanned-game-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .scanned-game-item:hover {
+            background-color: #f8f9fa;
+        }
+        .scanned-game-item.removing {
+            background-color: #ffe6e6;
+            text-decoration: line-through;
+        }
+        
+        .remove-icon {
+            width: 24px;
+            height: 24px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 10px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        .remove-icon:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+        
+        .game-number {
+            color: #666;
+            min-width: 25px;
+            font-weight: bold;
+        }
+        .game-name {
+            flex: 1;
+            text-align: left;
+            padding: 0 10px;
+            font-weight: 500;
+        }
+        .game-price {
+            color: #0078D7;
+            font-weight: bold;
+            min-width: 70px;
+            text-align: right;
+        }
+        
+        .total-sum {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #28a745;
+            padding: 15px;
+            background: #f8fff9;
+            border-radius: 10px;
+            border: 2px solid #28a745;
+            margin: 10px 0;
+        }
+        .summary-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .summary-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .reset-btn {
+            background: #dc3545;
+            color: white;
+        }
+        .summary-main-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .app-version {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .platform-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            vertical-align: middle;
+            border-radius: 3px;
+            color: white;
+            font-size: 10px;
+            text-align: center;
+            line-height: 20px;
+            font-weight: bold;
+        }
+        .ps4-icon { background-color: #0070d1; }
+        .ps5-icon { background-color: #000; }
+        .ns-icon { background-color: #e60012; }
+        .xbox-icon { background-color: #107c10; }
+
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 1001;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+        }
+        .install-prompt button {
+            background: #0078D7;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        
+        /* Стиль для отладки PWA */
+        .pwa-debug {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 1002;
+        }
     </style>
 </head>
 <body>
+    <!-- Отладочная информация PWA -->
+    <div class="pwa-debug" id="pwa-debug" style="display: none;">
+        PWA Status: <span id="pwa-status">Checking...</span>
+    </div>
+
     <!-- Уведомление об установке -->
     <div id="install-prompt" class="install-prompt">
         Установите GAME ZONE для быстрого доступа!
@@ -37,7 +460,6 @@
     </div>
 
     <div class="container">
-        <!-- ТВОЙ HTML КОД ОСТАЕТСЯ БЕЗ ИЗМЕНЕНИЙ -->
         <div class="header">
             <div class="store-icon">GZ</div>
             <div>
@@ -46,23 +468,104 @@
             </div>
         </div>
 
-        <!-- Остальной HTML код без изменений -->
-        
+        <div id="current-price" class="current-price">
+            💰 Цена: <span id="current-price-value">0</span> руб
+        </div>
+
+        <div id="scanner-container">
+            <div class="scanner-placeholder">
+                <div class="icon">📷</div>
+                <div class="text">Нажмите для запуска сканера</div>
+            </div>
+        </div>
+
+        <input type="text" id="barcode-input" placeholder="Или введите штрих-код вручную">
+        <button id="search-btn" class="btn">🔍 Найти игру</button>
+
+        <button id="summary-btn" class="btn" style="background: #28a745;">💰 ИТОГО</button>
+
+        <div id="scanning-status" class="scanning-status" style="display: none;"></div>
+
+        <div id="status" class="status">
+            Готов к работе! Используем локальные данные...
+        </div>
+
+        <div id="game-info" class="game-info">
+            <div class="price-final">
+                💰 Цена продажи: <span id="game-final-price"></span> руб
+            </div>
+            
+            <div class="info-row">
+                <span class="info-label">Название игры:</span>
+                <span class="info-value" id="game-name"></span>
+            </div>
+            
+            <div class="info-row">
+                <span class="info-label">Язык игры:</span>
+                <span class="info-value" id="game-language"></span>
+            </div>
+            
+            <div class="info-row">
+                <span class="info-label">Платформа:</span>
+                <span class="info-value" id="game-platform"></span>
+            </div>
+            <div class="info-row" id="game-code-row">
+                <span class="info-label" id="game-code-label">CUSA:</span>
+                <span class="info-value" id="game-code"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Штрих-код:</span>
+                <span class="info-value" id="game-barcode"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Цена в Маркетплейсе:</span>
+                <span class="info-value" id="game-marketplace"></span>
+            </div>
+        </div>
+
+        <div id="summary-section" class="summary-section">
+            <div class="summary-header">📊 Отсканированные игры</div>
+            <div style="text-align: center; margin-bottom: 10px; font-size: 12px; color: #666;">
+                💡 Нажмите на игру для просмотра информации<br>
+                ❌ Нажмите на крестик для удаления
+            </div>
+            
+            <div id="scanned-games-list" class="scanned-games-list"></div>
+            
+            <div class="total-sum">
+                Общая сумма: <span id="total-amount">0</span> руб
+            </div>
+            
+            <div class="summary-buttons">
+                <button id="reset-scans-btn" class="summary-btn reset-btn">🔄 Сбросить все</button>
+                <button id="close-summary-btn" class="summary-btn summary-main-btn">✖ Закрыть</button>
+            </div>
+        </div>
+
         <div class="app-version">
-            Версия 2.9 | GAME ZONE PWA | <span id="cache-status">🔄</span>
+            Версия 2.9 | GAME ZONE PWA | <span id="cache-status">✅</span>
         </div>
     </div>
 
-    <!-- Модальные окна -->
+    <div id="modal-overlay"></div>
+    <div id="camera-modal">
+        <div class="camera-container">
+            <video id="camera-view" class="camera-view" autoplay playsinline></video>
+            <div class="camera-overlay">
+                <div class="camera-line"></div>
+            </div>
+        </div>
+        <div class="camera-controls">
+            <button id="restart-camera" class="camera-btn restart">🔄 Перезапустить камеру</button>
+            <button id="close-camera" class="camera-btn secondary">❌ Остановить</button>
+        </div>
+        <div id="camera-status" class="scanning-status" style="margin-top: 10px;"></div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.1/dist/quagga.min.js"></script>
     
     <script>
-        // ОБНОВЛЕННАЯ ВЕРСИЯ ДЛЯ ПРОВЕРКИ ОБНОВЛЕНИЙ
-        const APP_VERSION = "2.9";
-        const CACHE_VERSION = "v2.9";
-
-        // PWA функциональность
+        // Упрощенная версия PWA установщика
         class PWAInstaller {
             constructor() {
                 this.deferredPrompt = null;
@@ -70,16 +573,22 @@
             }
 
             init() {
+                // Показываем отладочную информацию
+                this.showDebugInfo();
+                
                 window.addEventListener('beforeinstallprompt', (e) => {
+                    console.log('✅ beforeinstallprompt сработал');
                     e.preventDefault();
                     this.deferredPrompt = e;
                     this.showInstallPrompt();
+                    this.updateDebugInfo('Install prompt available');
                 });
 
-                window.addEventListener('appinstalled', () => {
-                    console.log('PWA установлено');
+                window.addEventListener('appinstalled', (e) => {
+                    console.log('✅ PWA успешно установлено');
                     this.hideInstallPrompt();
                     this.deferredPrompt = null;
+                    this.updateDebugInfo('App installed');
                 });
 
                 document.getElementById('install-btn').addEventListener('click', () => {
@@ -89,35 +598,85 @@
                 document.getElementById('dismiss-install').addEventListener('click', () => {
                     this.hideInstallPrompt();
                 });
+                
+                // Проверяем условия для установки
+                this.checkInstallCriteria();
+            }
+
+            showDebugInfo() {
+                const debugEl = document.getElementById('pwa-debug');
+                debugEl.style.display = 'block';
+                this.updateDebugInfo('Initializing...');
+            }
+
+            updateDebugInfo(status) {
+                document.getElementById('pwa-status').textContent = status;
+            }
+
+            checkInstallCriteria() {
+                // Проверяем условия для показа кнопки установки
+                const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                const isAndroid = /Android/.test(navigator.userAgent);
+                
+                console.log('PWA Check:', {
+                    isStandalone,
+                    isIOS,
+                    isAndroid,
+                    userAgent: navigator.userAgent
+                });
+                
+                this.updateDebugInfo(`Standalone: ${isStandalone}, iOS: ${isIOS}, Android: ${isAndroid}`);
+                
+                // Не показываем prompt если уже установлено
+                if (isStandalone) {
+                    this.updateDebugInfo('Already installed');
+                    return;
+                }
             }
 
             showInstallPrompt() {
+                console.log('🔄 Показываем установочный prompt');
+                this.updateDebugInfo('Showing install prompt');
+                
+                const prompt = document.getElementById('install-prompt');
+                prompt.style.display = 'block';
+                
+                // Автоматически скрываем через 10 секунд
                 setTimeout(() => {
-                    const prompt = document.getElementById('install-prompt');
-                    prompt.style.display = 'block';
-                    
-                    setTimeout(() => {
-                        this.hideInstallPrompt();
-                    }, 15000);
-                }, 5000);
+                    this.hideInstallPrompt();
+                }, 10000);
             }
 
             hideInstallPrompt() {
                 const prompt = document.getElementById('install-prompt');
                 prompt.style.display = 'none';
+                this.updateDebugInfo('Prompt hidden');
             }
 
             async installApp() {
                 if (this.deferredPrompt) {
+                    console.log('🔄 Запускаем установку...');
+                    this.updateDebugInfo('Installing...');
+                    
                     this.deferredPrompt.prompt();
+                    
                     const { outcome } = await this.deferredPrompt.userChoice;
+                    console.log(`Пользователь выбрал: ${outcome}`);
+                    this.updateDebugInfo(`User choice: ${outcome}`);
                     
                     if (outcome === 'accepted') {
-                        console.log('Пользователь принял установку');
+                        console.log('✅ Пользователь принял установку');
+                    } else {
+                        console.log('❌ Пользователь отклонил установку');
                     }
                     
                     this.deferredPrompt = null;
                     this.hideInstallPrompt();
+                } else {
+                    console.log('❌ Нет deferredPrompt');
+                    this.updateDebugInfo('No install prompt available');
+                    alert('Установка недоступна. Убедитесь, что вы используете поддерживаемый браузер.');
                 }
             }
         }
@@ -138,132 +697,22 @@
                 this.isDataLoaded = false;
                 
                 this.scannedGames = [];
-                this.appVersion = APP_VERSION;
+                this.appVersion = "2.9";
                 
                 this.init();
             }
 
             async init() {
-                // Сначала показываем версию
-                this.showVersionInfo();
-                
                 this.setupEventListeners();
                 this.loadFromLocalStorage();
                 this.checkForUpdates();
                 
+                // Инициализируем PWA
                 new PWAInstaller();
-                this.registerServiceWorker();
                 
                 console.log(`GAME ZONE Scanner ${this.appVersion} - PWA готов к работе`);
             }
 
-            showVersionInfo() {
-                console.log(`🚀 Запущена версия ${APP_VERSION}`);
-                document.getElementById('cache-status').textContent = '✅ ' + APP_VERSION;
-                
-                // Проверяем есть ли более новая версия в кэше
-                this.checkForNewVersion();
-            }
-
-            async checkForNewVersion() {
-                // Пытаемся загрузить свежую версию скрипта
-                try {
-                    const response = await fetch(window.location.href + '?v=' + Date.now());
-                    const text = await response.text();
-                    
-                    // Ищем версию в загруженном HTML
-                    const versionMatch = text.match(/Версия\s+([\d.]+)/);
-                    if (versionMatch && versionMatch[1] !== APP_VERSION) {
-                        console.log(`🔄 Обнаружена новая версия: ${versionMatch[1]}`);
-                        document.getElementById('cache-status').textContent = '🔄 Доступна новая версия';
-                        
-                        // Предлагаем обновить
-                        if (confirm(`Доступна новая версия ${versionMatch[1]}! Обновить сейчас?`)) {
-                            this.forceUpdate();
-                        }
-                    }
-                } catch (error) {
-                    console.log('Не удалось проверить обновления:', error);
-                }
-            }
-
-            forceUpdate() {
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.getRegistration().then(registration => {
-                        if (registration) {
-                            registration.update().then(() => {
-                                console.log('Service Worker обновлен');
-                                // Перезагружаем страницу
-                                window.location.reload();
-                            });
-                        }
-                    });
-                } else {
-                    window.location.reload();
-                }
-            }
-
-            async registerServiceWorker() {
-                if ('serviceWorker' in navigator) {
-                    try {
-                        // Очищаем старые кэши перед регистрацией
-                        await this.clearOldCaches();
-                        
-                        const registration = await navigator.serviceWorker.register('./sw.js?v=' + CACHE_VERSION);
-                        console.log('Service Worker зарегистрирован:', registration);
-                        
-                        // Слушаем сообщения от Service Worker
-                        navigator.serviceWorker.addEventListener('message', event => {
-                            if (event.data && event.data.type === 'NEW_VERSION') {
-                                console.log('Обнаружена новая версия:', event.data.version);
-                                this.showUpdateNotification();
-                            }
-                        });
-                        
-                        // Проверяем обновления
-                        registration.addEventListener('updatefound', () => {
-                            console.log('Обнаружено обновление Service Worker');
-                            const newWorker = registration.installing;
-                            
-                            newWorker.addEventListener('statechange', () => {
-                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    this.showUpdateNotification();
-                                }
-                            });
-                        });
-                        
-                    } catch (error) {
-                        console.log('Service Worker не зарегистрирован:', error);
-                    }
-                }
-            }
-
-            async clearOldCaches() {
-                if ('caches' in window) {
-                    try {
-                        const cacheNames = await caches.keys();
-                        const oldCaches = cacheNames.filter(name => name.startsWith('game-zone-') && name !== CACHE_VERSION);
-                        
-                        await Promise.all(
-                            oldCaches.map(cacheName => {
-                                console.log('Удаляем старый кэш:', cacheName);
-                                return caches.delete(cacheName);
-                            })
-                        );
-                    } catch (error) {
-                        console.log('Ошибка очистки кэша:', error);
-                    }
-                }
-            }
-
-            showUpdateNotification() {
-                const statusElement = document.getElementById('cache-status');
-                statusElement.innerHTML = '🔄 Доступно обновление! <button onclick="location.reload()">Обновить</button>';
-                statusElement.style.color = '#dc3545';
-                statusElement.style.fontWeight = 'bold';
-            }
-
-            // ОСТАЛЬНЫЕ МЕТОДЫ БЕЗ ИЗМЕНЕНИЙ
             setupEventListeners() {
                 document.getElementById('scanner-container').addEventListener('click', () => this.startScanner());
                 
@@ -288,7 +737,7 @@
                 document.getElementById('modal-overlay').addEventListener('click', () => this.stopScanner());
             }
 
-            // ОСТАЛЬНЫЕ МЕТОДЫ КЛАССА БЕЗ ИЗМЕНЕНИЙ
+            // Остальные методы класса остаются без изменений
             loadFromLocalStorage() {
                 try {
                     const savedData = localStorage.getItem(this.localDataKey);
@@ -321,26 +770,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             new GameScannerApp();
         });
-
-        // Глобальная функция для принудительного обновления
-        window.forceAppUpdate = function() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistration().then(registration => {
-                    if (registration) {
-                        registration.unregister().then(() => {
-                            caches.keys().then(cacheNames => {
-                                cacheNames.forEach(cacheName => {
-                                    caches.delete(cacheName);
-                                });
-                                window.location.reload();
-                            });
-                        });
-                    }
-                });
-            } else {
-                window.location.reload();
-            }
-        };
     </script>
 </body>
 </html>
