@@ -1,17 +1,45 @@
-// Service Worker для GAME ZONE Scanner
-const CACHE_NAME = 'game-zone-scanner-v2.8';
+// Service Worker для GAME ZONE Scanner v2.9
+const CACHE_NAME = 'game-zone-scanner-v2.9';
 const urlsToCache = [
   './',
   './manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
-  console.log('Service Worker установлен');
+  console.log('Service Worker v2.9 установлен');
+  
+  // Пропускаем фазу ожидания и сразу активируем
+  self.skipWaiting();
+  
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
+        console.log('Кэшируем файлы:', urlsToCache);
         return cache.addAll(urlsToCache);
       })
+  );
+});
+
+self.addEventListener('activate', (event) => {
+  console.log('Service Worker v2.9 активирован');
+  
+  event.waitUntil(
+    Promise.all([
+      // Очищаем старые кэши
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheName !== CACHE_NAME) {
+              console.log('Удаляем старый кэш:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
+      
+      // Немедленно берем управление клиентами
+      self.clients.claim()
+    ])
   );
 });
 
@@ -24,28 +52,30 @@ self.addEventListener('fetch', (event) => {
         .catch(() => caches.match(event.request))
     );
   } else {
-    // Для остального - сначала кэш, потом сеть
+    // Стратегия: Сеть -> Кэш
     event.respondWith(
-      caches.match(event.request)
-        .then((response) => {
-          return response || fetch(event.request);
+      fetch(event.request)
+        .then(response => {
+          // Клонируем ответ для кэширования
+          const responseToCache = response.clone();
+          
+          caches.open(CACHE_NAME)
+            .then(cache => {
+              cache.put(event.request, responseToCache);
+            });
+            
+          return response;
+        })
+        .catch(() => {
+          return caches.match(event.request);
         })
     );
   }
 });
 
-self.addEventListener('activate', (event) => {
-  console.log('Service Worker активирован');
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Удаляем старый кэш:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
-  );
+// Обработка сообщений от клиента
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
