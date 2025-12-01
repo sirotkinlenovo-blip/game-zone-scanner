@@ -1,22 +1,2035 @@
-{
-  "name": "GAME ZONE Scanner",
-  "short_name": "GAME ZONE",
-  "description": "Сканер игровых дисков для магазина GAME ZONE",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#0078D7",
-  "theme_color": "#0078D7",
-  "orientation": "portrait",
-  "icons": [
-    {
-      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAFaSURBVHgB7Zc9TsNAEIXf2I6dQkFJQUVLRUNBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBAQDwDfAA1dUjFAAAAAElFTkSuQmCC",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAFaSURBVHgB7Zc9TsNAEIXf2I6dQkFJQUVLRUNBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBAQDwDfAA1dUjFAAAAAElFTkSuQmCC",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
-}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GAME ZONE - Сканер игр</title>
+    <meta name="theme-color" content="#0078D7">
+    <meta name="description" content="Сканер игровых дисков для магазина GAME ZONE">
+    
+    <!-- PWA мета-теги -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAFaSURBVHgB7Zc9TsNAEIXf2I6dQkFJQUVLRUNBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBAQDwDfAA1dUjFAAAAAElFTkSuQmCC">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GAME ZONE">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overscroll-behavior-y: none;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+        .header { 
+            text-align: center; 
+            margin-bottom: 20px; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .header h1 { 
+            color: #333; 
+            font-size: 24px; 
+            margin-bottom: 5px;
+        }
+        .store-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #ff6b6b, #ffa726);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: #0078D7;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn:active {
+            transform: scale(0.98);
+        }
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .btn.sale {
+            background: #28a745;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        #scanner-container {
+            width: 100%;
+            height: 200px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin: 15px 0;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #ccc;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        #scanner-container:hover {
+            border-color: #0078D7;
+            background: #e8f4ff;
+        }
+        #scanner-container:active {
+            transform: scale(0.98);
+        }
+        .scanner-placeholder {
+            text-align: center;
+            color: #666;
+        }
+        .scanner-placeholder .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .scanner-placeholder .text {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        #search-type {
+            width: 100px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        #barcode-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        .current-price {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+            font-weight: bold;
+            font-size: 20px;
+            display: none;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        .current-price.visible { display: block; }
+        
+        .game-info {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        .game-info.visible { display: block; }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .info-label { color: #666; font-weight: 500; min-width: 140px; }
+        .info-value { color: #333; font-weight: 600; text-align: right; flex: 1; }
+        .price-final {
+            color: #0078D7;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+            padding: 15px;
+            background: #e3f2fd;
+            border-radius: 10px;
+            border: 2px solid #0078D7;
+        }
+        .status {
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        #camera-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 400px;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+        }
+        .camera-container {
+            position: relative;
+            width: 100%;
+            height: 300px;
+            background: black;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .camera-view {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .camera-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 3px solid #0078D7;
+            pointer-events: none;
+        }
+        .camera-line {
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: #ff0000;
+            animation: scan 2s infinite linear;
+        }
+        @keyframes scan {
+            0%, 100% { top: 10%; }
+            50% { top: 90%; }
+        }
+        .camera-controls {
+            display: flex;
+            gap: 10px;
+        }
+        .camera-btn {
+            flex: 1;
+            padding: 12px;
+            background: #0078D7;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .camera-btn:active {
+            transform: scale(0.95);
+        }
+        .camera-btn.secondary {
+            background: #6c757d;
+        }
+        .camera-btn.restart {
+            background: #ffc107;
+            color: #000;
+        }
+        .camera-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        #modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 999;
+            display: none;
+        }
+        
+        .scanning-status {
+            text-align: center;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .scanning-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .scanning-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .summary-section {
+            margin-top: 20px;
+            display: none;
+        }
+        .summary-section.visible { display: block; }
+        .summary-header {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .scanned-games-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        
+        .scanned-game-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .scanned-game-item:hover {
+            background-color: #f8f9fa;
+        }
+        .scanned-game-item.removing {
+            background-color: #ffe6e6;
+            text-decoration: line-through;
+        }
+        
+        .remove-icon {
+            width: 24px;
+            height: 24px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 10px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+        .remove-icon:hover {
+            background: #c82333;
+            transform: scale(1.1);
+        }
+        
+        .game-number {
+            color: #666;
+            min-width: 25px;
+            font-weight: bold;
+        }
+        .game-name {
+            flex: 1;
+            text-align: left;
+            padding: 0 10px;
+            font-weight: 500;
+        }
+        .game-quantity {
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+        }
+        .quantity-btn {
+            width: 24px;
+            height: 24px;
+            background: #0078D7;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .quantity-value {
+            min-width: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .game-price {
+            color: #0078D7;
+            font-weight: bold;
+            min-width: 70px;
+            text-align: right;
+        }
+        
+        .total-sum {
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #28a745;
+            padding: 15px;
+            background: #f8fff9;
+            border-radius: 10px;
+            border: 2px solid #28a745;
+            margin: 10px 0;
+        }
+        .summary-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .summary-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .reset-btn {
+            background: #dc3545;
+            color: white;
+        }
+        .summary-main-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .app-version {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+            padding: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .platform-icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            vertical-align: middle;
+            border-radius: 3px;
+            color: white;
+            font-size: 10px;
+            text-align: center;
+            line-height: 20px;
+            font-weight: bold;
+        }
+        .ps4-icon { background-color: #0070d1; }
+        .ps5-icon { background-color: #000; }
+        .ns-icon { background-color: #e60012; }
+        .xbox-icon { background-color: #107c10; }
+
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 1001;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+        }
+        .install-prompt button {
+            background: #0078D7;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #0078D7;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Стили для поиска */
+        .search-results {
+            position: absolute;
+            width: calc(100% - 100px);
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin-top: 5px;
+        }
+        .search-result-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .search-result-item:hover {
+            background-color: #f8f9fa;
+        }
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+        .search-result-name {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        .search-result-info {
+            font-size: 12px;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <!-- Уведомление об установке -->
+    <div id="install-prompt" class="install-prompt">
+        Установите GAME ZONE для быстрого доступа!
+        <button id="install-btn">Установить</button>
+        <button id="dismiss-install" style="background: #6c757d;">Позже</button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="store-icon">GZ</div>
+            <div>
+                <h1>GAME ZONE</h1>
+                <p>Сканер игровых дисков</p>
+            </div>
+        </div>
+
+        <div id="current-price" class="current-price">
+            💰 Цена: <span id="current-price-value">0</span> руб
+        </div>
+
+        <div id="scanner-container">
+            <div class="scanner-placeholder">
+                <div class="icon">📷</div>
+                <div class="text">Нажмите для запуска сканера</div>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <select id="search-type" class="search-type">
+                <option value="barcode">Штрих-код</option>
+                <option value="cusa">CUSA/PPSA</option>
+                <option value="name">Название</option>
+            </select>
+            <input type="text" id="barcode-input" placeholder="Введите для поиска...">
+            <div id="search-results" class="search-results"></div>
+        </div>
+        <button id="search-btn" class="btn">🔍 Найти игру</button>
+
+        <button id="summary-btn" class="btn" style="background: #28a745;">💰 ИТОГО</button>
+
+        <!-- НОВАЯ КНОПКА ПРОДАЖИ -->
+        <button id="sale-btn" class="btn sale">💰 ОФОРМИТЬ ПРОДАЖУ</button>
+
+        <div id="scanning-status" class="scanning-status" style="display: none;"></div>
+
+        <div id="status" class="status">
+            <div class="loading-spinner"></div>
+            <span id="status-text">Загружаем данные...</span>
+        </div>
+
+        <div id="game-info" class="game-info">
+            <div class="price-final">
+                💰 Цена продажи: <span id="game-final-price"></span> руб
+            </div>
+            
+            <div class="info-row">
+                <span class="info-label">Название игры:</span>
+                <span class="info-value" id="game-name"></span>
+            </div>
+            
+            <div class="info-row">
+                <span class="info-label">Язык игры:</span>
+                <span class="info-value" id="game-language"></span>
+            </div>
+            
+            <div class="info-row">
+                <span class="info-label">Платформа:</span>
+                <span class="info-value" id="game-platform"></span>
+            </div>
+            <div class="info-row" id="game-code-row">
+                <span class="info-label" id="game-code-label">CUSA:</span>
+                <span class="info-value" id="game-code"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Штрих-код:</span>
+                <span class="info-value" id="game-barcode"></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Цена в Маркетплейсе:</span>
+                <span class="info-value" id="game-marketplace"></span>
+            </div>
+        </div>
+
+        <div id="summary-section" class="summary-section">
+            <div class="summary-header">📊 Отсканированные игры</div>
+            <div style="text-align: center; margin-bottom: 10px; font-size: 12px; color: #666;">
+                💡 Нажмите на игру для просмотра информации<br>
+                ❌ Нажмите на крестик для удаления<br>
+                🔢 Используйте +/- для изменения количества
+            </div>
+            
+            <div id="scanned-games-list" class="scanned-games-list"></div>
+            
+            <div class="total-sum">
+                Общая сумма: <span id="total-amount">0</span> руб
+            </div>
+            
+            <div class="summary-buttons">
+                <button id="reset-scans-btn" class="summary-btn reset-btn">🔄 Сбросить все</button>
+                <button id="close-summary-btn" class="summary-btn summary-main-btn">✖ Закрыть</button>
+            </div>
+        </div>
+
+        <div class="app-version">
+            Версия 4.0 | GAME ZONE PWA | <span id="cache-status">✅</span>
+        </div>
+    </div>
+
+    <div id="modal-overlay"></div>
+    <div id="camera-modal">
+        <div class="camera-container">
+            <video id="camera-view" class="camera-view" autoplay playsinline></video>
+            <div class="camera-overlay">
+                <div class="camera-line"></div>
+            </div>
+        </div>
+        <div class="camera-controls">
+            <button id="restart-camera" class="camera-btn restart">🔄 Перезапустить камеру</button>
+            <button id="close-camera" class="camera-btn secondary">❌ Остановить</button>
+        </div>
+        <div id="camera-status" class="scanning-status" style="margin-top: 10px;"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.1/dist/quagga.min.js"></script>
+    
+    <script>
+        // Упрощенная версия PWA установщика
+        class PWAInstaller {
+            constructor() {
+                this.deferredPrompt = null;
+                this.init();
+            }
+
+            init() {
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    console.log('✅ beforeinstallprompt сработал');
+                    e.preventDefault();
+                    this.deferredPrompt = e;
+                    this.showInstallPrompt();
+                });
+
+                window.addEventListener('appinstalled', (e) => {
+                    console.log('✅ PWA успешно установлено');
+                    this.hideInstallPrompt();
+                    this.deferredPrompt = null;
+                });
+
+                document.getElementById('install-btn').addEventListener('click', () => {
+                    this.installApp();
+                });
+
+                document.getElementById('dismiss-install').addEventListener('click', () => {
+                    this.hideInstallPrompt();
+                });
+            }
+
+            showInstallPrompt() {
+                console.log('🔄 Показываем установочный prompt');
+                const prompt = document.getElementById('install-prompt');
+                prompt.style.display = 'block';
+                
+                setTimeout(() => {
+                    this.hideInstallPrompt();
+                }, 10000);
+            }
+
+            hideInstallPrompt() {
+                const prompt = document.getElementById('install-prompt');
+                prompt.style.display = 'none';
+            }
+
+            async installApp() {
+                if (this.deferredPrompt) {
+                    console.log('🔄 Запускаем установку...');
+                    
+                    this.deferredPrompt.prompt();
+                    
+                    const { outcome } = await this.deferredPrompt.userChoice;
+                    console.log(`Пользователь выбрал: ${outcome}`);
+                    
+                    this.deferredPrompt = null;
+                    this.hideInstallPrompt();
+                } else {
+                    console.log('❌ Нет deferredPrompt');
+                    alert('Установка недоступна. Убедитесь, что вы используете поддерживаемый браузер.');
+                }
+            }
+        }
+
+        // Класс для логгирования
+        class Logger {
+            constructor() {
+                this.appLog = [];
+                this.salesLog = [];
+                this.maxLogSize = 1000; // Максимальное количество записей в логе
+            }
+
+            // Логирование действий приложения
+            logAppAction(action, details = {}) {
+                const logEntry = {
+                    timestamp: new Date().toISOString(),
+                    action: action,
+                    details: details
+                };
+                
+                this.appLog.push(logEntry);
+                
+                // Сохраняем в localStorage
+                this.saveAppLog();
+                
+                console.log(`📝 App Log: ${action}`, details);
+            }
+
+            // Логирование продаж
+            logSale(saleData) {
+                const saleEntry = {
+                    timestamp: new Date().toISOString(),
+                    saleId: 'SALE_' + Date.now(),
+                    items: saleData.items,
+                    totalAmount: saleData.totalAmount,
+                    totalItems: saleData.totalItems
+                };
+                
+                this.salesLog.push(saleEntry);
+                
+                // Сохраняем в localStorage
+                this.saveSalesLog();
+                
+                // Записываем в файл
+                this.saveSalesLogToFile(saleEntry);
+                
+                console.log(`💰 Sale Log: Продажа ${saleEntry.saleId} на сумму ${saleEntry.totalAmount} руб`);
+                
+                return saleEntry.saleId;
+            }
+
+            // Сохранение лога приложения в localStorage
+            saveAppLog() {
+                try {
+                    // Сохраняем только последние записи
+                    if (this.appLog.length > this.maxLogSize) {
+                        this.appLog = this.appLog.slice(-this.maxLogSize);
+                    }
+                    
+                    localStorage.setItem('gameZoneAppLog', JSON.stringify(this.appLog));
+                } catch (error) {
+                    console.error('❌ Ошибка сохранения лога приложения:', error);
+                }
+            }
+
+            // Сохранение лога продаж в localStorage
+            saveSalesLog() {
+                try {
+                    if (this.salesLog.length > this.maxLogSize) {
+                        this.salesLog = this.salesLog.slice(-this.maxLogSize);
+                    }
+                    
+                    localStorage.setItem('gameZoneSalesLog', JSON.stringify(this.salesLog));
+                } catch (error) {
+                    console.error('❌ Ошибка сохранения лога продаж:', error);
+                }
+            }
+
+            // Загрузка логов из localStorage
+            loadLogs() {
+                try {
+                    const appLog = localStorage.getItem('gameZoneAppLog');
+                    const salesLog = localStorage.getItem('gameZoneSalesLog');
+                    
+                    if (appLog) {
+                        this.appLog = JSON.parse(appLog);
+                    }
+                    
+                    if (salesLog) {
+                        this.salesLog = JSON.parse(salesLog);
+                    }
+                    
+                    console.log(`📊 Загружено логов: Приложение - ${this.appLog.length}, Продажи - ${this.salesLog.length}`);
+                } catch (error) {
+                    console.error('❌ Ошибка загрузки логов:', error);
+                    this.appLog = [];
+                    this.salesLog = [];
+                }
+            }
+
+            // Сохранение лога продаж в файл
+            saveSalesLogToFile(saleEntry) {
+                try {
+                    // Создаем текстовое представление продажи
+                    const saleText = `
+========================================
+ПРОДАЖА: ${saleEntry.saleId}
+ВРЕМЯ: ${new Date(saleEntry.timestamp).toLocaleString('ru-RU')}
+========================================
+${saleEntry.items.map((item, index) => 
+    `${index + 1}. ${item.name} | ${item.platform} | ${item.quantity} шт x ${item.price} руб = ${item.quantity * item.price} руб`
+).join('\n')}
+========================================
+ИТОГО: ${saleEntry.totalItems} товаров на сумму ${saleEntry.totalAmount} руб
+========================================\n\n`;
+                    
+                    // Сохраняем в localStorage как отдельную запись
+                    const salesHistory = localStorage.getItem('gameZoneSalesHistory') || '';
+                    localStorage.setItem('gameZoneSalesHistory', salesHistory + saleText);
+                    
+                    console.log('📁 Sale log saved to file');
+                } catch (error) {
+                    console.error('❌ Ошибка сохранения лога продаж в файл:', error);
+                }
+            }
+
+            // Скачивание файла логов
+            downloadLogs() {
+                try {
+                    const today = new Date().toISOString().split('T')[0];
+                    const filename = `gamezone_logs_${today}.txt`;
+                    
+                    let logText = '========================================\n';
+                    logText += 'GAME ZONE ЛОГИ ПРОДАЖ\n';
+                    logText += `Сформировано: ${new Date().toLocaleString('ru-RU')}\n`;
+                    logText += '========================================\n\n';
+                    
+                    const stats = this.getSalesStats();
+                    logText += '📊 СТАТИСТИКА ПРОДАЖ:\n';
+                    logText += `Всего продаж: ${stats.totalSales}\n`;
+                    logText += `Всего выручка: ${stats.totalRevenue} руб\n`;
+                    logText += `Всего товаров: ${stats.totalItems} шт\n`;
+                    logText += `Продаж сегодня: ${stats.todaySales}\n`;
+                    logText += `Выручка сегодня: ${stats.todayRevenue} руб\n`;
+                    logText += `Товаров сегодня: ${stats.todayItems} шт\n\n`;
+                    
+                    logText += '========================================\n';
+                    logText += 'ИСТОРИЯ ПРОДАЖ:\n';
+                    logText += '========================================\n';
+                    
+                    this.salesLog.forEach((sale, index) => {
+                        logText += `\n${index + 1}. Продажа ${sale.saleId} - ${new Date(sale.timestamp).toLocaleString('ru-RU')}\n`;
+                        logText += `   Товаров: ${sale.totalItems} шт, Сумма: ${sale.totalAmount} руб\n`;
+                    });
+                    
+                    // Создаем и скачиваем файл
+                    const element = document.createElement('a');
+                    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(logText));
+                    element.setAttribute('download', filename);
+                    element.style.display = 'none';
+                    document.body.appendChild(element);
+                    element.click();
+                    document.body.removeChild(element);
+                    
+                    return true;
+                } catch (error) {
+                    console.error('❌ Ошибка скачивания логов:', error);
+                    return false;
+                }
+            }
+
+            // Получение статистики продаж
+            getSalesStats() {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const todaySales = this.salesLog.filter(sale => 
+                    new Date(sale.timestamp) >= today
+                );
+                
+                const totalToday = todaySales.reduce((sum, sale) => sum + sale.totalAmount, 0);
+                const itemsToday = todaySales.reduce((sum, sale) => sum + sale.totalItems, 0);
+                
+                return {
+                    totalSales: this.salesLog.length,
+                    totalRevenue: this.salesLog.reduce((sum, sale) => sum + sale.totalAmount, 0),
+                    totalItems: this.salesLog.reduce((sum, sale) => sum + sale.totalItems, 0),
+                    todaySales: todaySales.length,
+                    todayRevenue: totalToday,
+                    todayItems: itemsToday
+                };
+            }
+        }
+
+        // Основной класс приложения
+        class GameScannerApp {
+            constructor() {
+                this.sheetsUrl = 'https://docs.google.com/spreadsheets/d/1fMWJan1HP7tcKwa_hm86oCm0KPtC_zN50UhU72Q8xeA/export?format=csv&gid=1995791598';
+                this.localStorageKey = 'gameZoneData';
+                this.localDataKey = 'gameZoneGamesData';
+                this.isScanning = false;
+                this.gamesData = [];
+                this.cameraStream = null;
+                this.quaggaInitialized = false;
+                this.lastScannedCode = null;
+                this.scanCooldown = false;
+                this.isDataLoaded = false;
+                
+                this.scannedGames = [];
+                this.appVersion = "4.0";
+                
+                // Логгер
+                this.logger = new Logger();
+                
+                this.init();
+            }
+
+            async init() {
+                this.logger.loadLogs();
+                this.logger.logAppAction('APP_START', { version: this.appVersion });
+                
+                this.setupEventListeners();
+                
+                // Сначала загружаем локальные данные
+                this.loadFromLocalStorage();
+                
+                // Показываем начальный статус
+                this.updateStatus('🔄 Запускаем приложение...');
+                
+                // Загружаем данные из Google Sheets
+                await this.loadGamesData();
+                
+                console.log(`GAME ZONE Scanner ${this.appVersion} - готов к работе`);
+            }
+
+            async loadGamesData() {
+                try {
+                    // Пытаемся загрузить данные из Google Sheets
+                    this.updateStatus('📡 Загружаем данные с сервера...');
+                    await this.checkForUpdates();
+                    
+                    // Если после загрузки данных все равно пусто, создаем тестовые данные
+                    if (this.gamesData.length === 0) {
+                        this.createSampleData();
+                        this.updateStatus(`✅ Используем локальные данные (${this.gamesData.length} тестовых игр)`, 'success');
+                    } else {
+                        this.updateStatus(`✅ Готов! ${this.gamesData.length} игр в базе`, 'success');
+                    }
+                    
+                } catch (error) {
+                    console.error('Ошибка загрузки данных:', error);
+                    
+                    if (this.gamesData.length === 0) {
+                        this.createSampleData();
+                        this.updateStatus(`⚠️ Нет интернета. Используем тестовые данные (${this.gamesData.length} игр)`, 'error');
+                    } else {
+                        this.updateStatus(`✅ Используем сохраненные данные (${this.gamesData.length} игр)`, 'success');
+                    }
+                }
+            }
+
+            createSampleData() {
+                // Создаем тестовые данные для демонстрации
+                this.gamesData = [
+                    {
+                        platform: 'PS4',
+                        barcode: '711719803278',
+                        name: 'The Last of Us Part II',
+                        code: 'CUSA-18278',
+                        language: 'RUS',
+                        optPrice: '1999',
+                        marketplace: '2499',
+                        codeType: 'CUSA'
+                    },
+                    {
+                        platform: 'PS5',
+                        barcode: '711719998653',
+                        name: 'Spider-Man: Miles Morales',
+                        code: 'PPSA-01462',
+                        language: 'RUS',
+                        optPrice: '2499',
+                        marketplace: '3499',
+                        codeType: 'PPSA'
+                    },
+                    {
+                        platform: 'NS',
+                        barcode: '045496873285',
+                        name: 'The Legend of Zelda: Breath of the Wild',
+                        code: '',
+                        language: 'ENG',
+                        optPrice: '2999',
+                        marketplace: '3999',
+                        codeType: ''
+                    },
+                    {
+                        platform: 'XBOX ONE',
+                        barcode: '889842414205',
+                        name: 'Halo Infinite',
+                        code: '',
+                        language: 'RUS',
+                        optPrice: '2299',
+                        marketplace: '3299',
+                        codeType: ''
+                    }
+                ];
+                
+                this.saveToLocalStorage();
+                this.logger.logAppAction('SAMPLE_DATA_CREATED', { count: this.gamesData.length });
+            }
+
+            showSalesStats() {
+                const stats = this.logger.getSalesStats();
+                console.log('📊 Статистика продаж:', stats);
+                
+                // Можно показывать в статусе или отдельном блоке
+                if (stats.todayRevenue > 0) {
+                    setTimeout(() => {
+                        this.updateStatus(`💰 Сегодня: ${stats.todayRevenue} руб (${stats.todayItems} шт)`, 'success');
+                    }, 3000);
+                }
+            }
+
+            updateStatus(message, type = '') {
+                const statusEl = document.getElementById('status');
+                const statusText = document.getElementById('status-text');
+                
+                statusText.textContent = message;
+                statusEl.className = 'status';
+                
+                if (type === 'error') {
+                    statusEl.classList.add('error');
+                } else if (type === 'success') {
+                    statusEl.classList.add('success');
+                }
+                
+                // Скрываем спиннер если есть результат
+                if (type !== '') {
+                    setTimeout(() => {
+                        statusEl.querySelector('.loading-spinner').style.display = 'none';
+                    }, 500);
+                }
+            }
+
+            setupEventListeners() {
+                document.getElementById('scanner-container').addEventListener('click', () => this.startScanner());
+                
+                document.getElementById('search-btn').addEventListener('click', () => {
+                    this.performSearch();
+                });
+                
+                // Автопоиск при вводе
+                document.getElementById('barcode-input').addEventListener('input', () => {
+                    const query = document.getElementById('barcode-input').value.trim();
+                    if (query.length >= 2) {
+                        this.showSearchResults(query);
+                    } else {
+                        this.hideSearchResults();
+                    }
+                });
+                
+                // Поиск по Enter
+                document.getElementById('barcode-input').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.performSearch();
+                    }
+                });
+                
+                document.getElementById('summary-btn').addEventListener('click', () => this.showSummary());
+                document.getElementById('reset-scans-btn').addEventListener('click', () => this.resetScannedGames());
+                document.getElementById('close-summary-btn').addEventListener('click', () => this.hideSummary());
+                
+                // Новая кнопка продажи
+                document.getElementById('sale-btn').addEventListener('click', () => this.processSale());
+                
+                // Обработчики камеры
+                document.getElementById('close-camera').addEventListener('click', () => {
+                    console.log('🛑 Нажата кнопка остановки');
+                    this.stopScanner();
+                });
+                
+                document.getElementById('restart-camera').addEventListener('click', () => {
+                    console.log('🔄 Нажата кнопка перезапуска');
+                    this.restartCamera();
+                });
+                
+                document.getElementById('modal-overlay').addEventListener('click', () => {
+                    console.log('🛑 Нажато затемнение');
+                    this.stopScanner();
+                });
+            }
+
+            // ПОИСК ПО РАЗНЫМ КРИТЕРИЯМ
+            performSearch() {
+                const query = document.getElementById('barcode-input').value.trim();
+                const searchType = document.getElementById('search-type').value;
+                
+                if (!query) {
+                    this.updateStatus('❌ Введите запрос для поиска', 'error');
+                    return;
+                }
+                
+                this.logger.logAppAction('SEARCH', { type: searchType, query: query });
+                
+                let game = null;
+                
+                switch(searchType) {
+                    case 'barcode':
+                        game = this.findGameByBarcodeExtended(query);
+                        break;
+                    case 'cusa':
+                        game = this.findGameByCode(query);
+                        break;
+                    case 'name':
+                        game = this.findGameByName(query);
+                        break;
+                }
+                
+                if (game) {
+                    this.displayGameInfo(game);
+                    this.addToScannedGames(game);
+                    this.updateStatus('✅ Игра найдена!', 'success');
+                    document.getElementById('barcode-input').value = '';
+                    this.hideSearchResults();
+                } else {
+                    this.hideGameInfo();
+                    this.updateStatus('❌ Игра не найдена', 'error');
+                }
+            }
+
+            // ПОИСК ПО КОДУ (CUSA/PPSA)
+            findGameByCode(code) {
+                const cleanCode = code.toUpperCase().trim();
+                
+                return this.gamesData.find(g => 
+                    g.code && g.code.toUpperCase().includes(cleanCode)
+                );
+            }
+
+            // ПОИСК ПО НАЗВАНИЮ
+            findGameByName(name) {
+                const cleanName = name.toLowerCase().trim();
+                
+                return this.gamesData.find(g => 
+                    g.name && g.name.toLowerCase().includes(cleanName)
+                );
+            }
+
+            // ПОКАЗ РЕЗУЛЬТАТОВ ПОИСКА
+            showSearchResults(query) {
+                const searchType = document.getElementById('search-type').value;
+                let results = [];
+                
+                const cleanQuery = query.toLowerCase().trim();
+                
+                switch(searchType) {
+                    case 'name':
+                        results = this.gamesData.filter(g => 
+                            g.name && g.name.toLowerCase().includes(cleanQuery)
+                        ).slice(0, 10); // Ограничиваем 10 результатами
+                        break;
+                    case 'cusa':
+                        results = this.gamesData.filter(g => 
+                            g.code && g.code.toUpperCase().includes(cleanQuery.toUpperCase())
+                        ).slice(0, 10);
+                        break;
+                    case 'barcode':
+                        results = this.gamesData.filter(g => {
+                            if (!g.barcode) return false;
+                            const barcodes = g.barcode.split('/').map(b => b.trim());
+                            return barcodes.some(b => b.includes(cleanQuery));
+                        }).slice(0, 10);
+                        break;
+                }
+                
+                const resultsContainer = document.getElementById('search-results');
+                resultsContainer.innerHTML = '';
+                
+                if (results.length > 0) {
+                    results.forEach(game => {
+                        const item = document.createElement('div');
+                        item.className = 'search-result-item';
+                        item.innerHTML = `
+                            <div class="search-result-name">${game.name}</div>
+                            <div class="search-result-info">
+                                <span>${game.platform}</span>
+                                <span>${game.code || game.barcode}</span>
+                                <span>${this.calculateFinalPrice(game.optPrice)} руб</span>
+                            </div>
+                        `;
+                        
+                        item.addEventListener('click', () => {
+                            document.getElementById('barcode-input').value = 
+                                searchType === 'name' ? game.name : 
+                                searchType === 'cusa' ? game.code : 
+                                game.barcode.split('/')[0];
+                            this.performSearch();
+                        });
+                        
+                        resultsContainer.appendChild(item);
+                    });
+                    
+                    resultsContainer.style.display = 'block';
+                } else {
+                    this.hideSearchResults();
+                }
+            }
+
+            hideSearchResults() {
+                document.getElementById('search-results').style.display = 'none';
+            }
+
+            loadFromLocalStorage() {
+                try {
+                    const savedData = localStorage.getItem(this.localDataKey);
+                    const savedScans = localStorage.getItem(this.localStorageKey);
+                    
+                    if (savedData) {
+                        this.gamesData = JSON.parse(savedData);
+                        console.log(`✅ Загружено ${this.gamesData.length} игр из локального хранилища`);
+                        this.logger.logAppAction('DATA_LOADED', { count: this.gamesData.length });
+                    } else {
+                        console.log('⚠️ Локальные данные отсутствуют');
+                    }
+                    
+                    if (savedScans) {
+                        this.scannedGames = JSON.parse(savedScans);
+                        this.updateSummaryButton();
+                        console.log(`✅ Загружено ${this.scannedGames.length} отсканированных игр`);
+                    }
+                    
+                } catch (error) {
+                    console.error('Ошибка загрузки локальных данных:', error);
+                    // Если ошибка, создаем пустые массивы
+                    this.gamesData = [];
+                    this.scannedGames = [];
+                    this.logger.logAppAction('DATA_LOAD_ERROR', { error: error.message });
+                }
+            }
+
+            saveToLocalStorage() {
+                try {
+                    localStorage.setItem(this.localDataKey, JSON.stringify(this.gamesData));
+                    localStorage.setItem(this.localStorageKey, JSON.stringify(this.scannedGames));
+                    console.log('✅ Данные сохранены в localStorage');
+                } catch (error) {
+                    console.error('Ошибка сохранения данных:', error);
+                }
+            }
+
+            async checkForUpdates() {
+                try {
+                    console.log('🔄 Проверяем обновления данных...');
+                    this.logger.logAppAction('UPDATE_CHECK_START');
+                    
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000);
+                    
+                    const response = await fetch(this.sheetsUrl + '&t=' + Date.now(), {
+                        signal: controller.signal
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Ошибка сети: ${response.status}`);
+                    }
+                    
+                    const csvText = await response.text();
+                    
+                    if (!csvText || csvText.length < 100) {
+                        throw new Error('Получены пустые данные');
+                    }
+                    
+                    console.log('✅ Данные получены, размер:', csvText.length);
+                    
+                    const newGamesData = this.parseCSVOptimized(csvText);
+                    
+                    if (newGamesData.length === 0) {
+                        throw new Error('Не удалось распарсить данные');
+                    }
+                    
+                    const currentHash = JSON.stringify(this.gamesData);
+                    const newHash = JSON.stringify(newGamesData);
+                    
+                    if (currentHash !== newHash) {
+                        console.log('🔄 Обнаружены новые данные, обновляем...');
+                        this.gamesData = newGamesData;
+                        this.saveToLocalStorage();
+                        this.logger.logAppAction('DATA_UPDATED', { count: this.gamesData.length });
+                    } else {
+                        console.log('✅ Данные актуальны');
+                    }
+                    
+                    this.logger.logAppAction('UPDATE_CHECK_SUCCESS');
+                    
+                } catch (error) {
+                    console.log('⚠️ Не удалось проверить обновления:', error);
+                    this.logger.logAppAction('UPDATE_CHECK_ERROR', { error: error.message });
+                    throw error; // Пробрасываем ошибку дальше
+                }
+            }
+
+            // ОФОРМЛЕНИЕ ПРОДАЖИ
+            async processSale() {
+                if (this.scannedGames.length === 0) {
+                    alert('❌ Нет товаров для продажи');
+                    return;
+                }
+                
+                const totalAmount = this.scannedGames.reduce((sum, game) => sum + (game.price * (game.quantity || 1)), 0);
+                const totalItems = this.scannedGames.reduce((sum, game) => sum + (game.quantity || 1), 0);
+                
+                // Подтверждение продажи
+                const confirmText = `Подтвердите продажу:\n\n` +
+                    `Товаров: ${totalItems} шт\n` +
+                    `Общая сумма: ${totalAmount} руб\n\n` +
+                    `Продолжить?`;
+                
+                if (!confirm(confirmText)) {
+                    return;
+                }
+                
+                const saleData = {
+                    items: this.scannedGames.map(game => ({
+                        name: game.name,
+                        platform: game.platform,
+                        barcode: game.barcode,
+                        price: game.price,
+                        quantity: game.quantity || 1,
+                        total: game.price * (game.quantity || 1)
+                    })),
+                    totalAmount: totalAmount,
+                    totalItems: totalItems
+                };
+                
+                // Логируем продажу
+                const saleId = this.logger.logSale(saleData);
+                
+                // Показываем чек
+                alert(`✅ Продажа оформлена!\n\nID: ${saleId}\nТоваров: ${totalItems}\nСумма: ${totalAmount} руб\n\nЧек сохранен в историю продаж.`);
+                
+                // Очищаем список
+                this.resetScannedGames();
+                
+                this.logger.logAppAction('SALE_COMPLETED', { saleId, totalAmount, totalItems });
+                
+                // Предлагаем скачать лог
+                setTimeout(() => {
+                    if (confirm('Хотите скачать лог продаж?')) {
+                        this.logger.downloadLogs();
+                    }
+                }, 1000);
+            }
+
+            // ДОБАВЛЕНИЕ ИГРЫ С УЧЕТОМ КОЛИЧЕСТВА
+            addToScannedGames(game) {
+                const price = this.calculateFinalPrice(game.optPrice);
+                const existingIndex = this.scannedGames.findIndex(g => g.barcode === game.barcode);
+                
+                if (existingIndex !== -1) {
+                    // Увеличиваем количество существующей позиции
+                    this.scannedGames[existingIndex].quantity = (this.scannedGames[existingIndex].quantity || 1) + 1;
+                    this.logger.logAppAction('ITEM_QUANTITY_INCREASED', { 
+                        name: game.name, 
+                        barcode: game.barcode,
+                        quantity: this.scannedGames[existingIndex].quantity 
+                    });
+                } else {
+                    // Добавляем новую позицию с количеством 1
+                    this.scannedGames.push({
+                        name: game.name,
+                        barcode: game.barcode,
+                        price: price,
+                        platform: game.platform,
+                        platformIcon: this.getPlatformIcon(game.platform),
+                        fullInfo: game,
+                        quantity: 1
+                    });
+                    this.logger.logAppAction('ITEM_ADDED', { 
+                        name: game.name, 
+                        barcode: game.barcode,
+                        price: price 
+                    });
+                }
+                
+                this.saveToLocalStorage();
+                this.updateSummaryButton();
+            }
+
+            // ИЗМЕНЕНИЕ КОЛИЧЕСТВА ТОВАРА
+            updateItemQuantity(index, change) {
+                if (index >= 0 && index < this.scannedGames.length) {
+                    const currentQuantity = this.scannedGames[index].quantity || 1;
+                    const newQuantity = currentQuantity + change;
+                    
+                    if (newQuantity < 1) {
+                        // Удаляем товар если количество стало 0
+                        this.removeFromScannedGames(index);
+                    } else {
+                        this.scannedGames[index].quantity = newQuantity;
+                        this.saveToLocalStorage();
+                        this.updateSummaryButton();
+                        this.showSummary(); // Обновляем отображение
+                        
+                        this.logger.logAppAction('ITEM_QUANTITY_CHANGED', { 
+                            name: this.scannedGames[index].name, 
+                            barcode: this.scannedGames[index].barcode,
+                            oldQuantity: currentQuantity,
+                            newQuantity: newQuantity
+                        });
+                    }
+                }
+            }
+
+            // ПОКАЗ СПИСКА С КОЛИЧЕСТВОМ
+            showSummary() {
+                if (this.scannedGames.length === 0) {
+                    alert('❌ Нет отсканированных игр');
+                    return;
+                }
+                
+                const list = document.getElementById('scanned-games-list');
+                list.innerHTML = '';
+                
+                let total = 0;
+                let totalItems = 0;
+                
+                this.scannedGames.forEach((game, index) => {
+                    const quantity = game.quantity || 1;
+                    const itemTotal = game.price * quantity;
+                    total += itemTotal;
+                    totalItems += quantity;
+                    
+                    const element = document.createElement('div');
+                    element.className = 'scanned-game-item';
+                    element.innerHTML = `
+                        <div class="remove-icon" data-index="${index}">×</div>
+                        <span class="game-number">${index + 1}.</span>
+                        <span class="game-name">${game.platformIcon} ${game.name}</span>
+                        <div class="game-quantity">
+                            <button class="quantity-btn minus" data-index="${index}">-</button>
+                            <span class="quantity-value">${quantity}</span>
+                            <button class="quantity-btn plus" data-index="${index}">+</button>
+                        </div>
+                        <span class="game-price">${itemTotal} руб</span>
+                    `;
+                    
+                    // Обработчики для кнопок количества
+                    const minusBtn = element.querySelector('.minus');
+                    const plusBtn = element.querySelector('.plus');
+                    
+                    minusBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const idx = parseInt(e.target.getAttribute('data-index'));
+                        this.updateItemQuantity(idx, -1);
+                    });
+                    
+                    plusBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const idx = parseInt(e.target.getAttribute('data-index'));
+                        this.updateItemQuantity(idx, 1);
+                    });
+                    
+                    // Клик по крестику - удаление
+                    const removeIcon = element.querySelector('.remove-icon');
+                    removeIcon.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const idx = parseInt(e.target.getAttribute('data-index'));
+                        element.classList.add('removing');
+                        setTimeout(() => {
+                            this.removeFromScannedGames(idx);
+                        }, 300);
+                    });
+                    
+                    // Клик по всей строке - просмотр информации
+                    element.addEventListener('click', () => {
+                        this.showGameInfoFromList(game.fullInfo);
+                    });
+                    
+                    list.appendChild(element);
+                });
+                
+                document.getElementById('total-amount').textContent = total;
+                document.getElementById('summary-section').classList.add('visible');
+                
+                // Обновляем текст кнопки продажи
+                document.getElementById('sale-btn').textContent = `💰 ОФОРМИТЬ ПРОДАЖУ (${totalItems} шт - ${total} руб)`;
+            }
+
+            // ОСТАЛЬНЫЕ МЕТОДЫ
+            parseCSVOptimized(csvText) {
+                const games = [];
+                const rows = csvText.split('\n');
+                let parsedCount = 0;
+                
+                console.log('📊 Начало парсинга CSV, строк:', rows.length);
+                
+                for (let i = 1; i < rows.length; i++) {
+                    if (!rows[i].trim()) continue;
+                    
+                    try {
+                        const cells = this.parseCSVRow(rows[i]);
+                        if (cells.length < 29) continue;
+
+                        if (cells[0] && cells[0].includes('PS4') && cells[1] && cells[2]) {
+                            games.push({
+                                platform: cells[0],
+                                barcode: cells[1],
+                                name: cells[2],
+                                code: cells[3] || '',
+                                language: cells[4] || '',
+                                optPrice: cells[5] || '',
+                                marketplace: cells[6] || '',
+                                codeType: 'CUSA'
+                            });
+                            parsedCount++;
+                        }
+                        
+                        if (cells[8] && cells[8].includes('PS5') && cells[9] && cells[10]) {
+                            games.push({
+                                platform: cells[8],
+                                barcode: cells[9],
+                                name: cells[10],
+                                code: cells[11] || '',
+                                language: cells[12] || '',
+                                optPrice: cells[13] || '',
+                                marketplace: cells[14] || '',
+                                codeType: 'PPSA'
+                            });
+                            parsedCount++;
+                        }
+                        
+                        if (cells[16] && (cells[16].includes('NS') || cells[16].includes('Switch')) && cells[17] && cells[18]) {
+                            let barcodes = cells[17];
+                            if (barcodes.includes('/')) {
+                                barcodes = barcodes.split('/').map(b => b.trim()).join('/');
+                            }
+                            
+                            games.push({
+                                platform: cells[16],
+                                barcode: barcodes,
+                                name: cells[18],
+                                code: '',
+                                language: cells[19] || '',
+                                optPrice: cells[20] || '',
+                                marketplace: cells[21] || '',
+                                codeType: ''
+                            });
+                            parsedCount++;
+                        }
+                        
+                        if (cells[23] && cells[23].includes('XBOX') && cells[24] && cells[25]) {
+                            games.push({
+                                platform: cells[23],
+                                barcode: cells[24],
+                                name: cells[25],
+                                code: '',
+                                language: cells[26] || '',
+                                optPrice: cells[27] || '',
+                                marketplace: cells[28] || '',
+                                codeType: ''
+                            });
+                            parsedCount++;
+                        }
+                    } catch (error) {
+                        console.log('Ошибка парсинга строки', i, error);
+                    }
+                }
+                
+                console.log(`📊 Итог парсинга: Всего ${parsedCount} игр`);
+                this.logger.logAppAction('CSV_PARSED', { count: parsedCount });
+                return games;
+            }
+
+            parseCSVRow(row) {
+                const cells = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let char of row) {
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        cells.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                cells.push(current.trim());
+                return cells;
+            }
+
+            // МЕТОДЫ ДЛЯ СИСТЕМЫ СКАНИРОВАНИЯ
+            async startScanner() {
+                this.logger.logAppAction('SCANNER_START');
+                
+                if (this.gamesData.length === 0) {
+                    alert('❌ Нет данных об играх. Сначала загрузите данные.');
+                    return;
+                }
+                
+                console.log('🚀 Запуск сканера');
+                this.resetScannerState();
+                this.showCameraModal();
+            }
+
+            findGameByBarcodeExtended(barcode) {
+                const cleanBarcode = barcode.toString().trim();
+                
+                let game = this.gamesData.find(g => {
+                    if (!g.barcode) return false;
+                    if (g.barcode.includes('/')) {
+                        const barcodes = g.barcode.split('/').map(b => b.trim());
+                        return barcodes.includes(cleanBarcode);
+                    }
+                    return g.barcode === cleanBarcode;
+                });
+                
+                if (!game) {
+                    game = this.gamesData.find(g => {
+                        if (!g.barcode) return false;
+                        if (g.barcode.includes('/')) {
+                            const barcodes = g.barcode.split('/').map(b => b.trim());
+                            return barcodes.some(b => cleanBarcode.includes(b) || b.includes(cleanBarcode));
+                        }
+                        return g.barcode.includes(cleanBarcode) || cleanBarcode.includes(g.barcode);
+                    });
+                }
+                
+                return game;
+            }
+
+            displayGameInfo(game) {
+                const price = this.calculateFinalPrice(game.optPrice);
+                
+                document.getElementById('current-price-value').textContent = price || '0';
+                document.getElementById('current-price').classList.add('visible');
+                
+                document.getElementById('game-final-price').textContent = price || '—';
+                document.getElementById('game-name').textContent = game.name;
+                document.getElementById('game-language').textContent = this.getLanguageText(game.language) || '—';
+                document.getElementById('game-platform').innerHTML = this.getPlatformIcon(game.platform) + game.platform;
+                document.getElementById('game-barcode').textContent = game.barcode;
+                document.getElementById('game-marketplace').textContent = game.marketplace || '—';
+                
+                const codeRow = document.getElementById('game-code-row');
+                if (game.code && game.codeType) {
+                    document.getElementById('game-code-label').textContent = game.codeType + ':';
+                    document.getElementById('game-code').textContent = game.code;
+                    codeRow.style.display = 'flex';
+                } else {
+                    codeRow.style.display = 'none';
+                }
+                
+                document.getElementById('game-info').classList.add('visible');
+                
+                this.logger.logAppAction('GAME_DISPLAYED', { 
+                    name: game.name, 
+                    barcode: game.barcode,
+                    price: price 
+                });
+            }
+
+            getPlatformIcon(platform) {
+                if (platform.includes('PS4')) return '<span class="platform-icon ps4-icon">PS4</span>';
+                if (platform.includes('PS5')) return '<span class="platform-icon ps5-icon">PS5</span>';
+                if (platform.includes('NS') || platform.includes('Switch')) return '<span class="platform-icon ns-icon">NS</span>';
+                if (platform.includes('XBOX')) return '<span class="platform-icon xbox-icon">XB</span>';
+                return '';
+            }
+
+            hideGameInfo() {
+                document.getElementById('game-info').classList.remove('visible');
+                document.getElementById('current-price').classList.remove('visible');
+            }
+
+            removeFromScannedGames(index) {
+                const removedGame = this.scannedGames[index];
+                this.scannedGames.splice(index, 1);
+                this.saveToLocalStorage();
+                this.updateSummaryButton();
+                this.showSummary();
+                
+                this.logger.logAppAction('ITEM_REMOVED', { 
+                    name: removedGame.name, 
+                    barcode: removedGame.barcode 
+                });
+            }
+
+            showGameInfoFromList(game) {
+                this.displayGameInfo(game);
+                this.hideSummary();
+            }
+
+            updateSummaryButton() {
+                const btn = document.getElementById('summary-btn');
+                const totalItems = this.scannedGames.reduce((sum, game) => sum + (game.quantity || 1), 0);
+                const total = this.scannedGames.reduce((sum, game) => sum + (game.price * (game.quantity || 1)), 0);
+                
+                if (this.scannedGames.length > 0) {
+                    btn.textContent = `💰 ИТОГО (${totalItems} шт - ${total} руб)`;
+                } else {
+                    btn.textContent = '💰 ИТОГО';
+                }
+            }
+
+            resetScannedGames() {
+                const count = this.scannedGames.length;
+                this.scannedGames = [];
+                this.saveToLocalStorage();
+                this.updateSummaryButton();
+                this.hideSummary();
+                this.updateStatus('✅ Список очищен', 'success');
+                document.getElementById('current-price').classList.remove('visible');
+                document.getElementById('sale-btn').textContent = '💰 ОФОРМИТЬ ПРОДАЖУ';
+                
+                this.logger.logAppAction('CART_CLEARED', { itemsCleared: count });
+            }
+
+            calculateFinalPrice(optPrice) {
+                if (!optPrice) return 0;
+                try {
+                    const clean = optPrice.replace(',', '.').replace(/\s/g, '');
+                    const price = parseFloat(clean);
+                    return isNaN(price) ? 0 : Math.round(price + 1000);
+                } catch {
+                    return 0;
+                }
+            }
+
+            getLanguageText(lang) {
+                const map = {
+                    'ENG': 'Английский', 'SUB': 'Русские субтитры', 
+                    'RUS': 'Русский', 'MULTI': 'Мульти язык'
+                };
+                return map[lang?.toUpperCase()] || lang || '';
+            }
+
+            // МЕТОДЫ ДЛЯ КАМЕРЫ
+            resetScannerState() {
+                console.log('🔄 Сброс состояния сканера');
+                this.isScanning = false;
+                this.lastScannedCode = null;
+                this.scanCooldown = false;
+            }
+
+            showCameraModal() {
+                console.log('📱 Показываем модальное окно камеры');
+                document.getElementById('modal-overlay').style.display = 'block';
+                document.getElementById('camera-modal').style.display = 'block';
+                this.initializeCamera();
+            }
+
+            hideCameraModal() {
+                console.log('📱 Скрываем модальное окно камеры');
+                document.getElementById('modal-overlay').style.display = 'none';
+                document.getElementById('camera-modal').style.display = 'none';
+            }
+
+            updateCameraStatus(message, type = '') {
+                const statusEl = document.getElementById('camera-status');
+                statusEl.textContent = message;
+                statusEl.className = `scanning-status ${type}`;
+                statusEl.style.display = 'block';
+            }
+
+            async initializeCamera() {
+                try {
+                    console.log('📷 Инициализация камеры...');
+                    
+                    await this.stopCamera();
+                    
+                    const constraints = {
+                        video: {
+                            facingMode: "environment",
+                            width: { ideal: 640 },
+                            height: { ideal: 480 }
+                        }
+                    };
+                    
+                    this.cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
+                    document.getElementById('camera-view').srcObject = this.cameraStream;
+                    
+                    this.updateCameraStatus('🔍 Камера запущена, инициализируем сканер...');
+                    
+                    setTimeout(() => {
+                        this.startQuaggaScanner();
+                    }, 1000);
+                    
+                } catch (error) {
+                    console.error('❌ Ошибка камеры:', error);
+                    this.handleCameraError(error);
+                }
+            }
+
+            startQuaggaScanner() {
+                if (!this.isScanning) {
+                    this.isScanning = true;
+                }
+                
+                console.log('🎯 Запуск Quagga сканера');
+                
+                this.stopQuagga();
+                
+                const config = {
+                    inputStream: {
+                        name: "Live",
+                        type: "LiveStream",
+                        target: document.getElementById('camera-view'),
+                        constraints: {
+                            width: 640,
+                            height: 480
+                        }
+                    },
+                    decoder: {
+                        readers: ["ean_reader", "ean_8_reader", "code_128_reader"]
+                    },
+                    locate: true,
+                    frequency: 10
+                };
+                
+                Quagga.init(config, (err) => {
+                    if (err) {
+                        console.error('❌ Ошибка инициализации Quagga:', err);
+                        this.updateCameraStatus('❌ Ошибка сканера', 'scanning-error');
+                        this.safeRestartScanner();
+                        return;
+                    }
+                    
+                    console.log('✅ Quagga успешно инициализирован');
+                    this.quaggaInitialized = true;
+                    
+                    Quagga.start();
+                    this.updateCameraStatus('🔍 Сканирую штрих-коды...');
+                    
+                    Quagga.onDetected((result) => {
+                        if (this.isScanning && !this.scanCooldown) {
+                            this.handleBarcodeDetection(result);
+                        }
+                    });
+                });
+            }
+
+            handleBarcodeDetection(result) {
+                if (!result.codeResult?.code) {
+                    console.log('🚫 Пустой результат сканирования');
+                    return;
+                }
+                
+                const code = result.codeResult.code.toString().trim();
+                console.log('📷 Сканирован код:', code);
+                
+                if (code.length < 6) {
+                    console.log('🚫 Слишком короткий код');
+                    return;
+                }
+                
+                if (this.lastScannedCode === code) {
+                    console.log('🔄 Повторный код, пропускаем');
+                    return;
+                }
+                
+                this.scanCooldown = true;
+                this.lastScannedCode = code;
+                this.stopQuagga();
+                
+                this.updateCameraStatus(`📷 Найден код: ${code}`, 'scanning-success');
+                this.processScannedBarcode(code);
+            }
+
+            async processScannedBarcode(barcode) {
+                const code = barcode.toString().trim();
+                
+                console.log('🔍 Ищем игру для кода:', code);
+                const game = this.findGameByBarcodeExtended(code);
+                
+                if (game) {
+                    console.log('✅ Найдена игра:', game.name);
+                    this.displayGameInfo(game);
+                    this.addToScannedGames(game);
+                    this.updateCameraStatus('✅ Игра найдена!', 'scanning-success');
+                    
+                    if (navigator.vibrate) navigator.vibrate(100);
+                    setTimeout(() => this.stopScanner(), 1000);
+                    
+                    this.logger.logAppAction('BARCODE_SCANNED_SUCCESS', { 
+                        barcode: code, 
+                        game: game.name 
+                    });
+                    
+                } else {
+                    console.log('❌ Игра не найдена для кода:', code);
+                    this.updateCameraStatus('❌ Игра не найдена', 'scanning-error');
+                    
+                    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+                    
+                    setTimeout(() => this.safeRestartScanner(), 2000);
+                    
+                    this.logger.logAppAction('BARCODE_SCANNED_FAILED', { barcode: code });
+                }
+            }
+
+            async safeRestartScanner() {
+                if (!this.isScanning) return;
+                
+                console.log('🔄 Безопасный перезапуск сканера');
+                this.scanCooldown = false;
+                this.lastScannedCode = null;
+                this.updateCameraStatus('🔍 Сканирую...');
+                
+                try {
+                    this.stopQuagga();
+                    this.startQuaggaScanner();
+                } catch (e) {
+                    console.error('❌ Ошибка безопасного перезапуска:', e);
+                    this.restartCamera();
+                }
+            }
+
+            async restartCamera() {
+                console.log('🔄 Перезапуск камеры');
+                this.updateCameraStatus('🔄 Перезапускаем камеру...');
+                
+                this.stopQuagga();
+                await this.stopCamera();
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                await this.initializeCamera();
+            }
+
+            stopQuagga() {
+                try {
+                    if (this.quaggaInitialized) {
+                        Quagga.offDetected();
+                        Quagga.stop();
+                        console.log('✅ Quagga остановлен');
+                    }
+                    this.quaggaInitialized = false;
+                } catch (e) {
+                    console.log('ℹ️ Quagga уже остановлен или не был инициализирован');
+                }
+            }
+
+            async stopCamera() {
+                if (this.cameraStream) {
+                    this.cameraStream.getTracks().forEach(track => {
+                        track.stop();
+                    });
+                    this.cameraStream = null;
+                    console.log('✅ Камера остановлена');
+                }
+            }
+
+            stopScanner() {
+                console.log('🛑 Полная остановка сканера');
+                
+                this.isScanning = false;
+                this.scanCooldown = false;
+                this.lastScannedCode = null;
+                
+                this.stopQuagga();
+                this.stopCamera();
+                
+                this.hideCameraModal();
+                document.getElementById('camera-status').style.display = 'none';
+                
+                console.log('✅ Сканер полностью остановлен');
+                this.logger.logAppAction('SCANNER_STOPPED');
+            }
+
+            handleCameraError(error) {
+                let errorMessage = 'Неизвестная ошибка камеры';
+                
+                switch (error.name) {
+                    case 'NotAllowedError':
+                        errorMessage = '❌ Доступ к камере запрещен. Разрешите доступ в настройках браузера.';
+                        break;
+                    case 'NotFoundError':
+                        errorMessage = '❌ Камера не найдена. Убедитесь, что камера подключена.';
+                        break;
+                    case 'NotSupportedError':
+                        errorMessage = '❌ Ваш браузер не поддерживает доступ к камере.';
+                        break;
+                    case 'NotReadableError':
+                        errorMessage = '❌ Камера уже используется другим приложением.';
+                        break;
+                }
+                
+                this.updateCameraStatus(errorMessage, 'scanning-error');
+                setTimeout(() => this.stopScanner(), 3000);
+                
+                this.logger.logAppAction('CAMERA_ERROR', { error: error.message });
+            }
+
+            hideSummary() {
+                document.getElementById('summary-section').classList.remove('visible');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new GameScannerApp();
+        });
+    </script>
+</body>
+</html>
