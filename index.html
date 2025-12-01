@@ -122,6 +122,37 @@
             font-weight: 500;
         }
         
+        /* Краткая информация об игре */
+        .game-summary {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            display: none;
+            border: 2px solid #e9ecef;
+        }
+        .game-summary.visible { display: block; }
+        .game-summary-price {
+            color: #28a745;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .game-summary-name {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .game-summary-platform {
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
         .search-container {
             display: flex;
             gap: 10px;
@@ -252,14 +283,14 @@
             padding: 0 20px 30px;
         }
         
-        /* Окно корзины */
+        /* Окно корзины - НОВЫЙ ДИЗАЙН */
         #cart-modal .cart-list {
             margin-bottom: 20px;
         }
         
         .cart-item {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             padding: 15px;
             border: 1px solid #e0e0e0;
             border-radius: 12px;
@@ -272,44 +303,56 @@
             background: #e9ecef;
         }
         
+        .cart-item-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
         .cart-item-info {
             flex: 1;
-            margin-right: 15px;
-            min-width: 0; /* Важно для обрезки текста */
+            margin-right: 10px;
         }
         
         .cart-item-name {
             font-weight: bold;
             font-size: 16px;
-            margin-bottom: 5px;
             color: #333;
             line-height: 1.3;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            word-break: break-word;
+            margin-bottom: 5px;
         }
         
         .cart-item-platform {
             font-size: 14px;
             color: #666;
-            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .cart-item-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 10px;
+            border-top: 1px dashed #ddd;
         }
         
         .cart-item-quantity {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-right: 15px;
         }
         
         .quantity-btn {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             background: #0078D7;
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 20px;
+            font-size: 22px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -321,34 +364,31 @@
         }
         
         .quantity-value {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
-            min-width: 40px;
+            min-width: 50px;
             text-align: center;
         }
         
         .cart-item-price {
             font-weight: bold;
-            font-size: 18px;
-            color: #0078D7;
-            min-width: 80px;
-            text-align: right;
+            font-size: 20px;
+            color: #28a745;
         }
         
         .cart-remove {
             background: #dc3545;
             color: white;
             border: none;
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 8px;
-            font-size: 20px;
+            font-size: 22px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             margin-left: 10px;
-            flex-shrink: 0;
         }
         
         .cart-total {
@@ -430,7 +470,7 @@
         }
         
         .search-result-price {
-            color: #0078D7;
+            color: #28a745;
             font-weight: bold;
         }
         
@@ -578,15 +618,15 @@
 
         .platform-icon {
             display: inline-block;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             margin-right: 5px;
             vertical-align: middle;
-            border-radius: 3px;
+            border-radius: 4px;
             color: white;
-            font-size: 10px;
+            font-size: 11px;
             text-align: center;
-            line-height: 20px;
+            line-height: 24px;
             font-weight: bold;
         }
         .ps4-icon { background-color: #0070d1; }
@@ -677,6 +717,15 @@
             💰 Цена: <span id="current-price-value">0</span> руб
         </div>
 
+        <!-- Краткая информация об игре -->
+        <div id="game-summary" class="game-summary">
+            <div class="game-summary-price">
+                <span id="game-summary-price">0</span> руб
+            </div>
+            <div class="game-summary-name" id="game-summary-name"></div>
+            <div class="game-summary-platform" id="game-summary-platform"></div>
+        </div>
+
         <div id="scanner-container">
             <div class="scanner-placeholder">
                 <div class="icon">📷</div>
@@ -686,8 +735,7 @@
 
         <button id="open-search-btn" class="btn">🔍 Умный поиск</button>
 
-        <button id="summary-btn" class="btn" style="background: #28a745;">🛒 Корзина</button>
-
+        <!-- Только кнопка оформления продажи -->
         <button id="sale-btn" class="btn sale">💰 ОФОРМИТЬ ПРОДАЖУ</button>
 
         <!-- Кнопка статистики -->
@@ -706,6 +754,7 @@
             <span id="status-text">Загружаем данные...</span>
         </div>
 
+        <!-- Полная информация об игре -->
         <div id="game-info" class="game-info">
             <div class="price-final">
                 💰 Цена продажи: <span id="game-final-price"></span> руб
@@ -740,7 +789,7 @@
         </div>
 
         <div class="app-version">
-            Версия 4.2 | GAME ZONE PWA | <span id="cache-status">✅</span>
+            Версия 4.3 | GAME ZONE PWA | <span id="cache-status">✅</span>
         </div>
     </div>
 
@@ -759,7 +808,7 @@
             </div>
             <div class="cart-buttons">
                 <button id="clear-cart-btn" class="btn" style="background: #dc3545;">🗑️ Очистить корзину</button>
-                <button id="process-sale-btn" class="btn" style="background: #28a745;">💰 Оформить продажу</button>
+                <button id="process-sale-btn" class="btn" style="background: #28a745;">💰 Завершить продажу</button>
             </div>
         </div>
     </div>
@@ -850,7 +899,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.1/dist/quagga.min.js"></script>
     
     <script>
-        // Вернул старый рабочий логгер
+        // Простой и надежный логгер с правильной кодировкой
         class SimpleLogger {
             constructor() {
                 this.appLog = [];
@@ -863,7 +912,6 @@
                 console.log('📊 Логгер инициализирован');
             }
 
-            // Универсальный поиск (работает отлично)
             smartSearch(gamesData, query) {
                 if (!query || query.length < 2) return [];
                 
@@ -962,54 +1010,55 @@
                 }
             }
 
-            // Простой и понятный формат логов
-            formatSaleForLog(saleEntry) {
-                let logText = '========================================\n';
-                logText += `ПРОДАЖА: ${saleEntry.saleId}\n`;
-                logText += `ВРЕМЯ: ${new Date(saleEntry.timestamp).toLocaleString('ru-RU')}\n`;
-                logText += '========================================\n';
-                
-                saleEntry.items.forEach((item, index) => {
-                    logText += `${index + 1}. ${item.name} [${item.platform}]\n`;
-                    logText += `   Кол-во: ${item.quantity} шт x ${item.price} руб = ${item.total} руб\n`;
-                });
-                
-                logText += '========================================\n';
-                logText += `ИТОГО: ${saleEntry.totalItems} шт\n`;
-                logText += `СУММА: ${saleEntry.totalAmount} руб\n`;
-                logText += '========================================\n\n';
-                
-                return logText;
-            }
-
-            // Читабельный файл логов
+            // Читабельный формат логов с правильной кодировкой
             downloadLogs() {
                 try {
                     const today = new Date().toISOString().split('T')[0];
                     const filename = `gamezone_sales_${today}.txt`;
                     
-                    let logContent = 'GAME ZONE - ЛОГИ ПРОДАЖ\n';
-                    logContent += `Сформировано: ${new Date().toLocaleString('ru-RU')}\n`;
-                    logContent += '========================================\n\n';
+                    // Создаем читабельный текст с правильной кодировкой
+                    let logContent = '════════════════════════════════════════\n';
+                    logContent += '           GAME ZONE - ЛОГИ ПРОДАЖ\n';
+                    logContent += `       Сформировано: ${new Date().toLocaleString('ru-RU')}\n`;
+                    logContent += '════════════════════════════════════════\n\n';
                     
                     // Добавляем статистику
                     const stats = this.getStats();
-                    logContent += `📊 СТАТИСТИКА:\n`;
+                    logContent += '📊 СТАТИСТИКА ПРОДАЖ:\n';
+                    logContent += '────────────────────────────────────────\n';
                     logContent += `Всего продаж: ${stats.totalSales}\n`;
-                    logContent += `Товаров: ${stats.totalItems} шт\n`;
-                    logContent += `Выручка: ${stats.totalRevenue} руб\n`;
+                    logContent += `Всего товаров: ${stats.totalItems} шт\n`;
+                    logContent += `Общая выручка: ${stats.totalRevenue} руб\n\n`;
                     logContent += `Продаж сегодня: ${stats.todaySales}\n`;
                     logContent += `Товаров сегодня: ${stats.todayItems} шт\n`;
                     logContent += `Выручка сегодня: ${stats.todayRevenue} руб\n`;
-                    logContent += '\n========================================\n\n';
+                    logContent += '\n════════════════════════════════════════\n';
+                    logContent += '           ИСТОРИЯ ПРОДАЖ\n';
+                    logContent += '════════════════════════════════════════\n\n';
                     
                     // Добавляем историю продаж
-                    this.salesLog.forEach((sale, index) => {
-                        logContent += this.formatSaleForLog(sale);
+                    this.salesLog.reverse().forEach((sale, index) => {
+                        const saleDate = new Date(sale.timestamp).toLocaleString('ru-RU');
+                        
+                        logContent += `┌──────────────────────────────────────┐\n`;
+                        logContent += `│ ПРОДАЖА: ${sale.saleId.padEnd(20)} │\n`;
+                        logContent += `│ ВРЕМЯ:  ${saleDate.padEnd(27)} │\n`;
+                        logContent += `├──────────────────────────────────────┤\n`;
+                        
+                        sale.items.forEach((item, itemIndex) => {
+                            logContent += `│ ${itemIndex + 1}. ${item.name}\n`;
+                            logContent += `│    ${item.platform} | ${item.quantity} шт x ${item.price} руб = ${item.total} руб\n`;
+                        });
+                        
+                        logContent += `├──────────────────────────────────────┤\n`;
+                        logContent += `│ ИТОГО: ${sale.totalItems} шт на сумму ${sale.totalAmount} руб\n`;
+                        logContent += `└──────────────────────────────────────┘\n\n`;
                     });
                     
-                    // Создаем и скачиваем файл
-                    const blob = new Blob([logContent], { type: 'text/plain;charset=utf-8' });
+                    // Используем правильную кодировку UTF-8 с BOM для русских символов
+                    const blob = new Blob(['\uFEFF' + logContent], { 
+                        type: 'text/plain;charset=utf-8' 
+                    });
                     const url = URL.createObjectURL(blob);
                     
                     const a = document.createElement('a');
@@ -1020,7 +1069,7 @@
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
                     
-                    console.log('📥 Логи скачаны');
+                    console.log('📥 Логи скачаны в читабельном формате');
                     return true;
                     
                 } catch (error) {
@@ -1072,7 +1121,7 @@
             }
         }
 
-        // Основной класс приложения с исправлениями
+        // Основной класс приложения
         class GameScannerApp {
             constructor() {
                 this.sheetsUrl = 'https://docs.google.com/spreadsheets/d/1fMWJan1HP7tcKwa_hm86oCm0KPtC_zN50UhU72Q8xeA/export?format=csv&gid=1995791598';
@@ -1088,7 +1137,7 @@
                 this.lastScannedCode = null;
                 this.scanCooldown = false;
                 
-                this.appVersion = "4.2";
+                this.appVersion = "4.3";
                 this.logger = new SimpleLogger();
                 
                 this.init();
@@ -1104,7 +1153,6 @@
                 this.updateStatus('🔄 Загружаем данные...');
                 await this.loadGamesData();
                 
-                // НЕ показываем статистику автоматически
                 this.updateStatus(`✅ Готов! ${this.gamesData.length} игр в базе`, 'success');
             }
 
@@ -1135,8 +1183,7 @@
                 
                 // Кнопки модальных окон
                 document.getElementById('open-search-btn').addEventListener('click', () => this.openSearchModal());
-                document.getElementById('summary-btn').addEventListener('click', () => this.openCartModal());
-                document.getElementById('sale-btn').addEventListener('click', () => this.processSale());
+                document.getElementById('sale-btn').addEventListener('click', () => this.openCartModal()); // Теперь эта кнопка открывает корзину
                 document.getElementById('stats-btn').addEventListener('click', () => this.openStatsModal());
                 
                 // Управление логами
@@ -1151,7 +1198,7 @@
                 document.getElementById('close-stats-btn').addEventListener('click', () => this.closeModal('stats-modal'));
                 document.getElementById('modal-overlay').addEventListener('click', () => this.closeAllModals());
                 
-                // Камера - ВЕРНУЛ СТАРЫЕ РАБОЧИЕ ОБРАБОТЧИКИ
+                // Камера
                 document.getElementById('restart-camera').addEventListener('click', () => {
                     console.log('🔄 Перезапуск камеры');
                     this.restartCamera();
@@ -1183,7 +1230,6 @@
                 document.getElementById('modal-overlay').style.display = 'block';
                 document.body.style.overflow = 'hidden';
                 
-                // Для окна поиска фокус на поле ввода
                 if (modalId === 'search-modal') {
                     setTimeout(() => {
                         document.getElementById('smart-search-input').focus();
@@ -1221,7 +1267,7 @@
                 this.openModal('stats-modal');
             }
 
-            // Окно корзины (УЛУЧШЕННАЯ ВЕРСИЯ)
+            // Окно корзины (Новый дизайн)
             openCartModal() {
                 if (this.scannedGames.length === 0) {
                     alert('🛒 Корзина пуста');
@@ -1248,17 +1294,23 @@
                     const item = document.createElement('div');
                     item.className = 'cart-item';
                     item.innerHTML = `
-                        <div class="cart-item-info">
-                            <div class="cart-item-name">${game.platformIcon} ${game.name}</div>
-                            <div class="cart-item-platform">${game.platform}</div>
+                        <div class="cart-item-header">
+                            <div class="cart-item-info">
+                                <div class="cart-item-name">${game.name}</div>
+                                <div class="cart-item-platform">${game.platformIcon} ${game.platform}</div>
+                            </div>
                         </div>
-                        <div class="cart-item-quantity">
-                            <button class="quantity-btn minus" data-index="${index}">-</button>
-                            <span class="quantity-value">${quantity}</span>
-                            <button class="quantity-btn plus" data-index="${index}">+</button>
+                        <div class="cart-item-controls">
+                            <div class="cart-item-quantity">
+                                <button class="quantity-btn minus" data-index="${index}">-</button>
+                                <span class="quantity-value">${quantity}</span>
+                                <button class="quantity-btn plus" data-index="${index}">+</button>
+                            </div>
+                            <div style="display: flex; align-items: center;">
+                                <div class="cart-item-price">${itemTotal} руб</div>
+                                <button class="cart-remove" data-index="${index}">×</button>
+                            </div>
                         </div>
-                        <div class="cart-item-price">${itemTotal} руб</div>
-                        <button class="cart-remove" data-index="${index}">×</button>
                     `;
                     
                     // Обработчики
@@ -1293,11 +1345,11 @@
                 });
                 
                 document.getElementById('cart-total-amount').textContent = total;
-                document.getElementById('summary-btn').textContent = `🛒 Корзина (${totalItems} шт)`;
-                document.getElementById('sale-btn').textContent = `💰 ОФОРМИТЬ ПРОДАЖУ (${total} руб)`;
+                // Обновляем кнопку продажи с количеством товаров
+                document.getElementById('sale-btn').textContent = `💰 ОФОРМИТЬ ПРОДАЖУ (${totalItems} шт - ${total} руб)`;
             }
 
-            // Окно поиска (УЛУЧШЕННАЯ ВЕРСИЯ)
+            // Окно поиска
             openSearchModal() {
                 this.openModal('search-modal');
                 document.getElementById('smart-search-input').value = '';
@@ -1406,15 +1458,6 @@
                     this.closeModal('cart-modal');
                     this.updateStatus('✅ Корзина очищена', 'success');
                 }
-            }
-
-            processSale() {
-                if (this.scannedGames.length === 0) {
-                    alert('❌ Корзина пуста');
-                    return;
-                }
-                
-                this.openCartModal();
             }
 
             processSaleFromCart() {
@@ -1699,7 +1742,7 @@
                 }
             }
 
-            // ========== СКАНИРОВАНИЕ (ВЕРНУЛ СТАРУЮ РАБОЧУЮ ВЕРСИЮ) ==========
+            // ========== СКАНИРОВАНИЕ (старая рабочая версия) ==========
             async startScanner() {
                 if (this.gamesData.length === 0) {
                     alert('❌ Нет данных об играх');
@@ -1727,7 +1770,6 @@
                 try {
                     console.log('📷 Инициализация камеры...');
                     
-                    // Останавливаем предыдущую камеру если есть
                     await this.stopCamera();
                     
                     const constraints = {
@@ -1744,7 +1786,6 @@
                     
                     this.updateCameraStatus('🔍 Камера запущена, инициализируем сканер...');
                     
-                    // Ждем немного перед запуском сканера
                     setTimeout(() => {
                         this.startQuaggaScanner();
                     }, 1000);
@@ -1763,7 +1804,6 @@
                 
                 console.log('🎯 Запуск Quagga сканера');
                 
-                // Останавливаем предыдущий сканер
                 this.stopQuagga();
                 
                 const config = {
@@ -1859,7 +1899,6 @@
             findGameByBarcode(barcode) {
                 const cleanBarcode = barcode.toString().trim();
                 
-                // Ищем точное совпадение
                 let game = this.gamesData.find(g => {
                     if (!g.barcode) return false;
                     if (g.barcode.includes('/')) {
@@ -1869,7 +1908,6 @@
                     return g.barcode === cleanBarcode;
                 });
                 
-                // Если не нашли, ищем частичное совпадение
                 if (!game) {
                     game = this.gamesData.find(g => {
                         if (!g.barcode) return false;
@@ -1982,7 +2020,43 @@
                 this.scanCooldown = false;
             }
 
-            // Вспомогательные методы
+            // ========== ОТОБРАЖЕНИЕ ИНФОРМАЦИИ ОБ ИГРЕ ==========
+            displayGameInfo(game) {
+                const price = this.calculateFinalPrice(game.optPrice);
+                
+                // 1. Цена сверху
+                document.getElementById('current-price-value').textContent = price || '0';
+                document.getElementById('current-price').classList.add('visible');
+                
+                // 2. Краткая информация (цена, название, платформа)
+                document.getElementById('game-summary-price').textContent = price || '0';
+                document.getElementById('game-summary-name').textContent = game.name;
+                document.getElementById('game-summary-platform').innerHTML = 
+                    this.getPlatformIcon(game.platform) + game.platform;
+                document.getElementById('game-summary').classList.add('visible');
+                
+                // 3. Полная информация (внизу)
+                document.getElementById('game-final-price').textContent = price || '—';
+                document.getElementById('game-name').textContent = game.name;
+                document.getElementById('game-language').textContent = this.getLanguageText(game.language) || '—';
+                document.getElementById('game-platform').innerHTML = this.getPlatformIcon(game.platform) + game.platform;
+                document.getElementById('game-barcode').textContent = game.barcode;
+                document.getElementById('game-marketplace').textContent = game.marketplace || '—';
+                
+                const codeRow = document.getElementById('game-code-row');
+                if (game.code && game.codeType) {
+                    document.getElementById('game-code-label').textContent = game.codeType + ':';
+                    document.getElementById('game-code').textContent = game.code;
+                    codeRow.style.display = 'flex';
+                } else {
+                    codeRow.style.display = 'none';
+                }
+                
+                document.getElementById('game-info').classList.add('visible');
+                
+                this.logger.logAppAction('GAME_INFO_DISPLAYED', { name: game.name });
+            }
+
             calculateFinalPrice(optPrice) {
                 if (!optPrice) return 0;
                 try {
@@ -2008,33 +2082,6 @@
                     'RUS': 'Русский', 'MULTI': 'Мульти язык'
                 };
                 return map[lang?.toUpperCase()] || lang || '';
-            }
-
-            displayGameInfo(game) {
-                const price = this.calculateFinalPrice(game.optPrice);
-                
-                document.getElementById('current-price-value').textContent = price || '0';
-                document.getElementById('current-price').classList.add('visible');
-                
-                document.getElementById('game-final-price').textContent = price || '—';
-                document.getElementById('game-name').textContent = game.name;
-                document.getElementById('game-language').textContent = this.getLanguageText(game.language) || '—';
-                document.getElementById('game-platform').innerHTML = this.getPlatformIcon(game.platform) + game.platform;
-                document.getElementById('game-barcode').textContent = game.barcode;
-                document.getElementById('game-marketplace').textContent = game.marketplace || '—';
-                
-                const codeRow = document.getElementById('game-code-row');
-                if (game.code && game.codeType) {
-                    document.getElementById('game-code-label').textContent = game.codeType + ':';
-                    document.getElementById('game-code').textContent = game.code;
-                    codeRow.style.display = 'flex';
-                } else {
-                    codeRow.style.display = 'none';
-                }
-                
-                document.getElementById('game-info').classList.add('visible');
-                
-                this.logger.logAppAction('GAME_INFO_DISPLAYED', { name: game.name });
             }
         }
 
