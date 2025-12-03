@@ -621,16 +621,14 @@
 
         .platform-icon {
             display: inline-block;
-            width: 24px;
-            height: 24px;
-            margin-right: 5px;
-            vertical-align: middle;
+            padding: 2px 8px;
+            margin-right: 8px;
             border-radius: 4px;
             color: white;
             font-size: 11px;
-            text-align: center;
-            line-height: 24px;
             font-weight: bold;
+            text-align: center;
+            min-width: 40px;
         }
         .ps4-icon { background-color: #0070d1; }
         .ps5-icon { background-color: #000; }
@@ -771,7 +769,6 @@
         }
         
         /* Клиентский режим */
-        .client-mode .search-container,
         .client-mode .btn.stats,
         .client-mode .log-buttons,
         .client-mode #open-search-btn,
@@ -790,6 +787,7 @@
         .client-mode .current-price {
             font-size: 28px;
             padding: 20px;
+            margin-bottom: 10px;
         }
         
         .client-mode .app-version {
@@ -808,6 +806,45 @@
             font-size: 12px;
             font-weight: bold;
             z-index: 10;
+        }
+
+        /* Стили для информации об игре в клиентском режиме */
+        .client-game-info {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            display: none;
+            border: 2px solid #e9ecef;
+            text-align: center;
+        }
+        
+        .client-game-info.visible { 
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .client-game-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .client-game-platform {
+            margin-bottom: 15px;
+        }
+        
+        .client-game-price {
+            font-size: 28px;
+            font-weight: bold;
+            color: #28a745;
+            margin-top: 10px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
@@ -835,7 +872,14 @@
             💰 Цена: <span id="current-price-value">0</span> руб
         </div>
 
-        <!-- Краткая информация об игре -->
+        <!-- Информация об игре в клиентском режиме -->
+        <div id="client-game-info" class="client-game-info">
+            <div class="client-game-name" id="client-game-name"></div>
+            <div class="client-game-platform" id="client-game-platform"></div>
+            <div class="client-game-price" id="client-game-price">0 руб</div>
+        </div>
+
+        <!-- Краткая информация об игре (для полного режима) -->
         <div id="game-summary" class="game-summary">
             <div class="game-summary-price">
                 <span id="game-summary-price">0</span> руб
@@ -875,7 +919,7 @@
             <span id="status-text">Загружаем данные...</span>
         </div>
 
-        <!-- Полная информация об игре -->
+        <!-- Полная информация об игре (для полного режима) -->
         <div id="game-info" class="game-info">
             <div class="price-final">
                 💰 Цена продажи: <span id="game-final-price"></span> руб
@@ -910,7 +954,7 @@
         </div>
 
         <div class="app-version">
-            Версия 4.5 | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span>
+            Версия 4.6 | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span>
         </div>
     </div>
 
@@ -1036,10 +1080,16 @@
     <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.1/dist/quagga.min.js"></script>
     
     <script>
-        // Проверяем режим из URL
+        // Проверяем режим из URL и localStorage
         const urlParams = new URLSearchParams(window.location.search);
-        const isClientMode = urlParams.get('mode') === 'client' || 
-                            localStorage.getItem('gamezone_mode') === 'client';
+        const isUrlClientMode = urlParams.get('mode') === 'client';
+        const savedMode = localStorage.getItem('gamezone_mode');
+        
+        // Правило: если в URL явно указан client, используем его, 
+        // иначе используем сохраненный режим (если он есть), 
+        // иначе режим разработчика (full)
+        const isClientMode = isUrlClientMode ? true : 
+                           (savedMode ? savedMode === 'client' : false);
 
         // Простой и надежный логгер
         class SimpleLogger {
@@ -1294,7 +1344,7 @@
             }
         }
 
-        // Основной класс приложения с СТАБИЛЬНОЙ камерой
+        // Основной класс приложения со всеми исправлениями
         class GameScannerApp {
             constructor() {
                 this.sheetsUrl = 'https://docs.google.com/spreadsheets/d/1fMWJan1HP7tcKwa_hm86oCm0KPtC_zN50UhU72Q8xeA/export?format=csv&gid=1995791598';
@@ -1310,7 +1360,7 @@
                 this.lastScannedCode = null;
                 this.scanCooldown = false;
                 
-                this.appVersion = "4.5";
+                this.appVersion = "4.6";
                 this.isClientMode = isClientMode;
                 this.logger = new SimpleLogger();
                 
@@ -1325,7 +1375,8 @@
                 
                 this.logger.logAppAction('APP_START', { 
                     version: this.appVersion,
-                    mode: this.isClientMode ? 'client' : 'full' 
+                    mode: this.isClientMode ? 'client' : 'full',
+                    urlMode: urlParams.get('mode')
                 });
                 
                 this.setupEventListeners();
@@ -1336,7 +1387,7 @@
                 this.updateStatus(`✅ Готов! ${this.gamesData.length} игр в базе`, 'success');
             }
 
-            // Установка режима (клиентский/полный)
+            // Установка режима (клиентский/полный) с возможностью возврата
             setMode(isClientMode) {
                 this.isClientMode = isClientMode;
                 localStorage.setItem('gamezone_mode', isClientMode ? 'client' : 'full');
@@ -1354,10 +1405,12 @@
                     modeStatus.textContent = 'КЛИЕНТ';
                     appSubtitle.textContent = 'Сканер цен для клиентов';
                     scannerText.textContent = 'Наведите камеру на штрих-код игры';
-                    switchBtn.style.display = 'none'; // Скрываем кнопку переключения в клиентском режиме
                     
-                    document.getElementById('current-price').style.fontSize = '28px';
-                    document.getElementById('current-price').style.padding = '20px';
+                    // В клиентском режиме кнопка переключения всегда видна и называется "Вернуться в режим разработчика"
+                    switchBtn.style.display = 'block';
+                    switchBtn.textContent = '👨‍💻 Вернуться в режим разработчика';
+                    switchBtn.classList.remove('switch-mode');
+                    switchBtn.classList.add('developer-mode');
                     
                 } else {
                     container.classList.remove('client-mode');
@@ -1365,23 +1418,40 @@
                     modeStatus.textContent = 'ПОЛНЫЙ';
                     appSubtitle.textContent = 'Сканер игровых дисков';
                     scannerText.textContent = 'Нажмите для запуска сканера';
-                    switchBtn.style.display = 'block'; // Показываем кнопку переключения в полном режиме
-                    
-                    document.getElementById('current-price').style.fontSize = '20px';
-                    document.getElementById('current-price').style.padding = '15px';
+                    switchBtn.style.display = 'block';
+                    switchBtn.textContent = '👤 Переключить на клиентский режим';
+                    switchBtn.classList.add('switch-mode');
+                    switchBtn.classList.remove('developer-mode');
                 }
+                
+                // Скрываем/показываем элементы для клиентского режима
+                this.toggleClientModeElements();
                 
                 this.logger.logAppAction('MODE_CHANGED', { mode: isClientMode ? 'client' : 'full' });
             }
 
-            // Переключение режима (только из полного режима)
+            // Переключение режима
             toggleMode() {
-                if (!this.isClientMode) {
-                    const newMode = true; // Переключаем на клиентский
-                    this.setMode(newMode);
-                    this.updateStatus('✅ Переключен на клиентский режим', 'success');
+                if (this.isClientMode) {
+                    // Если в клиентском режиме - переключаемся в полный
+                    this.setMode(false);
+                    this.updateStatus('✅ Переключен в режим разработчика', 'success');
+                } else {
+                    // Если в полном режиме - переключаемся в клиентский
+                    this.setMode(true);
+                    this.updateStatus('✅ Переключен в клиентский режим', 'success');
                 }
-                // В клиентском режиме переключение невозможно
+            }
+
+            // Скрытие/отображение элементов для клиентского режима
+            toggleClientModeElements() {
+                const clientGameInfo = document.getElementById('client-game-info');
+                const gameSummary = document.getElementById('game-summary');
+                
+                if (this.isClientMode) {
+                    clientGameInfo.style.display = 'none';
+                    gameSummary.style.display = 'none';
+                }
             }
 
             updateStatus(message, type = '') {
@@ -1428,7 +1498,7 @@
                 document.getElementById('close-stats-detail-btn').addEventListener('click', () => this.closeModal('stats-detail-modal'));
                 document.getElementById('modal-overlay').addEventListener('click', () => this.closeAllModals());
                 
-                // Камера - СТАБИЛЬНЫЕ ОБРАБОТЧИКИ
+                // Камера
                 document.getElementById('restart-camera').addEventListener('click', () => {
                     console.log('🔄 Перезапуск камеры');
                     this.restartCamera();
@@ -1625,7 +1695,7 @@
                         <div class="cart-item-header">
                             <div class="cart-item-info">
                                 <div class="cart-item-name">${game.name}</div>
-                                <div class="cart-item-platform">${game.platformIcon} ${game.platform}</div>
+                                <div class="cart-item-platform">${this.getPlatformIconOnly(game.platform)}</div>
                             </div>
                         </div>
                         <div class="cart-item-controls">
@@ -1701,9 +1771,9 @@
                     const item = document.createElement('div');
                     item.className = 'search-result-item';
                     item.innerHTML = `
-                        <div class="search-result-name">${this.getPlatformIcon(game.platform)} ${game.name}</div>
+                        <div class="search-result-name">${this.getPlatformIconOnly(game.platform)} ${game.name}</div>
                         <div class="search-result-details">
-                            <span>${game.platform}</span>
+                            <span></span>
                             <span class="search-result-price">${this.calculateFinalPrice(game.optPrice)} руб</span>
                         </div>
                     `;
@@ -1732,7 +1802,7 @@
                         barcode: game.barcode,
                         price: price,
                         platform: game.platform,
-                        platformIcon: this.getPlatformIcon(game.platform),
+                        platformIcon: this.getPlatformIconOnly(game.platform),
                         fullInfo: game,
                         quantity: 1
                     });
@@ -2056,7 +2126,7 @@
                 }
             }
 
-            // ========== СТАБИЛЬНАЯ ВЕРСИЯ КАМЕРЫ ==========
+            // ========== СТАБИЛЬНАЯ ВЕРСИЯ КАМЕРЫ С АВТОПЕРЕЗАПУСКОМ ==========
             async startScanner() {
                 if (this.gamesData.length === 0) {
                     alert('❌ Нет данных об играх');
@@ -2202,9 +2272,11 @@
                     }
                     
                     if (navigator.vibrate) navigator.vibrate(100);
+                    
                     setTimeout(() => {
                         this.stopScanner();
-                        this.scanCooldown = false; // Сбрасываем кулдаун после остановки
+                        this.scanCooldown = false;
+                        this.lastScannedCode = null;
                     }, 1000);
                     
                 } else {
@@ -2213,13 +2285,20 @@
                     
                     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                     
-                    // ВАЖНО: После неудачного сканирования СБРАСЫВАЕМ состояние
+                    // ВАЖНОЕ ИСПРАВЛЕНИЕ №1: Автоматический перезапуск без задержки
                     setTimeout(() => {
-                        this.scanCooldown = false;
-                        this.lastScannedCode = null;
-                        this.safeRestartScanner(); // Перезапускаем сканер
-                    }, 1500);
+                        this.resetScannerStateForRestart();
+                        this.safeRestartScanner();
+                    }, 300); // Уменьшена задержка с 1500ms до 300ms
                 }
+            }
+
+            // Новая функция для сброса состояния перед перезапуском
+            resetScannerStateForRestart() {
+                this.scanCooldown = false;
+                this.lastScannedCode = null;
+                this.stopQuagga();
+                this.isScanning = false;
             }
 
             findGameByBarcode(barcode) {
@@ -2249,15 +2328,26 @@
             }
 
             async safeRestartScanner() {
-                if (!this.isScanning) return;
-                
                 console.log('🔄 Безопасный перезапуск сканера');
-                this.updateCameraStatus('🔍 Сканирую...');
+                this.updateCameraStatus('🔍 Перезапуск сканера...');
                 
                 try {
+                    // Полностью останавливаем старый сканер
                     this.stopQuagga();
-                    await new Promise(resolve => setTimeout(resolve, 300)); // Короткая пауза
+                    
+                    // Ждем немного чтобы все очистилось
+                    await new Promise(resolve => setTimeout(resolve, 200));
+                    
+                    // Проверяем что камера все еще работает
+                    if (!this.cameraStream || this.cameraStream.getTracks().every(track => track.readyState === 'ended')) {
+                        console.log('⚠️ Камера перестала работать, перезапускаем полностью');
+                        await this.restartCamera();
+                        return;
+                    }
+                    
+                    // Запускаем новый сканер
                     this.startQuaggaScanner();
+                    
                 } catch (e) {
                     console.error('❌ Ошибка безопасного перезапуска:', e);
                     this.restartCamera();
@@ -2265,13 +2355,13 @@
             }
 
             async restartCamera() {
-                console.log('🔄 Перезапуск камеры');
+                console.log('🔄 Полный перезапуск камеры');
                 this.updateCameraStatus('🔄 Перезапускаем камеру...');
                 
                 this.stopQuagga();
                 await this.stopCamera();
                 
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await new Promise(resolve => setTimeout(resolve, 300));
                 
                 await this.initializeCamera();
             }
@@ -2302,9 +2392,7 @@
             stopScanner() {
                 console.log('🛑 Полная остановка сканера');
                 
-                this.isScanning = false;
-                this.scanCooldown = false; // ВАЖНО: сбрасываем кулдаун
-                this.lastScannedCode = null; // ВАЖНО: сбрасываем последний код
+                this.resetScannerState();
                 
                 this.stopQuagga();
                 this.stopCamera();
@@ -2346,23 +2434,41 @@
                 this.scanCooldown = false;
             }
 
+            // ========== ОТОБРАЖЕНИЕ ИНФОРМАЦИИ ОБ ИГРЕ ==========
             displayGameInfo(game) {
                 const price = this.calculateFinalPrice(game.optPrice);
                 
                 document.getElementById('current-price-value').textContent = price || '0';
                 document.getElementById('current-price').classList.add('visible');
                 
-                document.getElementById('game-summary-price').textContent = price || '0';
-                document.getElementById('game-summary-name').textContent = game.name;
-                document.getElementById('game-summary-platform').innerHTML = 
-                    this.getPlatformIcon(game.platform) + game.platform;
-                document.getElementById('game-summary').classList.add('visible');
-                
-                if (!this.isClientMode) {
+                if (this.isClientMode) {
+                    // В клиентском режиме показываем специальный блок
+                    const clientGameInfo = document.getElementById('client-game-info');
+                    const clientGameName = document.getElementById('client-game-name');
+                    const clientGamePlatform = document.getElementById('client-game-platform');
+                    const clientGamePrice = document.getElementById('client-game-price');
+                    
+                    clientGameName.textContent = game.name;
+                    clientGamePlatform.innerHTML = this.getPlatformIconOnly(game.platform);
+                    clientGamePrice.textContent = price + ' руб';
+                    
+                    clientGameInfo.classList.add('visible');
+                    document.getElementById('game-summary').classList.remove('visible');
+                    
+                } else {
+                    // В полном режиме показываем старый блок
+                    document.getElementById('game-summary-price').textContent = price || '0';
+                    document.getElementById('game-summary-name').textContent = game.name;
+                    document.getElementById('game-summary-platform').innerHTML = 
+                        this.getPlatformIconOnly(game.platform);
+                    document.getElementById('game-summary').classList.add('visible');
+                    
+                    document.getElementById('client-game-info').classList.remove('visible');
+                    
                     document.getElementById('game-final-price').textContent = price || '—';
                     document.getElementById('game-name').textContent = game.name;
                     document.getElementById('game-language').textContent = this.getLanguageText(game.language) || '—';
-                    document.getElementById('game-platform').innerHTML = this.getPlatformIcon(game.platform) + game.platform;
+                    document.getElementById('game-platform').innerHTML = this.getPlatformIconOnly(game.platform);
                     document.getElementById('game-barcode').textContent = game.barcode;
                     document.getElementById('game-marketplace').textContent = game.marketplace || '—';
                     
@@ -2395,12 +2501,29 @@
                 }
             }
 
-            getPlatformIcon(platform) {
-                if (platform.includes('PS4')) return '<span class="platform-icon ps4-icon">PS4</span>';
-                if (platform.includes('PS5')) return '<span class="platform-icon ps5-icon">PS5</span>';
-                if (platform.includes('NS') || platform.includes('Switch')) return '<span class="platform-icon ns-icon">NS</span>';
-                if (platform.includes('XBOX')) return '<span class="platform-icon xbox-icon">XB</span>';
-                return '';
+            // ИСПРАВЛЕНИЕ №4: Возвращаем только цветные иконки без текста
+            getPlatformIconOnly(platform) {
+                let platformText = '';
+                let platformClass = '';
+                
+                if (platform.includes('PS4')) {
+                    platformText = 'PS4';
+                    platformClass = 'ps4-icon';
+                } else if (platform.includes('PS5')) {
+                    platformText = 'PS5';
+                    platformClass = 'ps5-icon';
+                } else if (platform.includes('NS') || platform.includes('Switch')) {
+                    platformText = 'NS';
+                    platformClass = 'ns-icon';
+                } else if (platform.includes('XBOX')) {
+                    platformText = 'XB';
+                    platformClass = 'xbox-icon';
+                } else {
+                    platformText = platform;
+                    platformClass = 'ps4-icon'; // fallback
+                }
+                
+                return `<span class="platform-icon ${platformClass}">${platformText}</span>`;
             }
 
             getLanguageText(lang) {
