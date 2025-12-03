@@ -4,126 +4,283 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GAME ZONE - Сканер игр</title>
-    <meta name="theme-color" content="#0078D7">
+    <meta name="theme-color" content="#1a1a2e">
     <meta name="description" content="Сканер игровых дисков для магазина GAME ZONE">
     
     <!-- PWA мета-теги -->
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAFaSURBVHgB7Zc9TsNAEIXf2I6dQkFJQUVLRUNBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBAQDwDfAA1dUjFAAAAAElFTkSuQmCC">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="GAME ZONE">
+    <link rel="icon" type="image/png" href="https://avatars.mds.yandex.net/get-altay/16915650/2a0000019a24cb39e7e0f13ab054c8530af6/S_height">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
             min-height: 100vh;
             padding: 20px;
             overscroll-behavior-y: none;
+            color: #f0f0f0;
+            position: relative;
         }
+        
+        /* Skyrim фоновая текстура */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255, 255, 255, 0.02) 2px,
+                    rgba(255, 255, 255, 0.02) 4px
+                );
+            z-index: -1;
+        }
+        
         .container {
             max-width: 400px;
             margin: 0 auto;
-            background: white;
+            background: rgba(26, 26, 46, 0.9);
             border-radius: 20px;
             padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 20px rgba(120, 119, 198, 0.2);
             position: relative;
             z-index: 1;
+            border: 1px solid rgba(255, 215, 0, 0.1);
         }
-        .header { 
-            text-align: center; 
-            margin-bottom: 20px; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .header h1 { 
-            color: #333; 
-            font-size: 24px; 
-            margin-bottom: 5px;
-        }
-        .store-icon {
+        
+        /* Skyrim узоры по углам */
+        .container::before,
+        .container::after {
+            content: '';
+            position: absolute;
             width: 40px;
             height: 40px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
             border-radius: 8px;
-            background: linear-gradient(45deg, #ff6b6b, #ffa726);
+        }
+        
+        .container::before {
+            top: -10px;
+            left: -10px;
+            border-right: none;
+            border-bottom: none;
+        }
+        
+        .container::after {
+            bottom: -10px;
+            right: -10px;
+            border-left: none;
+            border-top: none;
+        }
+        
+        .header { 
+            text-align: center; 
+            margin-bottom: 25px; 
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 18px;
+            gap: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.2);
+            position: relative;
         }
+        
+        .header::after {
+            content: '⚔️';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(26, 26, 46, 0.9);
+            padding: 0 10px;
+            font-size: 20px;
+        }
+        
+        .header h1 { 
+            color: #ffd700; 
+            font-size: 26px; 
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            font-family: 'Cinzel', serif;
+            letter-spacing: 1px;
+        }
+        
+        .header h1::first-letter {
+            color: #b8860b;
+            font-size: 32px;
+        }
+        
+        #app-subtitle {
+            color: #a0a0c0;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+        }
+        
+        .store-logo {
+            width: 70px;
+            height: 70px;
+            border-radius: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 
+                0 0 15px rgba(255, 215, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 215, 0, 0.4);
+            background: rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .store-logo:hover {
+            transform: rotate(5deg) scale(1.05);
+            box-shadow: 
+                0 0 20px rgba(255, 215, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        
         .btn {
             width: 100%;
-            padding: 15px;
-            background: #0078D7;
+            padding: 16px;
+            background: linear-gradient(135deg, #7877c6 0%, #5a59a3 100%);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 16px;
             margin: 10px 0;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            box-shadow: 
+                0 4px 15px rgba(90, 89, 163, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 6px 20px rgba(90, 89, 163, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, #8a89d8 0%, #6b6ab8 100%);
+        }
+        
         .btn:active {
-            transform: scale(0.98);
+            transform: translateY(0);
+            box-shadow: 
+                0 2px 10px rgba(90, 89, 163, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
+        
         .btn:disabled {
-            background: #6c757d;
+            background: linear-gradient(135deg, #4a4a6a 0%, #3a3a5a 100%);
             cursor: not-allowed;
+            opacity: 0.6;
         }
+        
         .btn.sale {
-            background: #28a745;
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
             font-weight: bold;
             font-size: 18px;
+            box-shadow: 
+                0 4px 15px rgba(40, 167, 69, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
+        
+        .btn.sale:hover {
+            background: linear-gradient(135deg, #34ce57 0%, #228b3a 100%);
+            box-shadow: 
+                0 6px 20px rgba(40, 167, 69, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        
         .btn.stats {
-            background: #6f42c1;
+            background: linear-gradient(135deg, #b8860b 0%, #8b6914 100%);
             margin-bottom: 5px;
+            box-shadow: 
+                0 4px 15px rgba(184, 134, 11, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
+        
+        .btn.stats:hover {
+            background: linear-gradient(135deg, #daa520 0%, #b8860b 100%);
+            box-shadow: 
+                0 6px 20px rgba(184, 134, 11, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+        
         .btn.switch-mode {
-            background: #fd7e14;
+            background: linear-gradient(135deg, #7877c6 0%, #5a59a3 100%);
             margin-top: 10px;
         }
         
         #scanner-container {
             width: 100%;
             height: 200px;
-            background: #f0f0f0;
-            border-radius: 10px;
-            margin: 15px 0;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.8) 0%, rgba(22, 33, 62, 0.8) 100%);
+            border-radius: 15px;
+            margin: 20px 0;
             position: relative;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px dashed #ccc;
+            border: 2px dashed rgba(255, 215, 0, 0.3);
             cursor: pointer;
             transition: all 0.3s ease;
+            box-shadow: 
+                inset 0 0 20px rgba(0, 0, 0, 0.5),
+                0 0 15px rgba(120, 119, 198, 0.2);
         }
+        
         #scanner-container:hover {
-            border-color: #0078D7;
-            background: #e8f4ff;
+            border-color: rgba(255, 215, 0, 0.6);
+            background: linear-gradient(135deg, rgba(32, 32, 56, 0.9) 0%, rgba(28, 39, 72, 0.9) 100%);
+            box-shadow: 
+                inset 0 0 30px rgba(0, 0, 0, 0.7),
+                0 0 20px rgba(120, 119, 198, 0.4);
         }
+        
         #scanner-container:active {
             transform: scale(0.98);
         }
+        
         .scanner-placeholder {
             text-align: center;
-            color: #666;
+            color: #a0a0c0;
         }
+        
         .scanner-placeholder .icon {
             font-size: 48px;
             margin-bottom: 10px;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
+        
         .scanner-placeholder .text {
             font-size: 16px;
             font-weight: 500;
+            color: #c0c0e0;
         }
         
         .search-container {
@@ -131,44 +288,79 @@
             gap: 10px;
             margin: 10px 0;
         }
+        
         #search-type {
             width: 120px;
             padding: 12px;
-            border: 2px solid #ddd;
+            border: 2px solid rgba(255, 215, 0, 0.3);
             border-radius: 10px;
             font-size: 14px;
+            background: rgba(26, 26, 46, 0.8);
+            color: #f0f0f0;
         }
+        
         #barcode-input {
             flex: 1;
             padding: 12px;
-            border: 2px solid #ddd;
+            border: 2px solid rgba(255, 215, 0, 0.3);
             border-radius: 10px;
             text-align: center;
             font-size: 16px;
+            background: rgba(26, 26, 46, 0.8);
+            color: #f0f0f0;
         }
         
         .current-price {
-            background: linear-gradient(135deg, #28a745, #20c997);
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.9) 0%, rgba(30, 126, 52, 0.9) 100%);
             color: white;
             text-align: center;
-            padding: 20px;
+            padding: 25px;
             border-radius: 15px;
-            margin: 15px 0;
+            margin: 20px 0;
             font-weight: bold;
-            font-size: 28px;
+            font-size: 32px;
             display: none;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            box-shadow: 
+                0 4px 20px rgba(40, 167, 69, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
         }
-        .current-price.visible { display: block; }
+        
+        .current-price::before {
+            content: '⚔️';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 20px;
+            opacity: 0.3;
+        }
+        
+        .current-price::after {
+            content: '🛡️';
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-size: 20px;
+            opacity: 0.3;
+        }
+        
+        .current-price.visible { 
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
         
         /* Информация под ценой */
         .price-details {
             margin-top: 15px;
             padding-top: 15px;
-            border-top: 2px solid rgba(255, 255, 255, 0.4);
+            border-top: 2px solid rgba(255, 255, 255, 0.2);
             font-size: 16px;
             line-height: 1.4;
         }
+        
         .price-details-platform {
             display: flex;
             align-items: center;
@@ -176,54 +368,86 @@
             justify-content: center;
             margin-bottom: 8px;
         }
+        
         .price-details-name {
             font-size: 18px;
             font-weight: bold;
             opacity: 0.95;
+            color: #ffd700;
         }
         
         .game-info {
-            background: #f8f9fa;
+            background: rgba(22, 33, 62, 0.8);
             border-radius: 15px;
             padding: 20px;
             margin-top: 20px;
             display: none;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
         }
-        .game-info.visible { display: block; }
+        
+        .game-info.visible { 
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
         .info-row {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
         }
-        .info-label { color: #666; font-weight: 500; min-width: 140px; }
-        .info-value { color: #333; font-weight: 600; text-align: right; flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+        
+        .info-label { 
+            color: #a0a0c0; 
+            font-weight: 500; 
+            min-width: 140px; 
+        }
+        
+        .info-value { 
+            color: #f0f0f0; 
+            font-weight: 600; 
+            text-align: right; 
+            flex: 1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: flex-end; 
+            gap: 8px; 
+        }
+        
         .price-final {
-            color: #0078D7;
+            color: #ffd700;
             font-size: 20px;
             font-weight: bold;
             text-align: center;
             margin: 15px 0;
             padding: 15px;
-            background: #e3f2fd;
+            background: rgba(184, 134, 11, 0.1);
             border-radius: 10px;
-            border: 2px solid #0078D7;
+            border: 2px solid rgba(255, 215, 0, 0.3);
         }
+        
         .status {
             text-align: center;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 8px;
-            background: #fff3cd;
-            color: #856404;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+            background: rgba(184, 134, 11, 0.2);
+            color: #ffd700;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            font-weight: 500;
         }
+        
         .status.error {
-            background: #f8d7da;
-            color: #721c24;
+            background: rgba(220, 53, 69, 0.2);
+            color: #f8d7da;
+            border-color: rgba(220, 53, 69, 0.3);
         }
+        
         .status.success {
-            background: #d4edda;
-            color: #155724;
+            background: rgba(40, 167, 69, 0.2);
+            color: #d4edda;
+            border-color: rgba(40, 167, 69, 0.3);
         }
         
         /* Стили для модальных окон */
@@ -235,13 +459,17 @@
             width: 95%;
             max-width: 500px;
             max-height: 90vh;
-            background: white;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 
+                0 20px 40px rgba(0,0,0,0.7),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
             z-index: 1000;
             display: none;
             overflow-y: auto;
+            border: 2px solid rgba(255, 215, 0, 0.3);
         }
         
         /* Модальное окно поиска на весь экран */
@@ -257,33 +485,28 @@
             padding: 0;
             display: flex;
             flex-direction: column;
+            background: rgba(12, 12, 12, 0.98);
         }
         
         #search-modal .modal-header {
-            background: #0078D7;
+            background: linear-gradient(135deg, #7877c6 0%, #5a59a3 100%);
             color: white;
-            padding: 15px 20px;
+            padding: 20px;
             margin: 0;
             border-radius: 0;
-            border-bottom: none;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
         }
         
         #search-modal .modal-title {
-            color: white;
-            font-size: 20px;
+            color: #ffd700;
+            font-size: 22px;
+            font-family: 'Cinzel', serif;
         }
         
         #search-modal .modal-close {
-            background: white;
-            color: #0078D7;
-        }
-        
-        #search-modal .modal-body {
-            flex: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+            background: rgba(255, 215, 0, 0.9);
+            color: #1a1a2e;
+            border: none;
         }
         
         .modal-header {
@@ -292,17 +515,18 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 2px solid #0078D7;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
         }
         
         .modal-title {
             font-size: 22px;
             font-weight: bold;
-            color: #333;
+            color: #ffd700;
+            font-family: 'Cinzel', serif;
         }
         
         .modal-close {
-            background: #dc3545;
+            background: rgba(220, 53, 69, 0.9);
             color: white;
             border: none;
             width: 36px;
@@ -313,6 +537,12 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            background: rgba(220, 53, 69, 1);
+            transform: scale(1.1);
         }
         
         .modal-body {
@@ -321,10 +551,10 @@
         
         /* Кнопка назад в детальной статистике */
         .modal-back-btn {
-            background: #6c757d;
+            background: linear-gradient(135deg, #7877c6 0%, #5a59a3 100%);
             color: white;
             border: none;
-            padding: 8px 15px;
+            padding: 10px 15px;
             border-radius: 8px;
             font-size: 14px;
             cursor: pointer;
@@ -332,6 +562,11 @@
             display: flex;
             align-items: center;
             gap: 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-back-btn:hover {
+            transform: translateX(-5px);
         }
         
         /* Окно корзины */
@@ -343,15 +578,17 @@
             display: flex;
             flex-direction: column;
             padding: 15px;
-            border: 1px solid #e0e0e0;
+            border: 1px solid rgba(255, 215, 0, 0.2);
             border-radius: 12px;
             margin-bottom: 10px;
-            background: #f8f9fa;
+            background: rgba(22, 33, 62, 0.6);
             transition: all 0.3s ease;
         }
         
         .cart-item:hover {
-            background: #e9ecef;
+            background: rgba(32, 43, 72, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         
         .cart-item-header {
@@ -368,7 +605,7 @@
         .cart-item-name {
             font-weight: bold;
             font-size: 16px;
-            color: #333;
+            color: #f0f0f0;
             line-height: 1.3;
             word-break: break-word;
             margin-bottom: 5px;
@@ -379,7 +616,7 @@
         
         .cart-item-platform {
             font-size: 14px;
-            color: #666;
+            color: #a0a0c0;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -390,7 +627,7 @@
             justify-content: space-between;
             align-items: center;
             padding-top: 10px;
-            border-top: 1px dashed #ddd;
+            border-top: 1px dashed rgba(255, 215, 0, 0.2);
         }
         
         .cart-item-quantity {
@@ -402,7 +639,7 @@
         .quantity-btn {
             width: 40px;
             height: 40px;
-            background: #0078D7;
+            background: linear-gradient(135deg, #7877c6 0%, #5a59a3 100%);
             color: white;
             border: none;
             border-radius: 8px;
@@ -411,6 +648,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s ease;
         }
         
         .quantity-btn:active {
@@ -422,6 +660,7 @@
             font-weight: bold;
             min-width: 50px;
             text-align: center;
+            color: #ffd700;
         }
         
         .cart-item-price {
@@ -431,7 +670,7 @@
         }
         
         .cart-remove {
-            background: #dc3545;
+            background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
             color: white;
             border: none;
             width: 40px;
@@ -443,10 +682,15 @@
             align-items: center;
             justify-content: center;
             margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .cart-remove:hover {
+            background: linear-gradient(135deg, #e05260 0%, #c9302c 100%);
         }
         
         .cart-total {
-            background: linear-gradient(135deg, #28a745, #20c997);
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.9) 0%, rgba(30, 126, 52, 0.9) 100%);
             color: white;
             padding: 20px;
             border-radius: 15px;
@@ -454,6 +698,7 @@
             font-size: 22px;
             font-weight: bold;
             margin: 20px 0;
+            border: 2px solid rgba(255, 255, 255, 0.1);
         }
         
         .cart-buttons {
@@ -466,51 +711,70 @@
         #search-modal .search-input-container {
             margin-bottom: 20px;
             margin-top: 10px;
+            padding: 0 20px;
         }
         
         #search-modal .search-input {
             width: 100%;
             padding: 20px;
-            border: 3px solid #0078D7;
+            border: 3px solid rgba(255, 215, 0, 0.4);
             border-radius: 15px;
             font-size: 18px;
             text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            background: rgba(26, 26, 46, 0.8);
+            color: #f0f0f0;
+            box-shadow: 
+                0 4px 15px rgba(0,0,0,0.3),
+                inset 0 0 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        #search-modal .search-input:focus {
+            outline: none;
+            border-color: rgba(255, 215, 0, 0.7);
+            box-shadow: 
+                0 4px 20px rgba(255, 215, 0, 0.3),
+                inset 0 0 15px rgba(0,0,0,0.3);
         }
         
         .search-hint {
             text-align: center;
-            color: #666;
+            color: #a0a0c0;
             font-size: 15px;
             margin-bottom: 20px;
             padding: 15px;
-            background: #f8f9fa;
+            background: rgba(22, 33, 62, 0.6);
             border-radius: 10px;
-            border: 1px solid #e0e0e0;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            margin: 0 20px 20px;
         }
         
         .search-results-container {
             flex: 1;
             overflow-y: auto;
-            border: 1px solid #e0e0e0;
+            border: 1px solid rgba(255, 215, 0, 0.2);
             border-radius: 10px;
             padding: 10px;
-            background: #fff;
+            background: rgba(26, 26, 46, 0.6);
+            margin: 0 20px 20px;
         }
         
         .search-result-item {
             padding: 15px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
             flex-direction: column;
             gap: 5px;
+            border-radius: 8px;
+            margin-bottom: 5px;
         }
         
         .search-result-item:hover {
-            background: #e8f4ff;
+            background: rgba(255, 215, 0, 0.1);
             transform: translateY(-2px);
+            border-left: 3px solid #ffd700;
         }
         
         .search-result-item:last-child {
@@ -520,7 +784,7 @@
         .search-result-name {
             font-weight: bold;
             font-size: 17px;
-            color: #333;
+            color: #f0f0f0;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -531,7 +795,7 @@
             justify-content: space-between;
             align-items: center;
             font-size: 15px;
-            color: #666;
+            color: #a0a0c0;
         }
         
         .search-result-price {
@@ -546,43 +810,51 @@
             width: 100%;
             height: 300px;
             background: black;
-            border-radius: 10px;
+            border-radius: 15px;
             overflow: hidden;
             margin-bottom: 15px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
         }
+        
         .camera-view {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
+        
         .camera-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            border: 3px solid #0078D7;
+            border: 3px solid rgba(255, 215, 0, 0.5);
             pointer-events: none;
         }
+        
         .camera-line {
             position: absolute;
             width: 100%;
             height: 3px;
             background: #ff0000;
             animation: scan 2s infinite linear;
+            box-shadow: 0 0 10px #ff0000;
         }
+        
         @keyframes scan {
             0%, 100% { top: 10%; }
             50% { top: 90%; }
         }
+        
         .camera-controls {
             display: flex;
             gap: 10px;
         }
+        
         .camera-btn {
             flex: 1;
             padding: 12px;
-            background: #0078D7;
+            background: linear-gradient(135deg, #7877c6 0%, #5a59a3 100%);
             color: white;
             border: none;
             border-radius: 10px;
@@ -590,18 +862,22 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
+        
         .camera-btn:active {
             transform: scale(0.95);
         }
+        
         .camera-btn.secondary {
-            background: #6c757d;
+            background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
         }
+        
         .camera-btn.restart {
-            background: #ffc107;
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
             color: #000;
         }
+        
         .camera-btn:disabled {
-            background: #ccc;
+            background: linear-gradient(135deg, #4a4a6a 0%, #3a3a5a 100%);
             cursor: not-allowed;
         }
         
@@ -611,25 +887,31 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.85);
             z-index: 999;
             display: none;
         }
         
         .scanning-status {
             text-align: center;
-            padding: 8px;
+            padding: 10px;
             margin: 5px 0;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 14px;
+            background: rgba(22, 33, 62, 0.8);
+            border: 1px solid rgba(255, 215, 0, 0.2);
         }
+        
         .scanning-success {
-            background: #d4edda;
-            color: #155724;
+            background: rgba(40, 167, 69, 0.2);
+            color: #d4edda;
+            border-color: rgba(40, 167, 69, 0.3);
         }
+        
         .scanning-error {
-            background: #f8d7da;
-            color: #721c24;
+            background: rgba(220, 53, 69, 0.2);
+            color: #f8d7da;
+            border-color: rgba(220, 53, 69, 0.3);
         }
         
         .install-prompt {
@@ -637,18 +919,22 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: #333;
+            background: rgba(26, 26, 46, 0.95);
             color: white;
             padding: 15px 20px;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            box-shadow: 
+                0 5px 15px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
             z-index: 1001;
             display: none;
             max-width: 90%;
             text-align: center;
+            border: 1px solid rgba(255, 215, 0, 0.3);
         }
+        
         .install-prompt button {
-            background: #0078D7;
+            background: linear-gradient(135deg, #7877c6 0%, #5a59a3 100%);
             color: white;
             border: none;
             padding: 8px 15px;
@@ -661,12 +947,13 @@
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #0078D7;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-top: 2px solid #ffd700;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-right: 10px;
         }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -676,9 +963,9 @@
             text-align: center;
             margin-top: 20px;
             font-size: 12px;
-            color: #666;
+            color: #a0a0c0;
             padding: 10px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid rgba(255, 215, 0, 0.1);
         }
 
         /* ИСПРАВЛЕННЫЕ СТИЛИ ИКОНОК ПЛАТФОРМ */
@@ -695,11 +982,28 @@
             min-width: 40px;
             height: 22px;
             flex-shrink: 0;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
-        .ps4-icon { background-color: #0070d1; }
-        .ps5-icon { background-color: #000; }
-        .ns-icon { background-color: #e60012; }
-        .xbox-icon { background-color: #107c10; }
+        
+        .ps4-icon { 
+            background: linear-gradient(135deg, #0070d1 0%, #0056a3 100%);
+            border: 1px solid rgba(0, 112, 209, 0.4);
+        }
+        
+        .ps5-icon { 
+            background: linear-gradient(135deg, #000 0%, #333 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .ns-icon { 
+            background: linear-gradient(135deg, #e60012 0%, #b3000e 100%);
+            border: 1px solid rgba(230, 0, 18, 0.4);
+        }
+        
+        .xbox-icon { 
+            background: linear-gradient(135deg, #107c10 0%, #0a5c0a 100%);
+            border: 1px solid rgba(16, 124, 16, 0.4);
+        }
 
         /* Кнопки управления логами */
         .log-buttons {
@@ -715,16 +1019,21 @@
             border-radius: 10px;
             font-size: 14px;
             cursor: pointer;
-            background: #6c757d;
+            background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
             color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .log-btn:hover {
+            transform: translateY(-2px);
         }
         
         .log-btn.download {
-            background: #28a745;
+            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
         }
         
         .log-btn.clear {
-            background: #dc3545;
+            background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
         }
         
         /* Окно статистики с кликабельными карточками */
@@ -736,7 +1045,7 @@
         }
         
         .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, rgba(120, 119, 198, 0.8) 0%, rgba(90, 89, 163, 0.8) 100%);
             color: white;
             padding: 15px;
             border-radius: 10px;
@@ -745,11 +1054,13 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            border: 1px solid rgba(255, 215, 0, 0.2);
         }
         
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, rgba(138, 137, 216, 0.9) 0%, rgba(107, 106, 184, 0.9) 100%);
         }
         
         .stat-card:active {
@@ -760,6 +1071,7 @@
             font-size: 24px;
             font-weight: bold;
             margin-bottom: 5px;
+            color: #ffd700;
         }
         
         .stat-label {
@@ -769,7 +1081,7 @@
         
         .stats-period {
             text-align: center;
-            color: #666;
+            color: #a0a0c0;
             margin-bottom: 15px;
             font-size: 14px;
         }
@@ -790,16 +1102,17 @@
         .sale-details-list {
             max-height: 400px;
             overflow-y: auto;
-            border: 1px solid #e0e0e0;
+            border: 1px solid rgba(255, 215, 0, 0.2);
             border-radius: 10px;
             padding: 10px;
             margin-bottom: 20px;
+            background: rgba(22, 33, 62, 0.6);
         }
         
         .sale-detail-item {
             padding: 12px;
-            border-bottom: 1px solid #eee;
-            background: #f8f9fa;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+            background: rgba(26, 26, 46, 0.6);
             border-radius: 8px;
             margin-bottom: 8px;
         }
@@ -814,17 +1127,17 @@
             justify-content: space-between;
             margin-bottom: 8px;
             padding-bottom: 5px;
-            border-bottom: 1px dashed #ddd;
+            border-bottom: 1px dashed rgba(255, 215, 0, 0.2);
         }
         
         .sale-detail-id {
             font-weight: bold;
-            color: #333;
+            color: #f0f0f0;
         }
         
         .sale-detail-date {
             font-size: 12px;
-            color: #666;
+            color: #a0a0c0;
         }
         
         .sale-detail-items {
@@ -833,7 +1146,7 @@
         
         .sale-detail-game {
             font-size: 13px;
-            color: #555;
+            color: #c0c0e0;
             margin-left: 10px;
             display: flex;
             align-items: center;
@@ -847,7 +1160,7 @@
             text-align: right;
             margin-top: 8px;
             padding-top: 5px;
-            border-top: 1px dashed #ddd;
+            border-top: 1px dashed rgba(255, 215, 0, 0.2);
         }
         
         /* Клиентский режим */
@@ -866,44 +1179,64 @@
         }
         
         .client-mode .current-price {
-            font-size: 28px;
-            padding: 20px;
+            font-size: 32px;
+            padding: 25px;
             margin-bottom: 10px;
         }
         
         .client-mode .app-version {
             font-size: 10px;
-            color: #999;
+            color: #888;
         }
         
         .mode-indicator {
             position: absolute;
             top: 15px;
             right: 15px;
-            background: #fd7e14;
+            background: linear-gradient(135deg, #7877c6 0%, #5a59a3 100%);
             color: white;
             padding: 5px 10px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: bold;
             z-index: 10;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
         }
     </style>
+    
+    <!-- Шрифт Cinzel для Skyrim стиля -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Уведомление об установке -->
     <div id="install-prompt" class="install-prompt">
-        Установите GAME ZONE для быстрого доступа!
+        ⚔️ Установите GAME ZONE для быстрого доступа!
         <button id="install-btn">Установить</button>
-        <button id="dismiss-install" style="background: #6c757d;">Позже</button>
+        <button id="dismiss-install" style="background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);">Позже</button>
     </div>
 
     <!-- Основной контейнер -->
     <div class="container" id="app-container">
-        <div id="mode-indicator" class="mode-indicator" style="display: none;">👤 КЛИЕНТ</div>
+        <div id="mode-indicator" class="mode-indicator" style="display: none;">⚔️ КЛИЕНТ</div>
         
         <div class="header">
-            <div class="store-icon">GZ</div>
+            <div class="store-logo">
+                <img src="https://avatars.mds.yandex.net/get-altay/16915650/2a0000019a24cb39e7e0f13ab054c8530af6/S_height" 
+                     alt="GAME ZONE" 
+                     class="logo-img">
+            </div>
             <div>
                 <h1>GAME ZONE</h1>
                 <p id="app-subtitle">Сканер игровых дисков</p>
@@ -912,7 +1245,7 @@
 
         <!-- ОДНО ЕДИНОЕ ПОЛЕ ЦЕНЫ С ИНФОРМАЦИЕЙ -->
         <div id="current-price" class="current-price">
-            💰 Цена: <span id="current-price-value">0</span> руб
+            ⚔️ Цена: <span id="current-price-value">0</span> руб
             <div id="price-details" class="price-details" style="display: none;">
                 <div class="price-details-platform" id="price-details-platform"></div>
                 <div class="price-details-name" id="price-details-name"></div>
@@ -976,7 +1309,7 @@
         </div>
 
         <div class="app-version">
-            Версия 4.8 | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span>
+            🐉 Версия 4.9 | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span>
         </div>
     </div>
 
@@ -994,8 +1327,8 @@
                 Общая сумма: <span id="cart-total-amount">0</span> руб
             </div>
             <div class="cart-buttons">
-                <button id="clear-cart-btn" class="btn" style="background: #dc3545;">🗑️ Очистить корзину</button>
-                <button id="process-sale-btn" class="btn" style="background: #28a745;">💰 Завершить продажу</button>
+                <button id="clear-cart-btn" class="btn" style="background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);">🗑️ Очистить корзину</button>
+                <button id="process-sale-btn" class="btn" style="background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);">💰 Завершить продажу</button>
             </div>
         </div>
     </div>
@@ -1009,7 +1342,7 @@
         <div class="modal-body">
             <div class="search-input-container">
                 <input type="text" id="smart-search-input" class="search-input" 
-                       placeholder="Введите название, код или штрих-код..." autofocus>
+                       placeholder="Введите название, код или штрих-код...">
             </div>
             <div class="search-hint">
                 💡 Поиск по: названию игры, CUSA/PPSA коду или штрих-коду
@@ -1527,7 +1860,7 @@
                 this.lastScannedCode = null;
                 this.scanCooldown = false;
                 
-                this.appVersion = "4.8";
+                this.appVersion = "4.9";
                 this.isClientMode = isClientMode;
                 this.logger = new SimpleLogger();
                 
@@ -1535,7 +1868,7 @@
             }
 
             async init() {
-                console.log(`🚀 GAME ZONE Scanner ${this.appVersion} запущен`);
+                console.log(`⚔️ GAME ZONE Scanner ${this.appVersion} запущен`);
                 console.log(`📱 Режим: ${this.isClientMode ? 'КЛИЕНТСКИЙ' : 'ПОЛНЫЙ'}`);
                 console.log(`📱 ID устройства: ${DEVICE_ID}`);
                 
@@ -1550,7 +1883,7 @@
                 
                 this.setupEventListeners();
                 
-                this.updateStatus('🔄 Загружаем данные...');
+                this.updateStatus('⚔️ Загружаем данные...');
                 await this.loadGamesData();
                 
                 this.updateStatus(`✅ Готов! ${this.gamesData.length} игр в базе`, 'success');
@@ -1668,7 +2001,7 @@
                     this.restartCamera();
                 });
                 
-                // Поиск
+                // Поиск - УБРАН autofocus чтобы не открывался автоматически
                 document.getElementById('smart-search-input').addEventListener('input', (e) => {
                     this.performSmartSearch(e.target.value);
                 });
@@ -1705,10 +2038,9 @@
                 document.getElementById('modal-overlay').style.display = 'block';
                 document.body.style.overflow = 'hidden';
                 
+                // ИСПРАВЛЕНО: убрана автоматическая фокусировка на поиске
                 if (modalId === 'search-modal') {
-                    setTimeout(() => {
-                        document.getElementById('smart-search-input').focus();
-                    }, 100);
+                    // Оставляем пустым, чтобы не фокусировалось автоматически
                 }
             }
 
@@ -1787,10 +2119,10 @@
                 
                 if (sales.length === 0) {
                     detailContent.innerHTML = `
-                        <div style="padding: 30px; text-align: center; color: #666;">
+                        <div style="padding: 30px; text-align: center; color: #a0a0c0;">
                             <div style="font-size: 48px; margin-bottom: 15px;">📭</div>
                             <div style="font-size: 16px; margin-bottom: 10px;">Нет данных</div>
-                            <div style="font-size: 14px; color: #999;">Продажи за этот период отсутствуют</div>
+                            <div style="font-size: 14px; color: #888;">Продажи за этот период отсутствуют</div>
                         </div>
                     `;
                 } else {
@@ -1916,21 +2248,21 @@
                 this.openModal('search-modal');
                 document.getElementById('smart-search-input').value = '';
                 document.getElementById('smart-search-results').innerHTML = 
-                    '<div style="padding: 20px; text-align: center; color: #666;">Введите запрос для поиска игр</div>';
+                    '<div style="padding: 20px; text-align: center; color: #a0a0c0;">Введите запрос для поиска игр</div>';
             }
 
             performSmartSearch(query) {
                 const resultsContainer = document.getElementById('smart-search-results');
                 
                 if (!query || query.length < 2) {
-                    resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">Введите минимум 2 символа</div>';
+                    resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #a0a0c0;">Введите минимум 2 символа</div>';
                     return [];
                 }
                 
                 const results = this.logger.smartSearch(this.gamesData, query);
                 
                 if (results.length === 0) {
-                    resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">Игры не найдены</div>';
+                    resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #a0a0c0;">Игры не найдены</div>';
                     return [];
                 }
                 
