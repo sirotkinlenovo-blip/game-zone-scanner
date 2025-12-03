@@ -146,15 +146,19 @@
         .game-summary-name {
             font-weight: bold;
             font-size: 16px;
-            margin-bottom: 5px;
             color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            line-height: 1.3;
         }
         .game-summary-platform {
             font-size: 14px;
             color: #666;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
+            margin-bottom: 5px;
         }
         
         .search-container {
@@ -192,6 +196,26 @@
         }
         .current-price.visible { display: block; }
         
+        /* Информация под ценой (для клиентского режима) */
+        .price-details {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 16px;
+            line-height: 1.4;
+        }
+        .price-details-platform {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 5px;
+        }
+        .price-details-name {
+            font-size: 15px;
+            opacity: 0.9;
+        }
+        
         .game-info {
             background: #f8f9fa;
             border-radius: 15px;
@@ -207,7 +231,7 @@
             border-bottom: 1px solid #eee;
         }
         .info-label { color: #666; font-weight: 500; min-width: 140px; }
-        .info-value { color: #333; font-weight: 600; text-align: right; flex: 1; }
+        .info-value { color: #333; font-weight: 600; text-align: right; flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
         .price-final {
             color: #0078D7;
             font-size: 20px;
@@ -287,6 +311,21 @@
             margin-bottom: 20px;
         }
         
+        /* Кнопка назад в детальной статистике */
+        .modal-back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
         /* Окно корзины */
         #cart-modal .cart-list {
             margin-bottom: 20px;
@@ -325,6 +364,9 @@
             line-height: 1.3;
             word-break: break-word;
             margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .cart-item-platform {
@@ -332,7 +374,7 @@
             color: #666;
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 8px;
         }
         
         .cart-item-controls {
@@ -464,6 +506,9 @@
             font-size: 16px;
             margin-bottom: 5px;
             color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .search-result-details {
@@ -619,16 +664,20 @@
             border-top: 1px solid #eee;
         }
 
+        /* ИСПРАВЛЕННЫЕ СТИЛИ ИКОНОК ПЛАТФОРМ */
         .platform-icon {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             padding: 2px 8px;
-            margin-right: 8px;
             border-radius: 4px;
             color: white;
             font-size: 11px;
             font-weight: bold;
             text-align: center;
             min-width: 40px;
+            height: 22px;
+            flex-shrink: 0;
         }
         .ps4-icon { background-color: #0070d1; }
         .ps5-icon { background-color: #000; }
@@ -709,6 +758,18 @@
         }
         
         /* Окно детальной статистики */
+        #stats-detail-modal .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .modal-header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
         .sale-details-list {
             max-height: 400px;
             overflow-y: auto;
@@ -757,6 +818,10 @@
             font-size: 13px;
             color: #555;
             margin-left: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            line-height: 1.3;
         }
         
         .sale-detail-total {
@@ -829,10 +894,19 @@
             font-weight: bold;
             margin-bottom: 10px;
             color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            line-height: 1.3;
         }
         
         .client-game-platform {
             margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
         .client-game-price {
@@ -870,12 +944,16 @@
 
         <div id="current-price" class="current-price">
             💰 Цена: <span id="current-price-value">0</span> руб
+            <div id="price-details" class="price-details" style="display: none;">
+                <div class="price-details-platform" id="price-details-platform"></div>
+                <div class="price-details-name" id="price-details-name"></div>
+            </div>
         </div>
 
         <!-- Информация об игре в клиентском режиме -->
         <div id="client-game-info" class="client-game-info">
-            <div class="client-game-name" id="client-game-name"></div>
             <div class="client-game-platform" id="client-game-platform"></div>
+            <div class="client-game-name" id="client-game-name"></div>
             <div class="client-game-price" id="client-game-price">0 руб</div>
         </div>
 
@@ -884,8 +962,8 @@
             <div class="game-summary-price">
                 <span id="game-summary-price">0</span> руб
             </div>
-            <div class="game-summary-name" id="game-summary-name"></div>
             <div class="game-summary-platform" id="game-summary-platform"></div>
+            <div class="game-summary-name" id="game-summary-name"></div>
         </div>
 
         <div id="scanner-container">
@@ -954,7 +1032,7 @@
         </div>
 
         <div class="app-version">
-            Версия 4.6 | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span>
+            Версия 4.7 | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span>
         </div>
     </div>
 
@@ -1061,7 +1139,10 @@
     <!-- Окно детальной статистики -->
     <div id="stats-detail-modal" class="modal">
         <div class="modal-header">
-            <div class="modal-title" id="stats-detail-title">📋 Детали продаж</div>
+            <div class="modal-header-title">
+                <button class="modal-back-btn" id="back-to-stats-btn">← Назад</button>
+                <div class="modal-title" id="stats-detail-title">📋 Детали продаж</div>
+            </div>
             <button class="modal-close" id="close-stats-detail-btn">×</button>
         </div>
         <div class="modal-body">
@@ -1091,17 +1172,23 @@
         const isClientMode = isUrlClientMode ? true : 
                            (savedMode ? savedMode === 'client' : false);
 
-        // Простой и надежный логгер
+        // Простой и надежный логгер с автовыгрузкой
         class SimpleLogger {
             constructor() {
                 this.appLog = [];
                 this.salesLog = [];
+                this.autoExportEnabled = true;
+                this.lastExportDate = null;
                 this.init();
             }
 
             init() {
                 this.loadFromStorage();
+                this.checkAutoExport();
                 console.log('📊 Логгер инициализирован');
+                
+                // Проверяем каждые 30 минут на автовыгрузку
+                setInterval(() => this.checkAutoExport(), 30 * 60 * 1000);
             }
 
             smartSearch(gamesData, query) {
@@ -1196,9 +1283,125 @@
                         const data = JSON.parse(saved);
                         this.appLog = data.appLog || [];
                         this.salesLog = data.salesLog || [];
+                        this.lastExportDate = data.lastExportDate || null;
                     }
                 } catch (error) {
                     console.error('❌ Ошибка загрузки логов:', error);
+                }
+            }
+
+            // Проверка на автовыгрузку (после 19:00 по Москве)
+            checkAutoExport() {
+                try {
+                    const now = new Date();
+                    const moscowTime = new Date(now.getTime() + (3 * 60 * 60 * 1000)); // UTC+3
+                    const currentHour = moscowTime.getUTCHours();
+                    
+                    console.log(`⏰ Время по Москве: ${currentHour}:00`);
+                    
+                    // Если сейчас после 19:00 (19-23)
+                    if (currentHour >= 19) {
+                        const today = moscowTime.toISOString().split('T')[0];
+                        
+                        // Проверяем, не выгружали ли уже сегодня
+                        if (this.lastExportDate !== today) {
+                            console.log('🔄 Проверяем необходимость автовыгрузки...');
+                            
+                            // Ищем продажи за сегодня
+                            const todayStart = new Date(moscowTime);
+                            todayStart.setUTCHours(0, 0, 0, 0);
+                            
+                            const todaySales = this.salesLog.filter(sale => 
+                                new Date(sale.timestamp) >= todayStart
+                            );
+                            
+                            if (todaySales.length > 0) {
+                                console.log(`📊 Найдено ${todaySales.length} продаж за сегодня, готовим автовыгрузку...`);
+                                setTimeout(() => {
+                                    this.autoExportTodaySales();
+                                }, 5000); // Задержка 5 секунд для стабильности
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Ошибка при проверке автовыгрузки:', error);
+                }
+            }
+
+            autoExportTodaySales() {
+                try {
+                    const now = new Date();
+                    const moscowTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
+                    const today = moscowTime.toISOString().split('T')[0];
+                    
+                    const todayStart = new Date(moscowTime);
+                    todayStart.setUTCHours(0, 0, 0, 0);
+                    
+                    const todaySales = this.salesLog.filter(sale => 
+                        new Date(sale.timestamp) >= todayStart
+                    );
+                    
+                    if (todaySales.length === 0) {
+                        console.log('📭 Нет продаж за сегодня для автовыгрузки');
+                        return;
+                    }
+                    
+                    let logContent = '════════════════════════════════════════\n';
+                    logContent += '           GAME ZONE - АВТОВЫГРУЗКА\n';
+                    logContent += `       Дата: ${today}\n`;
+                    logContent += `       Время: ${moscowTime.getUTCHours()}:${moscowTime.getUTCMinutes().toString().padStart(2, '0')}\n`;
+                    logContent += '════════════════════════════════════════\n\n';
+                    
+                    const stats = this.getStats();
+                    logContent += '📊 СТАТИСТИКА ЗА СЕГОДНЯ:\n';
+                    logContent += '────────────────────────────────────────\n';
+                    logContent += `Продаж: ${stats.todaySales}\n`;
+                    logContent += `Товаров: ${stats.todayItems} шт\n`;
+                    logContent += `Выручка: ${stats.todayRevenue} руб\n`;
+                    logContent += '\n════════════════════════════════════════\n';
+                    logContent += '           ПРОДАЖИ ЗА СЕГОДНЯ\n';
+                    logContent += '════════════════════════════════════════\n\n';
+                    
+                    todaySales.forEach((sale, index) => {
+                        const saleDate = new Date(sale.timestamp).toLocaleString('ru-RU');
+                        
+                        logContent += `┌──────────────────────────────────────┐\n`;
+                        logContent += `│ ПРОДАЖА ${index + 1}/${todaySales.length}\n`;
+                        logContent += `│ ID: ${sale.saleId}\n`;
+                        logContent += `│ ВРЕМЯ: ${saleDate}\n`;
+                        logContent += `├──────────────────────────────────────┤\n`;
+                        
+                        sale.items.forEach((item, itemIndex) => {
+                            logContent += `│ ${itemIndex + 1}. ${item.name} (${item.platform})\n`;
+                            logContent += `│    ${item.quantity} шт × ${item.price} руб = ${item.total} руб\n`;
+                        });
+                        
+                        logContent += `├──────────────────────────────────────┤\n`;
+                        logContent += `│ ИТОГО: ${sale.totalItems} шт на сумму ${sale.totalAmount} руб\n`;
+                        logContent += `└──────────────────────────────────────┘\n\n`;
+                    });
+                    
+                    const blob = new Blob(['\uFEFF' + logContent], { 
+                        type: 'text/plain;charset=utf-8' 
+                    });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `gamezone_autosave_${today}.txt`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    
+                    // Сохраняем дату последней выгрузки
+                    this.lastExportDate = today;
+                    this.saveToStorage();
+                    
+                    console.log(`✅ Автовыгрузка выполнена: ${todaySales.length} продаж`);
+                    
+                } catch (error) {
+                    console.error('❌ Ошибка автовыгрузки:', error);
                 }
             }
 
@@ -1234,8 +1437,8 @@
                         logContent += `├──────────────────────────────────────┤\n`;
                         
                         sale.items.forEach((item, itemIndex) => {
-                            logContent += `│ ${itemIndex + 1}. ${item.name}\n`;
-                            logContent += `│    ${item.platform} | ${item.quantity} шт x ${item.price} руб = ${item.total} руб\n`;
+                            logContent += `│ ${itemIndex + 1}. ${item.name} (${item.platform})\n`;
+                            logContent += `│    ${item.quantity} шт × ${item.price} руб = ${item.total} руб\n`;
                         });
                         
                         logContent += `├──────────────────────────────────────┤\n`;
@@ -1271,6 +1474,7 @@
                     try {
                         this.appLog = [];
                         this.salesLog = [];
+                        this.lastExportDate = null;
                         localStorage.removeItem('gamezone_logs');
                         console.log('🗑️ Логи очищены');
                         alert('Логи успешно очищены');
@@ -1360,7 +1564,7 @@
                 this.lastScannedCode = null;
                 this.scanCooldown = false;
                 
-                this.appVersion = "4.6";
+                this.appVersion = "4.7";
                 this.isClientMode = isClientMode;
                 this.logger = new SimpleLogger();
                 
@@ -1408,7 +1612,7 @@
                     
                     // В клиентском режиме кнопка переключения всегда видна и называется "Вернуться в режим разработчика"
                     switchBtn.style.display = 'block';
-                    switchBtn.textContent = '👨‍💻 Вернуться в режим разработчика';
+                    switchBtn.textContent = '👨‍💻 Режим разработчика';
                     switchBtn.classList.remove('switch-mode');
                     switchBtn.classList.add('developer-mode');
                     
@@ -1497,6 +1701,12 @@
                 document.getElementById('close-stats-btn').addEventListener('click', () => this.closeModal('stats-modal'));
                 document.getElementById('close-stats-detail-btn').addEventListener('click', () => this.closeModal('stats-detail-modal'));
                 document.getElementById('modal-overlay').addEventListener('click', () => this.closeAllModals());
+                
+                // Кнопка назад в детальной статистике
+                document.getElementById('back-to-stats-btn').addEventListener('click', () => {
+                    this.closeModal('stats-detail-modal');
+                    this.openModal('stats-modal');
+                });
                 
                 // Камера
                 document.getElementById('restart-camera').addEventListener('click', () => {
@@ -1639,8 +1849,10 @@
                         sale.items.forEach((game, idx) => {
                             itemsHtml += `
                                 <div class="sale-detail-game">
-                                    ${idx + 1}. ${game.name} (${game.platform}) - 
-                                    ${game.quantity} шт × ${game.price} руб = ${game.total} руб
+                                    <span>${idx + 1}.</span>
+                                    ${this.getPlatformIconOnly(game.platform)}
+                                    <span>${game.name}</span>
+                                    <span style="margin-left: auto; font-weight: bold;">${game.total} руб</span>
                                 </div>
                             `;
                         });
@@ -1694,8 +1906,10 @@
                     item.innerHTML = `
                         <div class="cart-item-header">
                             <div class="cart-item-info">
-                                <div class="cart-item-name">${game.name}</div>
-                                <div class="cart-item-platform">${this.getPlatformIconOnly(game.platform)}</div>
+                                <div class="cart-item-name">
+                                    ${this.getPlatformIconOnly(game.platform)}
+                                    <span>${game.name}</span>
+                                </div>
                             </div>
                         </div>
                         <div class="cart-item-controls">
@@ -1771,7 +1985,10 @@
                     const item = document.createElement('div');
                     item.className = 'search-result-item';
                     item.innerHTML = `
-                        <div class="search-result-name">${this.getPlatformIconOnly(game.platform)} ${game.name}</div>
+                        <div class="search-result-name">
+                            ${this.getPlatformIconOnly(game.platform)}
+                            <span>${game.name}</span>
+                        </div>
                         <div class="search-result-details">
                             <span></span>
                             <span class="search-result-price">${this.calculateFinalPrice(game.optPrice)} руб</span>
@@ -2126,7 +2343,7 @@
                 }
             }
 
-            // ========== СТАБИЛЬНАЯ ВЕРСИЯ КАМЕРЫ С АВТОПЕРЕЗАПУСКОМ ==========
+            // ========== СТАБИЛЬНАЯ КАМЕРА ==========
             async startScanner() {
                 if (this.gamesData.length === 0) {
                     alert('❌ Нет данных об играх');
@@ -2285,15 +2502,13 @@
                     
                     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
                     
-                    // ВАЖНОЕ ИСПРАВЛЕНИЕ №1: Автоматический перезапуск без задержки
                     setTimeout(() => {
                         this.resetScannerStateForRestart();
                         this.safeRestartScanner();
-                    }, 300); // Уменьшена задержка с 1500ms до 300ms
+                    }, 300);
                 }
             }
 
-            // Новая функция для сброса состояния перед перезапуском
             resetScannerStateForRestart() {
                 this.scanCooldown = false;
                 this.lastScannedCode = null;
@@ -2332,20 +2547,16 @@
                 this.updateCameraStatus('🔍 Перезапуск сканера...');
                 
                 try {
-                    // Полностью останавливаем старый сканер
                     this.stopQuagga();
                     
-                    // Ждем немного чтобы все очистилось
                     await new Promise(resolve => setTimeout(resolve, 200));
                     
-                    // Проверяем что камера все еще работает
                     if (!this.cameraStream || this.cameraStream.getTracks().every(track => track.readyState === 'ended')) {
                         console.log('⚠️ Камера перестала работать, перезапускаем полностью');
                         await this.restartCamera();
                         return;
                     }
                     
-                    // Запускаем новый сканер
                     this.startQuaggaScanner();
                     
                 } catch (e) {
@@ -2438,18 +2649,28 @@
             displayGameInfo(game) {
                 const price = this.calculateFinalPrice(game.optPrice);
                 
+                // Обновляем цену вверху
                 document.getElementById('current-price-value').textContent = price || '0';
                 document.getElementById('current-price').classList.add('visible');
+                
+                // Показываем платформу и название под ценой (всегда)
+                const priceDetails = document.getElementById('price-details');
+                const priceDetailsPlatform = document.getElementById('price-details-platform');
+                const priceDetailsName = document.getElementById('price-details-name');
+                
+                priceDetailsPlatform.innerHTML = this.getPlatformIconOnly(game.platform);
+                priceDetailsName.textContent = game.name;
+                priceDetails.style.display = 'block';
                 
                 if (this.isClientMode) {
                     // В клиентском режиме показываем специальный блок
                     const clientGameInfo = document.getElementById('client-game-info');
-                    const clientGameName = document.getElementById('client-game-name');
                     const clientGamePlatform = document.getElementById('client-game-platform');
+                    const clientGameName = document.getElementById('client-game-name');
                     const clientGamePrice = document.getElementById('client-game-price');
                     
-                    clientGameName.textContent = game.name;
                     clientGamePlatform.innerHTML = this.getPlatformIconOnly(game.platform);
+                    clientGameName.textContent = game.name;
                     clientGamePrice.textContent = price + ' руб';
                     
                     clientGameInfo.classList.add('visible');
@@ -2458,9 +2679,8 @@
                 } else {
                     // В полном режиме показываем старый блок
                     document.getElementById('game-summary-price').textContent = price || '0';
+                    document.getElementById('game-summary-platform').innerHTML = this.getPlatformIconOnly(game.platform);
                     document.getElementById('game-summary-name').textContent = game.name;
-                    document.getElementById('game-summary-platform').innerHTML = 
-                        this.getPlatformIconOnly(game.platform);
                     document.getElementById('game-summary').classList.add('visible');
                     
                     document.getElementById('client-game-info').classList.remove('visible');
@@ -2501,7 +2721,7 @@
                 }
             }
 
-            // ИСПРАВЛЕНИЕ №4: Возвращаем только цветные иконки без текста
+            // ИСПРАВЛЕННЫЕ ИКОНКИ ПЛАТФОРМ - ТОЛЬКО ЦВЕТНЫЕ БЛОКИ С ТЕКСТОМ ВНУТРИ
             getPlatformIconOnly(platform) {
                 let platformText = '';
                 let platformClass = '';
@@ -2516,11 +2736,11 @@
                     platformText = 'NS';
                     platformClass = 'ns-icon';
                 } else if (platform.includes('XBOX')) {
-                    platformText = 'XB';
+                    platformText = 'XBOX'; // Изменено с XB на XBOX
                     platformClass = 'xbox-icon';
                 } else {
                     platformText = platform;
-                    platformClass = 'ps4-icon'; // fallback
+                    platformClass = 'ps4-icon';
                 }
                 
                 return `<span class="platform-icon ${platformClass}">${platformText}</span>`;
