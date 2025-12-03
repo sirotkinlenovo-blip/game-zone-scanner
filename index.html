@@ -86,6 +86,10 @@
             background: #6f42c1;
             margin-bottom: 5px;
         }
+        .btn.switch-mode {
+            background: #fd7e14;
+            margin-top: 10px;
+        }
         
         #scanner-container {
             width: 100%;
@@ -660,7 +664,7 @@
             background: #dc3545;
         }
         
-        /* Окно статистики */
+        /* Окно статистики с кликабельными карточками */
         #stats-modal .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -674,6 +678,19 @@
             padding: 15px;
             border-radius: 10px;
             text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .stat-card:active {
+            transform: translateY(-2px);
         }
         
         .stat-value {
@@ -693,6 +710,105 @@
             margin-bottom: 15px;
             font-size: 14px;
         }
+        
+        /* Окно детальной статистики */
+        .sale-details-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .sale-detail-item {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .sale-detail-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .sale-detail-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #ddd;
+        }
+        
+        .sale-detail-id {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .sale-detail-date {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .sale-detail-items {
+            margin-top: 5px;
+        }
+        
+        .sale-detail-game {
+            font-size: 13px;
+            color: #555;
+            margin-left: 10px;
+        }
+        
+        .sale-detail-total {
+            font-weight: bold;
+            color: #28a745;
+            text-align: right;
+            margin-top: 8px;
+            padding-top: 5px;
+            border-top: 1px dashed #ddd;
+        }
+        
+        /* Клиентский режим */
+        .client-mode .search-container,
+        .client-mode .btn.stats,
+        .client-mode .log-buttons,
+        .client-mode #open-search-btn,
+        .client-mode #sale-btn,
+        .client-mode .game-info,
+        .client-mode #game-summary {
+            display: none !important;
+        }
+        
+        .client-mode #scanner-container {
+            height: 300px;
+            margin: 30px 0;
+        }
+        
+        .client-mode .current-price {
+            font-size: 28px;
+            padding: 20px;
+        }
+        
+        .client-mode .app-version {
+            font-size: 10px;
+            color: #999;
+        }
+        
+        .mode-indicator {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #fd7e14;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10;
+        }
     </style>
 </head>
 <body>
@@ -704,12 +820,14 @@
     </div>
 
     <!-- Основной контейнер -->
-    <div class="container">
+    <div class="container" id="app-container">
+        <div id="mode-indicator" class="mode-indicator" style="display: none;">👤 КЛИЕНТ</div>
+        
         <div class="header">
             <div class="store-icon">GZ</div>
             <div>
                 <h1>GAME ZONE</h1>
-                <p>Сканер игровых дисков</p>
+                <p id="app-subtitle">Сканер игровых дисков</p>
             </div>
         </div>
 
@@ -729,7 +847,7 @@
         <div id="scanner-container">
             <div class="scanner-placeholder">
                 <div class="icon">📷</div>
-                <div class="text">Нажмите для запуска сканера</div>
+                <div class="text" id="scanner-text">Нажмите для запуска сканера</div>
             </div>
         </div>
 
@@ -740,6 +858,9 @@
 
         <!-- Кнопка статистики -->
         <button id="stats-btn" class="btn stats">📊 Статистика продаж</button>
+
+        <!-- Кнопка переключения режима -->
+        <button id="switch-mode-btn" class="btn switch-mode">👤 Переключить на клиентский режим</button>
 
         <!-- Кнопки управления логами -->
         <div class="log-buttons">
@@ -789,7 +910,7 @@
         </div>
 
         <div class="app-version">
-            Версия 4.3 | GAME ZONE PWA | <span id="cache-status">✅</span>
+            Версия 4.4 | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span>
         </div>
     </div>
 
@@ -865,30 +986,46 @@
                 📅 Статистика на: <span id="stats-date"></span>
             </div>
             <div class="stats-grid">
-                <div class="stat-card">
+                <div class="stat-card" data-stat="today-sales">
                     <div class="stat-value" id="today-sales">0</div>
                     <div class="stat-label">Продаж сегодня</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-stat="today-revenue">
                     <div class="stat-value" id="today-revenue">0</div>
                     <div class="stat-label">Выручка сегодня</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-stat="today-items">
                     <div class="stat-value" id="today-items">0</div>
                     <div class="stat-label">Товаров сегодня</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-stat="total-sales">
                     <div class="stat-value" id="total-sales">0</div>
                     <div class="stat-label">Всего продаж</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-stat="total-revenue">
                     <div class="stat-value" id="total-revenue">0</div>
                     <div class="stat-label">Общая выручка</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" data-stat="total-items">
                     <div class="stat-value" id="total-items">0</div>
                     <div class="stat-label">Всего товаров</div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Окно детальной статистики -->
+    <div id="stats-detail-modal" class="modal">
+        <div class="modal-header">
+            <div class="modal-title" id="stats-detail-title">📋 Детали продаж</div>
+            <button class="modal-close" id="close-stats-detail-btn">×</button>
+        </div>
+        <div class="modal-body">
+            <div id="stats-detail-period" class="stats-period">
+                <!-- Период будет здесь -->
+            </div>
+            <div id="stats-detail-content" class="sale-details-list">
+                <!-- Детали продаж будут здесь -->
             </div>
         </div>
     </div>
@@ -899,6 +1036,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.1/dist/quagga.min.js"></script>
     
     <script>
+        // Проверяем режим из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const isClientMode = urlParams.get('mode') === 'client' || 
+                            localStorage.getItem('gamezone_mode') === 'client';
+
         // Простой и надежный логгер с правильной кодировкой
         class SimpleLogger {
             constructor() {
@@ -1119,9 +1261,46 @@
                     todayItems
                 };
             }
+
+            // Получение детальных данных по статистике
+            getSalesByPeriod(period) {
+                const now = new Date();
+                let startDate = new Date();
+                
+                switch(period) {
+                    case 'today-sales':
+                        startDate.setHours(0, 0, 0, 0);
+                        break;
+                    case 'today-revenue':
+                        startDate.setHours(0, 0, 0, 0);
+                        break;
+                    case 'today-items':
+                        startDate.setHours(0, 0, 0, 0);
+                        break;
+                    case 'total-sales':
+                        startDate = new Date(0); // Все время
+                        break;
+                    case 'total-revenue':
+                        startDate = new Date(0);
+                        break;
+                    case 'total-items':
+                        startDate = new Date(0);
+                        break;
+                    default:
+                        startDate.setHours(0, 0, 0, 0);
+                }
+                
+                if (period.includes('today')) {
+                    return this.salesLog.filter(sale => 
+                        new Date(sale.timestamp) >= startDate
+                    );
+                } else {
+                    return this.salesLog; // Все продажи
+                }
+            }
         }
 
-        // Основной класс приложения
+        // Основной класс приложения с поддержкой двух режимов
         class GameScannerApp {
             constructor() {
                 this.sheetsUrl = 'https://docs.google.com/spreadsheets/d/1fMWJan1HP7tcKwa_hm86oCm0KPtC_zN50UhU72Q8xeA/export?format=csv&gid=1995791598';
@@ -1137,7 +1316,8 @@
                 this.lastScannedCode = null;
                 this.scanCooldown = false;
                 
-                this.appVersion = "4.3";
+                this.appVersion = "4.4";
+                this.isClientMode = isClientMode;
                 this.logger = new SimpleLogger();
                 
                 this.init();
@@ -1145,8 +1325,16 @@
 
             async init() {
                 console.log(`🚀 GAME ZONE Scanner ${this.appVersion} запущен`);
+                console.log(`📱 Режим: ${this.isClientMode ? 'КЛИЕНТСКИЙ' : 'ПОЛНЫЙ'}`);
                 
-                this.logger.logAppAction('APP_START', { version: this.appVersion });
+                // Устанавливаем режим
+                this.setMode(this.isClientMode);
+                
+                this.logger.logAppAction('APP_START', { 
+                    version: this.appVersion,
+                    mode: this.isClientMode ? 'client' : 'full' 
+                });
+                
                 this.setupEventListeners();
                 
                 // Загружаем данные
@@ -1154,6 +1342,53 @@
                 await this.loadGamesData();
                 
                 this.updateStatus(`✅ Готов! ${this.gamesData.length} игр в базе`, 'success');
+            }
+
+            // Установка режима (клиентский/полный)
+            setMode(isClientMode) {
+                this.isClientMode = isClientMode;
+                localStorage.setItem('gamezone_mode', isClientMode ? 'client' : 'full');
+                
+                const container = document.getElementById('app-container');
+                const modeIndicator = document.getElementById('mode-indicator');
+                const modeStatus = document.getElementById('mode-status');
+                const appSubtitle = document.getElementById('app-subtitle');
+                const scannerText = document.getElementById('scanner-text');
+                const switchBtn = document.getElementById('switch-mode-btn');
+                
+                if (isClientMode) {
+                    container.classList.add('client-mode');
+                    modeIndicator.style.display = 'block';
+                    modeStatus.textContent = 'КЛИЕНТ';
+                    appSubtitle.textContent = 'Сканер цен для клиентов';
+                    scannerText.textContent = 'Наведите камеру на штрих-код игры';
+                    switchBtn.textContent = '⚙️ Переключить на полный режим';
+                    
+                    // Для клиентов: всегда показываем цену в увеличенном виде
+                    document.getElementById('current-price').style.fontSize = '28px';
+                    document.getElementById('current-price').style.padding = '20px';
+                    
+                } else {
+                    container.classList.remove('client-mode');
+                    modeIndicator.style.display = 'none';
+                    modeStatus.textContent = 'ПОЛНЫЙ';
+                    appSubtitle.textContent = 'Сканер игровых дисков';
+                    scannerText.textContent = 'Нажмите для запуска сканера';
+                    switchBtn.textContent = '👤 Переключить на клиентский режим';
+                    
+                    // Возвращаем нормальный размер цены
+                    document.getElementById('current-price').style.fontSize = '20px';
+                    document.getElementById('current-price').style.padding = '15px';
+                }
+                
+                this.logger.logAppAction('MODE_CHANGED', { mode: isClientMode ? 'client' : 'full' });
+            }
+
+            // Переключение режима
+            toggleMode() {
+                const newMode = !this.isClientMode;
+                this.setMode(newMode);
+                this.updateStatus(`✅ Переключен на ${newMode ? 'клиентский' : 'полный'} режим`, 'success');
             }
 
             updateStatus(message, type = '') {
@@ -1183,8 +1418,9 @@
                 
                 // Кнопки модальных окон
                 document.getElementById('open-search-btn').addEventListener('click', () => this.openSearchModal());
-                document.getElementById('sale-btn').addEventListener('click', () => this.openCartModal()); // Теперь эта кнопка открывает корзину
+                document.getElementById('sale-btn').addEventListener('click', () => this.openCartModal());
                 document.getElementById('stats-btn').addEventListener('click', () => this.openStatsModal());
+                document.getElementById('switch-mode-btn').addEventListener('click', () => this.toggleMode());
                 
                 // Управление логами
                 document.getElementById('download-logs-btn').addEventListener('click', () => this.downloadLogs());
@@ -1196,6 +1432,7 @@
                 document.getElementById('close-camera-btn').addEventListener('click', () => this.stopScanner());
                 document.getElementById('stop-camera').addEventListener('click', () => this.stopScanner());
                 document.getElementById('close-stats-btn').addEventListener('click', () => this.closeModal('stats-modal'));
+                document.getElementById('close-stats-detail-btn').addEventListener('click', () => this.closeModal('stats-detail-modal'));
                 document.getElementById('modal-overlay').addEventListener('click', () => this.closeAllModals());
                 
                 // Камера
@@ -1223,6 +1460,25 @@
                 // Корзина
                 document.getElementById('clear-cart-btn').addEventListener('click', () => this.clearCart());
                 document.getElementById('process-sale-btn').addEventListener('click', () => this.processSaleFromCart());
+                
+                // Кликабельная статистика
+                document.querySelectorAll('.stat-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        const statType = e.currentTarget.getAttribute('data-stat');
+                        this.showStatDetails(statType);
+                    });
+                });
+                
+                // Динамическое добавление обработчиков для статистики
+                document.addEventListener('click', (e) => {
+                    if (e.target.closest('.stat-card')) {
+                        const card = e.target.closest('.stat-card');
+                        const statType = card.getAttribute('data-stat');
+                        if (statType) {
+                            this.showStatDetails(statType);
+                        }
+                    }
+                });
             }
 
             openModal(modalId) {
@@ -1251,7 +1507,7 @@
                 document.body.style.overflow = 'auto';
             }
 
-            // Окно статистики
+            // Окно статистики с кликабельными карточками
             openStatsModal() {
                 const stats = this.logger.getStats();
                 const today = new Date().toLocaleDateString('ru-RU');
@@ -1267,7 +1523,97 @@
                 this.openModal('stats-modal');
             }
 
-            // Окно корзины (Новый дизайн)
+            // Показ деталей статистики
+            showStatDetails(statType) {
+                const stats = this.logger.getStats();
+                const sales = this.logger.getSalesByPeriod(statType);
+                
+                let title = '';
+                let periodText = '';
+                
+                switch(statType) {
+                    case 'today-sales':
+                        title = '📋 Продажи за сегодня';
+                        periodText = `Сегодня (${new Date().toLocaleDateString('ru-RU')})`;
+                        break;
+                    case 'today-revenue':
+                        title = '💰 Выручка за сегодня';
+                        periodText = `Сегодня (${new Date().toLocaleDateString('ru-RU')})`;
+                        break;
+                    case 'today-items':
+                        title = '🛍️ Товары за сегодня';
+                        periodText = `Сегодня (${new Date().toLocaleDateString('ru-RU')})`;
+                        break;
+                    case 'total-sales':
+                        title = '📊 Все продажи';
+                        periodText = 'За все время';
+                        break;
+                    case 'total-revenue':
+                        title = '💵 Общая выручка';
+                        periodText = 'За все время';
+                        break;
+                    case 'total-items':
+                        title = '📦 Все товары';
+                        periodText = 'За все время';
+                        break;
+                    default:
+                        title = '📋 Детали продаж';
+                        periodText = 'Детали';
+                }
+                
+                document.getElementById('stats-detail-title').textContent = title;
+                document.getElementById('stats-detail-period').textContent = periodText;
+                
+                const detailContent = document.getElementById('stats-detail-content');
+                detailContent.innerHTML = '';
+                
+                if (sales.length === 0) {
+                    detailContent.innerHTML = `
+                        <div style="padding: 30px; text-align: center; color: #666;">
+                            <div style="font-size: 48px; margin-bottom: 15px;">📭</div>
+                            <div style="font-size: 16px; margin-bottom: 10px;">Нет данных</div>
+                            <div style="font-size: 14px; color: #999;">Продажи за этот период отсутствуют</div>
+                        </div>
+                    `;
+                } else {
+                    // Показываем детали по продажам
+                    sales.forEach(sale => {
+                        const saleDate = new Date(sale.timestamp).toLocaleString('ru-RU');
+                        const item = document.createElement('div');
+                        item.className = 'sale-detail-item';
+                        
+                        let itemsHtml = '';
+                        sale.items.forEach((game, idx) => {
+                            itemsHtml += `
+                                <div class="sale-detail-game">
+                                    ${idx + 1}. ${game.name} (${game.platform}) - 
+                                    ${game.quantity} шт × ${game.price} руб = ${game.total} руб
+                                </div>
+                            `;
+                        });
+                        
+                        item.innerHTML = `
+                            <div class="sale-detail-header">
+                                <div class="sale-detail-id">${sale.saleId}</div>
+                                <div class="sale-detail-date">${saleDate}</div>
+                            </div>
+                            <div class="sale-detail-items">
+                                ${itemsHtml}
+                            </div>
+                            <div class="sale-detail-total">
+                                ИТОГО: ${sale.totalItems} шт на сумму ${sale.totalAmount} руб
+                            </div>
+                        `;
+                        
+                        detailContent.appendChild(item);
+                    });
+                }
+                
+                this.closeModal('stats-modal');
+                this.openModal('stats-detail-modal');
+            }
+
+            // Окно корзины
             openCartModal() {
                 if (this.scannedGames.length === 0) {
                     alert('🛒 Корзина пуста');
@@ -1742,7 +2088,7 @@
                 }
             }
 
-            // ========== СКАНИРОВАНИЕ (старая рабочая версия) ==========
+            // ========== СКАНИРОВАНИЕ ==========
             async startScanner() {
                 if (this.gamesData.length === 0) {
                     alert('❌ Нет данных об играх');
@@ -1881,8 +2227,16 @@
                 
                 if (game) {
                     console.log('✅ Найдена игра:', game.name);
-                    this.addGameToCart(game);
-                    this.updateCameraStatus('✅ Игра найдена!', 'scanning-success');
+                    
+                    // В клиентском режиме только показываем информацию
+                    if (this.isClientMode) {
+                        this.displayGameInfo(game);
+                        this.updateCameraStatus('✅ Цена найдена!', 'scanning-success');
+                    } else {
+                        // В полном режиме добавляем в корзину
+                        this.addGameToCart(game);
+                        this.updateCameraStatus('✅ Игра найдена!', 'scanning-success');
+                    }
                     
                     if (navigator.vibrate) navigator.vibrate(100);
                     setTimeout(() => this.stopScanner(), 1000);
@@ -2024,7 +2378,7 @@
             displayGameInfo(game) {
                 const price = this.calculateFinalPrice(game.optPrice);
                 
-                // 1. Цена сверху
+                // 1. Цена сверху (увеличенная в клиентском режиме)
                 document.getElementById('current-price-value').textContent = price || '0';
                 document.getElementById('current-price').classList.add('visible');
                 
@@ -2035,26 +2389,31 @@
                     this.getPlatformIcon(game.platform) + game.platform;
                 document.getElementById('game-summary').classList.add('visible');
                 
-                // 3. Полная информация (внизу)
-                document.getElementById('game-final-price').textContent = price || '—';
-                document.getElementById('game-name').textContent = game.name;
-                document.getElementById('game-language').textContent = this.getLanguageText(game.language) || '—';
-                document.getElementById('game-platform').innerHTML = this.getPlatformIcon(game.platform) + game.platform;
-                document.getElementById('game-barcode').textContent = game.barcode;
-                document.getElementById('game-marketplace').textContent = game.marketplace || '—';
-                
-                const codeRow = document.getElementById('game-code-row');
-                if (game.code && game.codeType) {
-                    document.getElementById('game-code-label').textContent = game.codeType + ':';
-                    document.getElementById('game-code').textContent = game.code;
-                    codeRow.style.display = 'flex';
-                } else {
-                    codeRow.style.display = 'none';
+                // 3. Полная информация (внизу) - скрыта в клиентском режиме
+                if (!this.isClientMode) {
+                    document.getElementById('game-final-price').textContent = price || '—';
+                    document.getElementById('game-name').textContent = game.name;
+                    document.getElementById('game-language').textContent = this.getLanguageText(game.language) || '—';
+                    document.getElementById('game-platform').innerHTML = this.getPlatformIcon(game.platform) + game.platform;
+                    document.getElementById('game-barcode').textContent = game.barcode;
+                    document.getElementById('game-marketplace').textContent = game.marketplace || '—';
+                    
+                    const codeRow = document.getElementById('game-code-row');
+                    if (game.code && game.codeType) {
+                        document.getElementById('game-code-label').textContent = game.codeType + ':';
+                        document.getElementById('game-code').textContent = game.code;
+                        codeRow.style.display = 'flex';
+                    } else {
+                        codeRow.style.display = 'none';
+                    }
+                    
+                    document.getElementById('game-info').classList.add('visible');
                 }
                 
-                document.getElementById('game-info').classList.add('visible');
-                
-                this.logger.logAppAction('GAME_INFO_DISPLAYED', { name: game.name });
+                this.logger.logAppAction('GAME_INFO_DISPLAYED', { 
+                    name: game.name,
+                    mode: this.isClientMode ? 'client' : 'full' 
+                });
             }
 
             calculateFinalPrice(optPrice) {
@@ -2087,7 +2446,7 @@
 
         // Инициализация приложения
         document.addEventListener('DOMContentLoaded', () => {
-            new GameScannerApp();
+            window.gameApp = new GameScannerApp();
         });
     </script>
 </body>
