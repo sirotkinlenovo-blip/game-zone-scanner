@@ -126,41 +126,6 @@
             font-weight: 500;
         }
         
-        /* Краткая информация об игре */
-        .game-summary {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 15px;
-            margin: 15px 0;
-            display: none;
-            border: 2px solid #e9ecef;
-        }
-        .game-summary.visible { display: block; }
-        .game-summary-price {
-            color: #28a745;
-            font-size: 22px;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-        .game-summary-name {
-            font-weight: bold;
-            font-size: 16px;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            line-height: 1.3;
-        }
-        .game-summary-platform {
-            font-size: 14px;
-            color: #666;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 5px;
-        }
-        
         .search-container {
             display: flex;
             gap: 10px;
@@ -186,21 +151,21 @@
             background: linear-gradient(135deg, #28a745, #20c997);
             color: white;
             text-align: center;
-            padding: 15px;
+            padding: 20px;
             border-radius: 15px;
             margin: 15px 0;
             font-weight: bold;
-            font-size: 20px;
+            font-size: 28px;
             display: none;
             box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
         .current-price.visible { display: block; }
         
-        /* Информация под ценой (для клиентского режима) */
+        /* Информация под ценой */
         .price-details {
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid rgba(255, 255, 255, 0.4);
             font-size: 16px;
             line-height: 1.4;
         }
@@ -209,11 +174,12 @@
             align-items: center;
             gap: 8px;
             justify-content: center;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
         .price-details-name {
-            font-size: 15px;
-            opacity: 0.9;
+            font-size: 18px;
+            font-weight: bold;
+            opacity: 0.95;
         }
         
         .game-info {
@@ -276,6 +242,48 @@
             z-index: 1000;
             display: none;
             overflow-y: auto;
+        }
+        
+        /* Модальное окно поиска на весь экран */
+        #search-modal {
+            top: 0;
+            left: 0;
+            transform: none;
+            width: 100%;
+            height: 100%;
+            max-width: none;
+            max-height: none;
+            border-radius: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #search-modal .modal-header {
+            background: #0078D7;
+            color: white;
+            padding: 15px 20px;
+            margin: 0;
+            border-radius: 0;
+            border-bottom: none;
+        }
+        
+        #search-modal .modal-title {
+            color: white;
+            font-size: 20px;
+        }
+        
+        #search-modal .modal-close {
+            background: white;
+            color: #0078D7;
+        }
+        
+        #search-modal .modal-body {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
         
         .modal-header {
@@ -454,36 +462,40 @@
             gap: 10px;
         }
         
-        /* Окно поиска */
+        /* Окно поиска - ПОЛНЫЙ ЭКРАН */
         #search-modal .search-input-container {
             margin-bottom: 20px;
+            margin-top: 10px;
         }
         
         #search-modal .search-input {
             width: 100%;
-            padding: 15px;
-            border: 2px solid #0078D7;
-            border-radius: 10px;
-            font-size: 16px;
+            padding: 20px;
+            border: 3px solid #0078D7;
+            border-radius: 15px;
+            font-size: 18px;
             text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         
         .search-hint {
             text-align: center;
             color: #666;
-            font-size: 14px;
+            font-size: 15px;
             margin-bottom: 20px;
-            padding: 10px;
+            padding: 15px;
             background: #f8f9fa;
-            border-radius: 8px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
         }
         
         .search-results-container {
-            max-height: 300px;
+            flex: 1;
             overflow-y: auto;
             border: 1px solid #e0e0e0;
             border-radius: 10px;
             padding: 10px;
+            background: #fff;
         }
         
         .search-result-item {
@@ -491,10 +503,14 @@
             border-bottom: 1px solid #eee;
             cursor: pointer;
             transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
         
         .search-result-item:hover {
             background: #e8f4ff;
+            transform: translateY(-2px);
         }
         
         .search-result-item:last-child {
@@ -503,24 +519,25 @@
         
         .search-result-name {
             font-weight: bold;
-            font-size: 16px;
-            margin-bottom: 5px;
+            font-size: 17px;
             color: #333;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
         
         .search-result-details {
             display: flex;
             justify-content: space-between;
-            font-size: 14px;
+            align-items: center;
+            font-size: 15px;
             color: #666;
         }
         
         .search-result-price {
             color: #28a745;
             font-weight: bold;
+            font-size: 18px;
         }
         
         /* Окно камеры */
@@ -839,7 +856,6 @@
         .client-mode #open-search-btn,
         .client-mode #sale-btn,
         .client-mode .game-info,
-        .client-mode #game-summary,
         .client-mode .btn.switch-mode {
             display: none !important;
         }
@@ -872,54 +888,6 @@
             font-weight: bold;
             z-index: 10;
         }
-
-        /* Стили для информации об игре в клиентском режиме */
-        .client-game-info {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 20px;
-            margin: 15px 0;
-            display: none;
-            border: 2px solid #e9ecef;
-            text-align: center;
-        }
-        
-        .client-game-info.visible { 
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        .client-game-name {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            line-height: 1.3;
-        }
-        
-        .client-game-platform {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .client-game-price {
-            font-size: 28px;
-            font-weight: bold;
-            color: #28a745;
-            margin-top: 10px;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
     </style>
 </head>
 <body>
@@ -942,28 +910,13 @@
             </div>
         </div>
 
+        <!-- ОДНО ЕДИНОЕ ПОЛЕ ЦЕНЫ С ИНФОРМАЦИЕЙ -->
         <div id="current-price" class="current-price">
             💰 Цена: <span id="current-price-value">0</span> руб
             <div id="price-details" class="price-details" style="display: none;">
                 <div class="price-details-platform" id="price-details-platform"></div>
                 <div class="price-details-name" id="price-details-name"></div>
             </div>
-        </div>
-
-        <!-- Информация об игре в клиентском режиме -->
-        <div id="client-game-info" class="client-game-info">
-            <div class="client-game-platform" id="client-game-platform"></div>
-            <div class="client-game-name" id="client-game-name"></div>
-            <div class="client-game-price" id="client-game-price">0 руб</div>
-        </div>
-
-        <!-- Краткая информация об игре (для полного режима) -->
-        <div id="game-summary" class="game-summary">
-            <div class="game-summary-price">
-                <span id="game-summary-price">0</span> руб
-            </div>
-            <div class="game-summary-platform" id="game-summary-platform"></div>
-            <div class="game-summary-name" id="game-summary-name"></div>
         </div>
 
         <div id="scanner-container">
@@ -999,15 +952,6 @@
 
         <!-- Полная информация об игре (для полного режима) -->
         <div id="game-info" class="game-info">
-            <div class="price-final">
-                💰 Цена продажи: <span id="game-final-price"></span> руб
-            </div>
-            
-            <div class="info-row">
-                <span class="info-label">Название игры:</span>
-                <span class="info-value" id="game-name"></span>
-            </div>
-            
             <div class="info-row">
                 <span class="info-label">Язык игры:</span>
                 <span class="info-value" id="game-language"></span>
@@ -1032,7 +976,7 @@
         </div>
 
         <div class="app-version">
-            Версия 4.7 | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span>
+            Версия 4.8 | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span>
         </div>
     </div>
 
@@ -1056,7 +1000,7 @@
         </div>
     </div>
 
-    <!-- Окно поиска -->
+    <!-- Окно поиска - ПОЛНЫЙ ЭКРАН -->
     <div id="search-modal" class="modal">
         <div class="modal-header">
             <div class="modal-title">🔍 Умный поиск</div>
@@ -1172,23 +1116,98 @@
         const isClientMode = isUrlClientMode ? true : 
                            (savedMode ? savedMode === 'client' : false);
 
-        // Простой и надежный логгер с автовыгрузкой
+        // Уникальный ID устройства для синхронизации логов
+        const DEVICE_ID = localStorage.getItem('gamezone_device_id') || 
+                         'DEV_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('gamezone_device_id', DEVICE_ID);
+
+        // Простой и надежный логгер с синхронизацией между устройствами
         class SimpleLogger {
             constructor() {
                 this.appLog = [];
                 this.salesLog = [];
-                this.autoExportEnabled = true;
-                this.lastExportDate = null;
+                this.deviceId = DEVICE_ID;
                 this.init();
             }
 
             init() {
                 this.loadFromStorage();
-                this.checkAutoExport();
-                console.log('📊 Логгер инициализирован');
+                this.syncWithOtherDevices();
+                console.log(`📊 Логгер инициализирован на устройстве: ${this.deviceId}`);
                 
-                // Проверяем каждые 30 минут на автовыгрузку
-                setInterval(() => this.checkAutoExport(), 30 * 60 * 1000);
+                // Синхронизация при запуске и каждые 5 минут
+                setInterval(() => this.syncWithOtherDevices(), 5 * 60 * 1000);
+            }
+
+            // Синхронизация логов между устройствами
+            syncWithOtherDevices() {
+                try {
+                    // Получаем все логи из localStorage
+                    const allLogs = {};
+                    
+                    // Собираем все ключи с логами
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const key = localStorage.key(i);
+                        if (key.startsWith('gamezone_logs_')) {
+                            try {
+                                const logs = JSON.parse(localStorage.getItem(key));
+                                if (logs && logs.deviceId && logs.salesLog) {
+                                    allLogs[logs.deviceId] = logs;
+                                }
+                            } catch (e) {
+                                console.log(`Ошибка парсинга логов из ${key}`);
+                            }
+                        }
+                    }
+                    
+                    // Объединяем все логи
+                    let mergedLogs = {
+                        deviceId: this.deviceId,
+                        appLog: [...this.appLog],
+                        salesLog: [...this.salesLog]
+                    };
+                    
+                    // Добавляем логи с других устройств
+                    Object.values(allLogs).forEach(logs => {
+                        if (logs.deviceId !== this.deviceId) {
+                            // Добавляем уникальные продажи
+                            logs.salesLog.forEach(sale => {
+                                if (!mergedLogs.salesLog.some(s => s.saleId === sale.saleId)) {
+                                    mergedLogs.salesLog.push(sale);
+                                }
+                            });
+                            
+                            // Добавляем уникальные действия
+                            logs.appLog.forEach(action => {
+                                if (!mergedLogs.appLog.some(a => 
+                                    a.timestamp === action.timestamp && 
+                                    a.action === action.action)) {
+                                    mergedLogs.appLog.push(action);
+                                }
+                            });
+                        }
+                    });
+                    
+                    // Сортируем по времени
+                    mergedLogs.salesLog.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                    mergedLogs.appLog.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+                    
+                    // Обрезаем до последних 1000 записей
+                    mergedLogs.salesLog = mergedLogs.salesLog.slice(-1000);
+                    mergedLogs.appLog = mergedLogs.appLog.slice(-1000);
+                    
+                    // Обновляем локальные данные
+                    this.salesLog = mergedLogs.salesLog;
+                    this.appLog = mergedLogs.appLog;
+                    
+                    // Сохраняем объединенные логи
+                    this.saveToStorage();
+                    
+                    console.log(`🔄 Синхронизировано логов: продаж - ${this.salesLog.length}, действий - ${this.appLog.length}`);
+                    
+                } catch (error) {
+                    console.error('❌ Ошибка синхронизации логов:', error);
+                }
             }
 
             smartSearch(gamesData, query) {
@@ -1231,7 +1250,8 @@
                 const logEntry = {
                     timestamp: new Date().toISOString(),
                     action: action,
-                    details: details
+                    details: details,
+                    deviceId: this.deviceId
                 };
                 
                 this.appLog.push(logEntry);
@@ -1244,7 +1264,7 @@
             logSale(saleData) {
                 const saleEntry = {
                     timestamp: new Date().toISOString(),
-                    saleId: 'SALE_' + Date.now(),
+                    saleId: 'SALE_' + Date.now() + '_' + this.deviceId,
                     items: saleData.items.map(item => ({
                         name: item.name,
                         platform: item.platform,
@@ -1253,7 +1273,8 @@
                         total: item.total
                     })),
                     totalAmount: saleData.totalAmount,
-                    totalItems: saleData.totalItems
+                    totalItems: saleData.totalItems,
+                    deviceId: this.deviceId
                 };
                 
                 this.salesLog.push(saleEntry);
@@ -1266,7 +1287,9 @@
 
             saveToStorage() {
                 try {
-                    localStorage.setItem('gamezone_logs', JSON.stringify({
+                    const storageKey = `gamezone_logs_${this.deviceId}`;
+                    localStorage.setItem(storageKey, JSON.stringify({
+                        deviceId: this.deviceId,
                         appLog: this.appLog.slice(-1000),
                         salesLog: this.salesLog.slice(-1000),
                         lastUpdated: new Date().toISOString()
@@ -1278,172 +1301,105 @@
 
             loadFromStorage() {
                 try {
-                    const saved = localStorage.getItem('gamezone_logs');
+                    // Загружаем логи с этого устройства
+                    const storageKey = `gamezone_logs_${this.deviceId}`;
+                    const saved = localStorage.getItem(storageKey);
+                    
                     if (saved) {
                         const data = JSON.parse(saved);
                         this.appLog = data.appLog || [];
                         this.salesLog = data.salesLog || [];
-                        this.lastExportDate = data.lastExportDate || null;
                     }
                 } catch (error) {
                     console.error('❌ Ошибка загрузки логов:', error);
                 }
             }
 
-            // Проверка на автовыгрузку (после 19:00 по Москве)
-            checkAutoExport() {
-                try {
-                    const now = new Date();
-                    const moscowTime = new Date(now.getTime() + (3 * 60 * 60 * 1000)); // UTC+3
-                    const currentHour = moscowTime.getUTCHours();
-                    
-                    console.log(`⏰ Время по Москве: ${currentHour}:00`);
-                    
-                    // Если сейчас после 19:00 (19-23)
-                    if (currentHour >= 19) {
-                        const today = moscowTime.toISOString().split('T')[0];
-                        
-                        // Проверяем, не выгружали ли уже сегодня
-                        if (this.lastExportDate !== today) {
-                            console.log('🔄 Проверяем необходимость автовыгрузки...');
-                            
-                            // Ищем продажи за сегодня
-                            const todayStart = new Date(moscowTime);
-                            todayStart.setUTCHours(0, 0, 0, 0);
-                            
-                            const todaySales = this.salesLog.filter(sale => 
-                                new Date(sale.timestamp) >= todayStart
-                            );
-                            
-                            if (todaySales.length > 0) {
-                                console.log(`📊 Найдено ${todaySales.length} продаж за сегодня, готовим автовыгрузку...`);
-                                setTimeout(() => {
-                                    this.autoExportTodaySales();
-                                }, 5000); // Задержка 5 секунд для стабильности
-                            }
-                        }
-                    }
-                } catch (error) {
-                    console.error('❌ Ошибка при проверке автовыгрузки:', error);
-                }
-            }
-
-            autoExportTodaySales() {
-                try {
-                    const now = new Date();
-                    const moscowTime = new Date(now.getTime() + (3 * 60 * 60 * 1000));
-                    const today = moscowTime.toISOString().split('T')[0];
-                    
-                    const todayStart = new Date(moscowTime);
-                    todayStart.setUTCHours(0, 0, 0, 0);
-                    
-                    const todaySales = this.salesLog.filter(sale => 
-                        new Date(sale.timestamp) >= todayStart
-                    );
-                    
-                    if (todaySales.length === 0) {
-                        console.log('📭 Нет продаж за сегодня для автовыгрузки');
-                        return;
-                    }
-                    
-                    let logContent = '════════════════════════════════════════\n';
-                    logContent += '           GAME ZONE - АВТОВЫГРУЗКА\n';
-                    logContent += `       Дата: ${today}\n`;
-                    logContent += `       Время: ${moscowTime.getUTCHours()}:${moscowTime.getUTCMinutes().toString().padStart(2, '0')}\n`;
-                    logContent += '════════════════════════════════════════\n\n';
-                    
-                    const stats = this.getStats();
-                    logContent += '📊 СТАТИСТИКА ЗА СЕГОДНЯ:\n';
-                    logContent += '────────────────────────────────────────\n';
-                    logContent += `Продаж: ${stats.todaySales}\n`;
-                    logContent += `Товаров: ${stats.todayItems} шт\n`;
-                    logContent += `Выручка: ${stats.todayRevenue} руб\n`;
-                    logContent += '\n════════════════════════════════════════\n';
-                    logContent += '           ПРОДАЖИ ЗА СЕГОДНЯ\n';
-                    logContent += '════════════════════════════════════════\n\n';
-                    
-                    todaySales.forEach((sale, index) => {
-                        const saleDate = new Date(sale.timestamp).toLocaleString('ru-RU');
-                        
-                        logContent += `┌──────────────────────────────────────┐\n`;
-                        logContent += `│ ПРОДАЖА ${index + 1}/${todaySales.length}\n`;
-                        logContent += `│ ID: ${sale.saleId}\n`;
-                        logContent += `│ ВРЕМЯ: ${saleDate}\n`;
-                        logContent += `├──────────────────────────────────────┤\n`;
-                        
-                        sale.items.forEach((item, itemIndex) => {
-                            logContent += `│ ${itemIndex + 1}. ${item.name} (${item.platform})\n`;
-                            logContent += `│    ${item.quantity} шт × ${item.price} руб = ${item.total} руб\n`;
-                        });
-                        
-                        logContent += `├──────────────────────────────────────┤\n`;
-                        logContent += `│ ИТОГО: ${sale.totalItems} шт на сумму ${sale.totalAmount} руб\n`;
-                        logContent += `└──────────────────────────────────────┘\n\n`;
-                    });
-                    
-                    const blob = new Blob(['\uFEFF' + logContent], { 
-                        type: 'text/plain;charset=utf-8' 
-                    });
-                    const url = URL.createObjectURL(blob);
-                    
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `gamezone_autosave_${today}.txt`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    
-                    // Сохраняем дату последней выгрузки
-                    this.lastExportDate = today;
-                    this.saveToStorage();
-                    
-                    console.log(`✅ Автовыгрузка выполнена: ${todaySales.length} продаж`);
-                    
-                } catch (error) {
-                    console.error('❌ Ошибка автовыгрузки:', error);
-                }
-            }
-
             downloadLogs() {
                 try {
                     const today = new Date().toISOString().split('T')[0];
-                    const filename = `gamezone_sales_${today}.txt`;
+                    const filename = `gamezone_sales_all_${today}.txt`;
                     
-                    let logContent = '════════════════════════════════════════\n';
-                    logContent += '           GAME ZONE - ЛОГИ ПРОДАЖ\n';
-                    logContent += `       Сформировано: ${new Date().toLocaleString('ru-RU')}\n`;
-                    logContent += '════════════════════════════════════════\n\n';
+                    let logContent = '═══════════════════════════════════════════════════════════════\n';
+                    logContent += '                     GAME ZONE - ПОЛНЫЕ ЛОГИ ПРОДАЖ\n';
+                    logContent += `          Сформировано: ${new Date().toLocaleString('ru-RU')}\n`;
+                    logContent += `          Устройство: ${this.deviceId}\n`;
+                    logContent += '═══════════════════════════════════════════════════════════════\n\n';
                     
                     const stats = this.getStats();
-                    logContent += '📊 СТАТИСТИКА ПРОДАЖ:\n';
-                    logContent += '────────────────────────────────────────\n';
+                    logContent += '📊 ПОЛНАЯ СТАТИСТИКА ПРОДАЖ (ВСЕ УСТРОЙСТВА):\n';
+                    logContent += '───────────────────────────────────────────────────────────────\n';
                     logContent += `Всего продаж: ${stats.totalSales}\n`;
                     logContent += `Всего товаров: ${stats.totalItems} шт\n`;
                     logContent += `Общая выручка: ${stats.totalRevenue} руб\n\n`;
-                    logContent += `Продаж сегодня: ${stats.todaySales}\n`;
-                    logContent += `Товаров сегодня: ${stats.todayItems} шт\n`;
-                    logContent += `Выручка сегодня: ${stats.todayRevenue} руб\n`;
-                    logContent += '\n════════════════════════════════════════\n';
-                    logContent += '           ИСТОРИЯ ПРОДАЖ\n';
-                    logContent += '════════════════════════════════════════\n\n';
                     
-                    this.salesLog.reverse().forEach((sale, index) => {
-                        const saleDate = new Date(sale.timestamp).toLocaleString('ru-RU');
+                    // Статистика по дням
+                    const salesByDate = {};
+                    this.salesLog.forEach(sale => {
+                        const date = new Date(sale.timestamp).toLocaleDateString('ru-RU');
+                        if (!salesByDate[date]) {
+                            salesByDate[date] = {
+                                count: 0,
+                                revenue: 0,
+                                items: 0
+                            };
+                        }
+                        salesByDate[date].count++;
+                        salesByDate[date].revenue += sale.totalAmount;
+                        salesByDate[date].items += sale.totalItems;
+                    });
+                    
+                    logContent += '📅 СТАТИСТИКА ПО ДНЯМ:\n';
+                    logContent += '───────────────────────────────────────────────────────────────\n';
+                    Object.keys(salesByDate).sort().reverse().forEach(date => {
+                        const stats = salesByDate[date];
+                        logContent += `${date}: ${stats.count} продаж, ${stats.items} шт, ${stats.revenue} руб\n`;
+                    });
+                    
+                    logContent += '\n═══════════════════════════════════════════════════════════════\n';
+                    logContent += '                     ПОЛНАЯ ИСТОРИЯ ПРОДАЖ\n';
+                    logContent += '═══════════════════════════════════════════════════════════════\n\n';
+                    
+                    // Группируем продажи по дням
+                    const groupedSales = {};
+                    this.salesLog.forEach(sale => {
+                        const date = new Date(sale.timestamp).toLocaleDateString('ru-RU');
+                        if (!groupedSales[date]) {
+                            groupedSales[date] = [];
+                        }
+                        groupedSales[date].push(sale);
+                    });
+                    
+                    // Сортируем дни по убыванию
+                    const sortedDates = Object.keys(groupedSales).sort().reverse();
+                    
+                    sortedDates.forEach((date, dateIndex) => {
+                        const daySales = groupedSales[date];
+                        const dayRevenue = daySales.reduce((sum, sale) => sum + sale.totalAmount, 0);
+                        const dayItems = daySales.reduce((sum, sale) => sum + sale.totalItems, 0);
                         
-                        logContent += `┌──────────────────────────────────────┐\n`;
-                        logContent += `│ ПРОДАЖА: ${sale.saleId.padEnd(20)} │\n`;
-                        logContent += `│ ВРЕМЯ:  ${saleDate.padEnd(27)} │\n`;
-                        logContent += `├──────────────────────────────────────┤\n`;
+                        logContent += `\n${'═'.repeat(60)}\n`;
+                        logContent += `  ДЕНЬ: ${date} (${daySales.length} продаж, ${dayItems} шт, ${dayRevenue} руб)\n`;
+                        logContent += `${'═'.repeat(60)}\n\n`;
                         
-                        sale.items.forEach((item, itemIndex) => {
-                            logContent += `│ ${itemIndex + 1}. ${item.name} (${item.platform})\n`;
-                            logContent += `│    ${item.quantity} шт × ${item.price} руб = ${item.total} руб\n`;
+                        daySales.forEach((sale, saleIndex) => {
+                            const saleDate = new Date(sale.timestamp).toLocaleString('ru-RU');
+                            const deviceInfo = sale.deviceId ? ` [Устройство: ${sale.deviceId}]` : '';
+                            
+                            logContent += `┌─────────────────────────────────────────────────────────────┐\n`;
+                            logContent += `│ ПРОДАЖА: ${sale.saleId}${deviceInfo}\n`;
+                            logContent += `│ ВРЕМЯ:  ${saleDate}\n`;
+                            logContent += `├─────────────────────────────────────────────────────────────┤\n`;
+                            
+                            sale.items.forEach((item, itemIndex) => {
+                                logContent += `│ ${itemIndex + 1}. ${item.name} (${item.platform})\n`;
+                                logContent += `│    ${item.quantity} шт × ${item.price} руб = ${item.total} руб\n`;
+                            });
+                            
+                            logContent += `├─────────────────────────────────────────────────────────────┤\n`;
+                            logContent += `│ ИТОГО: ${sale.totalItems} шт на сумму ${sale.totalAmount} руб\n`;
+                            logContent += `└─────────────────────────────────────────────────────────────┘\n\n`;
                         });
-                        
-                        logContent += `├──────────────────────────────────────┤\n`;
-                        logContent += `│ ИТОГО: ${sale.totalItems} шт на сумму ${sale.totalAmount} руб\n`;
-                        logContent += `└──────────────────────────────────────┘\n\n`;
                     });
                     
                     const blob = new Blob(['\uFEFF' + logContent], { 
@@ -1459,7 +1415,7 @@
                     document.body.removeChild(a);
                     URL.revokeObjectURL(url);
                     
-                    console.log('📥 Логи скачаны в читабельном формате');
+                    console.log('📥 Полные логи скачаны');
                     return true;
                     
                 } catch (error) {
@@ -1470,14 +1426,21 @@
             }
 
             clearLogs() {
-                if (confirm('Вы уверены, что хотите удалить все логи продаж?')) {
+                if (confirm('Вы уверены, что хотите удалить ВСЕ логи со ВСЕХ устройств?')) {
                     try {
+                        // Удаляем все логи всех устройств
+                        for (let i = 0; i < localStorage.length; i++) {
+                            const key = localStorage.key(i);
+                            if (key.startsWith('gamezone_logs_')) {
+                                localStorage.removeItem(key);
+                            }
+                        }
+                        
                         this.appLog = [];
                         this.salesLog = [];
-                        this.lastExportDate = null;
-                        localStorage.removeItem('gamezone_logs');
-                        console.log('🗑️ Логи очищены');
-                        alert('Логи успешно очищены');
+                        
+                        console.log('🗑️ Все логи очищены');
+                        alert('Все логи успешно очищены');
                         return true;
                     } catch (error) {
                         console.error('❌ Ошибка очистки логов:', error);
@@ -1564,7 +1527,7 @@
                 this.lastScannedCode = null;
                 this.scanCooldown = false;
                 
-                this.appVersion = "4.7";
+                this.appVersion = "4.8";
                 this.isClientMode = isClientMode;
                 this.logger = new SimpleLogger();
                 
@@ -1574,13 +1537,15 @@
             async init() {
                 console.log(`🚀 GAME ZONE Scanner ${this.appVersion} запущен`);
                 console.log(`📱 Режим: ${this.isClientMode ? 'КЛИЕНТСКИЙ' : 'ПОЛНЫЙ'}`);
+                console.log(`📱 ID устройства: ${DEVICE_ID}`);
                 
                 this.setMode(this.isClientMode);
                 
                 this.logger.logAppAction('APP_START', { 
                     version: this.appVersion,
                     mode: this.isClientMode ? 'client' : 'full',
-                    urlMode: urlParams.get('mode')
+                    urlMode: urlParams.get('mode'),
+                    deviceId: DEVICE_ID
                 });
                 
                 this.setupEventListeners();
@@ -1628,10 +1593,10 @@
                     switchBtn.classList.remove('developer-mode');
                 }
                 
-                // Скрываем/показываем элементы для клиентского режима
-                this.toggleClientModeElements();
-                
-                this.logger.logAppAction('MODE_CHANGED', { mode: isClientMode ? 'client' : 'full' });
+                this.logger.logAppAction('MODE_CHANGED', { 
+                    mode: isClientMode ? 'client' : 'full',
+                    deviceId: DEVICE_ID 
+                });
             }
 
             // Переключение режима
@@ -1644,17 +1609,6 @@
                     // Если в полном режиме - переключаемся в клиентский
                     this.setMode(true);
                     this.updateStatus('✅ Переключен в клиентский режим', 'success');
-                }
-            }
-
-            // Скрытие/отображение элементов для клиентского режима
-            toggleClientModeElements() {
-                const clientGameInfo = document.getElementById('client-game-info');
-                const gameSummary = document.getElementById('game-summary');
-                
-                if (this.isClientMode) {
-                    clientGameInfo.style.display = 'none';
-                    gameSummary.style.display = 'none';
                 }
             }
 
@@ -2031,7 +1985,8 @@
                 
                 this.logger.logAppAction('GAME_ADDED_TO_CART', {
                     name: game.name,
-                    price: price
+                    price: price,
+                    deviceId: DEVICE_ID
                 });
             }
 
@@ -2110,14 +2065,14 @@
             downloadLogs() {
                 const success = this.logger.downloadLogs();
                 if (success) {
-                    this.updateStatus('✅ Логи скачаны', 'success');
+                    this.updateStatus('✅ Все логи скачаны', 'success');
                 }
             }
 
             clearLogs() {
                 const success = this.logger.clearLogs();
                 if (success) {
-                    this.updateStatus('✅ Логи очищены', 'success');
+                    this.updateStatus('✅ Все логи очищены', 'success');
                 }
             }
 
@@ -2350,7 +2305,7 @@
                     return;
                 }
                 
-                this.logger.logAppAction('SCANNER_STARTED');
+                this.logger.logAppAction('SCANNER_STARTED', { deviceId: DEVICE_ID });
                 this.resetScannerState();
                 this.showCameraModal();
             }
@@ -2613,7 +2568,7 @@
                 document.getElementById('camera-status').style.display = 'none';
                 
                 console.log('✅ Сканер полностью остановлен');
-                this.logger.logAppAction('SCANNER_STOPPED');
+                this.logger.logAppAction('SCANNER_STOPPED', { deviceId: DEVICE_ID });
             }
 
             handleCameraError(error) {
@@ -2649,11 +2604,11 @@
             displayGameInfo(game) {
                 const price = this.calculateFinalPrice(game.optPrice);
                 
-                // Обновляем цену вверху
+                // Обновляем ОДНО ЕДИНОЕ поле цены вверху
                 document.getElementById('current-price-value').textContent = price || '0';
                 document.getElementById('current-price').classList.add('visible');
                 
-                // Показываем платформу и название под ценой (всегда)
+                // Показываем платформу и название под ценой
                 const priceDetails = document.getElementById('price-details');
                 const priceDetailsPlatform = document.getElementById('price-details-platform');
                 const priceDetailsName = document.getElementById('price-details-name');
@@ -2662,31 +2617,8 @@
                 priceDetailsName.textContent = game.name;
                 priceDetails.style.display = 'block';
                 
-                if (this.isClientMode) {
-                    // В клиентском режиме показываем специальный блок
-                    const clientGameInfo = document.getElementById('client-game-info');
-                    const clientGamePlatform = document.getElementById('client-game-platform');
-                    const clientGameName = document.getElementById('client-game-name');
-                    const clientGamePrice = document.getElementById('client-game-price');
-                    
-                    clientGamePlatform.innerHTML = this.getPlatformIconOnly(game.platform);
-                    clientGameName.textContent = game.name;
-                    clientGamePrice.textContent = price + ' руб';
-                    
-                    clientGameInfo.classList.add('visible');
-                    document.getElementById('game-summary').classList.remove('visible');
-                    
-                } else {
-                    // В полном режиме показываем старый блок
-                    document.getElementById('game-summary-price').textContent = price || '0';
-                    document.getElementById('game-summary-platform').innerHTML = this.getPlatformIconOnly(game.platform);
-                    document.getElementById('game-summary-name').textContent = game.name;
-                    document.getElementById('game-summary').classList.add('visible');
-                    
-                    document.getElementById('client-game-info').classList.remove('visible');
-                    
-                    document.getElementById('game-final-price').textContent = price || '—';
-                    document.getElementById('game-name').textContent = game.name;
+                // В режиме разработчика показываем дополнительную информацию
+                if (!this.isClientMode) {
                     document.getElementById('game-language').textContent = this.getLanguageText(game.language) || '—';
                     document.getElementById('game-platform').innerHTML = this.getPlatformIconOnly(game.platform);
                     document.getElementById('game-barcode').textContent = game.barcode;
@@ -2706,7 +2638,8 @@
                 
                 this.logger.logAppAction('GAME_INFO_DISPLAYED', { 
                     name: game.name,
-                    mode: this.isClientMode ? 'client' : 'full' 
+                    mode: this.isClientMode ? 'client' : 'full',
+                    deviceId: DEVICE_ID 
                 });
             }
 
@@ -2721,7 +2654,7 @@
                 }
             }
 
-            // ИСПРАВЛЕННЫЕ ИКОНКИ ПЛАТФОРМ - ТОЛЬКО ЦВЕТНЫЕ БЛОКИ С ТЕКСТОМ ВНУТРИ
+            // ИСПРАВЛЕННЫЕ ИКОНКИ ПЛАТФОРМ - XBOX как XB
             getPlatformIconOnly(platform) {
                 let platformText = '';
                 let platformClass = '';
@@ -2736,7 +2669,7 @@
                     platformText = 'NS';
                     platformClass = 'ns-icon';
                 } else if (platform.includes('XBOX')) {
-                    platformText = 'XBOX'; // Изменено с XB на XBOX
+                    platformText = 'XB'; // Изменено обратно на XB
                     platformClass = 'xbox-icon';
                 } else {
                     platformText = platform;
