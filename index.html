@@ -239,15 +239,19 @@
         /* Стили для модальных окон */
         .modal {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 95%;
+            max-width: 500px;
+            max-height: 90vh;
             background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             z-index: 1000;
             display: none;
             overflow-y: auto;
-            padding-top: 10px;
         }
         
         .modal-header {
@@ -255,12 +259,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-            padding: 15px 20px 15px;
+            padding-bottom: 15px;
             border-bottom: 2px solid #0078D7;
-            position: sticky;
-            top: 0;
-            background: white;
-            z-index: 10;
         }
         
         .modal-title {
@@ -284,10 +284,10 @@
         }
         
         .modal-body {
-            padding: 0 20px 30px;
+            margin-bottom: 20px;
         }
         
-        /* Окно корзины - НОВЫЙ ДИЗАЙН */
+        /* Окно корзины */
         #cart-modal .cart-list {
             margin-bottom: 20px;
         }
@@ -437,7 +437,7 @@
         }
         
         .search-results-container {
-            max-height: calc(100vh - 250px);
+            max-height: 300px;
             overflow-y: auto;
             border: 1px solid #e0e0e0;
             border-radius: 10px;
@@ -482,8 +482,7 @@
         #camera-modal .camera-container {
             position: relative;
             width: 100%;
-            height: 70vh;
-            max-height: 500px;
+            height: 300px;
             background: black;
             border-radius: 10px;
             overflow: hidden;
@@ -500,6 +499,7 @@
             left: 0;
             width: 100%;
             height: 100%;
+            border: 3px solid #0078D7;
             pointer-events: none;
         }
         .camera-line {
@@ -516,7 +516,6 @@
         .camera-controls {
             display: flex;
             gap: 10px;
-            padding: 0 20px 20px;
         }
         .camera-btn {
             flex: 1;
@@ -778,7 +777,8 @@
         .client-mode #open-search-btn,
         .client-mode #sale-btn,
         .client-mode .game-info,
-        .client-mode #game-summary {
+        .client-mode #game-summary,
+        .client-mode .btn.switch-mode {
             display: none !important;
         }
         
@@ -859,7 +859,7 @@
         <!-- Кнопка статистики -->
         <button id="stats-btn" class="btn stats">📊 Статистика продаж</button>
 
-        <!-- Кнопка переключения режима -->
+        <!-- Кнопка переключения режима (только в полной версии) -->
         <button id="switch-mode-btn" class="btn switch-mode">👤 Переключить на клиентский режим</button>
 
         <!-- Кнопки управления логами -->
@@ -910,7 +910,7 @@
         </div>
 
         <div class="app-version">
-            Версия 4.4 | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span>
+            Версия 4.5 | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span>
         </div>
     </div>
 
@@ -969,9 +969,9 @@
             </div>
             <div class="camera-controls">
                 <button id="restart-camera" class="camera-btn restart">🔄 Перезапустить камеру</button>
-                <button id="stop-camera" class="camera-btn secondary">❌ Остановить сканирование</button>
+                <button id="stop-camera" class="camera-btn secondary">❌ Остановить</button>
             </div>
-            <div id="camera-status" class="scanning-status" style="margin-top: 10px; display: none;"></div>
+            <div id="camera-status" class="scanning-status" style="margin-top: 10px;"></div>
         </div>
     </div>
 
@@ -1041,7 +1041,7 @@
         const isClientMode = urlParams.get('mode') === 'client' || 
                             localStorage.getItem('gamezone_mode') === 'client';
 
-        // Простой и надежный логгер с правильной кодировкой
+        // Простой и надежный логгер
         class SimpleLogger {
             constructor() {
                 this.appLog = [];
@@ -1152,19 +1152,16 @@
                 }
             }
 
-            // Читабельный формат логов с правильной кодировкой
             downloadLogs() {
                 try {
                     const today = new Date().toISOString().split('T')[0];
                     const filename = `gamezone_sales_${today}.txt`;
                     
-                    // Создаем читабельный текст с правильной кодировкой
                     let logContent = '════════════════════════════════════════\n';
                     logContent += '           GAME ZONE - ЛОГИ ПРОДАЖ\n';
                     logContent += `       Сформировано: ${new Date().toLocaleString('ru-RU')}\n`;
                     logContent += '════════════════════════════════════════\n\n';
                     
-                    // Добавляем статистику
                     const stats = this.getStats();
                     logContent += '📊 СТАТИСТИКА ПРОДАЖ:\n';
                     logContent += '────────────────────────────────────────\n';
@@ -1178,7 +1175,6 @@
                     logContent += '           ИСТОРИЯ ПРОДАЖ\n';
                     logContent += '════════════════════════════════════════\n\n';
                     
-                    // Добавляем историю продаж
                     this.salesLog.reverse().forEach((sale, index) => {
                         const saleDate = new Date(sale.timestamp).toLocaleString('ru-RU');
                         
@@ -1197,7 +1193,6 @@
                         logContent += `└──────────────────────────────────────┘\n\n`;
                     });
                     
-                    // Используем правильную кодировку UTF-8 с BOM для русских символов
                     const blob = new Blob(['\uFEFF' + logContent], { 
                         type: 'text/plain;charset=utf-8' 
                     });
@@ -1262,7 +1257,6 @@
                 };
             }
 
-            // Получение детальных данных по статистике
             getSalesByPeriod(period) {
                 const now = new Date();
                 let startDate = new Date();
@@ -1278,7 +1272,7 @@
                         startDate.setHours(0, 0, 0, 0);
                         break;
                     case 'total-sales':
-                        startDate = new Date(0); // Все время
+                        startDate = new Date(0);
                         break;
                     case 'total-revenue':
                         startDate = new Date(0);
@@ -1295,12 +1289,12 @@
                         new Date(sale.timestamp) >= startDate
                     );
                 } else {
-                    return this.salesLog; // Все продажи
+                    return this.salesLog;
                 }
             }
         }
 
-        // Основной класс приложения с поддержкой двух режимов
+        // Основной класс приложения с СТАБИЛЬНОЙ камерой
         class GameScannerApp {
             constructor() {
                 this.sheetsUrl = 'https://docs.google.com/spreadsheets/d/1fMWJan1HP7tcKwa_hm86oCm0KPtC_zN50UhU72Q8xeA/export?format=csv&gid=1995791598';
@@ -1316,7 +1310,7 @@
                 this.lastScannedCode = null;
                 this.scanCooldown = false;
                 
-                this.appVersion = "4.4";
+                this.appVersion = "4.5";
                 this.isClientMode = isClientMode;
                 this.logger = new SimpleLogger();
                 
@@ -1327,7 +1321,6 @@
                 console.log(`🚀 GAME ZONE Scanner ${this.appVersion} запущен`);
                 console.log(`📱 Режим: ${this.isClientMode ? 'КЛИЕНТСКИЙ' : 'ПОЛНЫЙ'}`);
                 
-                // Устанавливаем режим
                 this.setMode(this.isClientMode);
                 
                 this.logger.logAppAction('APP_START', { 
@@ -1337,7 +1330,6 @@
                 
                 this.setupEventListeners();
                 
-                // Загружаем данные
                 this.updateStatus('🔄 Загружаем данные...');
                 await this.loadGamesData();
                 
@@ -1362,9 +1354,8 @@
                     modeStatus.textContent = 'КЛИЕНТ';
                     appSubtitle.textContent = 'Сканер цен для клиентов';
                     scannerText.textContent = 'Наведите камеру на штрих-код игры';
-                    switchBtn.textContent = '⚙️ Переключить на полный режим';
+                    switchBtn.style.display = 'none'; // Скрываем кнопку переключения в клиентском режиме
                     
-                    // Для клиентов: всегда показываем цену в увеличенном виде
                     document.getElementById('current-price').style.fontSize = '28px';
                     document.getElementById('current-price').style.padding = '20px';
                     
@@ -1374,9 +1365,8 @@
                     modeStatus.textContent = 'ПОЛНЫЙ';
                     appSubtitle.textContent = 'Сканер игровых дисков';
                     scannerText.textContent = 'Нажмите для запуска сканера';
-                    switchBtn.textContent = '👤 Переключить на клиентский режим';
+                    switchBtn.style.display = 'block'; // Показываем кнопку переключения в полном режиме
                     
-                    // Возвращаем нормальный размер цены
                     document.getElementById('current-price').style.fontSize = '20px';
                     document.getElementById('current-price').style.padding = '15px';
                 }
@@ -1384,11 +1374,14 @@
                 this.logger.logAppAction('MODE_CHANGED', { mode: isClientMode ? 'client' : 'full' });
             }
 
-            // Переключение режима
+            // Переключение режима (только из полного режима)
             toggleMode() {
-                const newMode = !this.isClientMode;
-                this.setMode(newMode);
-                this.updateStatus(`✅ Переключен на ${newMode ? 'клиентский' : 'полный'} режим`, 'success');
+                if (!this.isClientMode) {
+                    const newMode = true; // Переключаем на клиентский
+                    this.setMode(newMode);
+                    this.updateStatus('✅ Переключен на клиентский режим', 'success');
+                }
+                // В клиентском режиме переключение невозможно
             }
 
             updateStatus(message, type = '') {
@@ -1435,7 +1428,7 @@
                 document.getElementById('close-stats-detail-btn').addEventListener('click', () => this.closeModal('stats-detail-modal'));
                 document.getElementById('modal-overlay').addEventListener('click', () => this.closeAllModals());
                 
-                // Камера
+                // Камера - СТАБИЛЬНЫЕ ОБРАБОТЧИКИ
                 document.getElementById('restart-camera').addEventListener('click', () => {
                     console.log('🔄 Перезапуск камеры');
                     this.restartCamera();
@@ -1462,14 +1455,6 @@
                 document.getElementById('process-sale-btn').addEventListener('click', () => this.processSaleFromCart());
                 
                 // Кликабельная статистика
-                document.querySelectorAll('.stat-card').forEach(card => {
-                    card.addEventListener('click', (e) => {
-                        const statType = e.currentTarget.getAttribute('data-stat');
-                        this.showStatDetails(statType);
-                    });
-                });
-                
-                // Динамическое добавление обработчиков для статистики
                 document.addEventListener('click', (e) => {
                     if (e.target.closest('.stat-card')) {
                         const card = e.target.closest('.stat-card');
@@ -1507,7 +1492,7 @@
                 document.body.style.overflow = 'auto';
             }
 
-            // Окно статистики с кликабельными карточками
+            // Окно статистики
             openStatsModal() {
                 const stats = this.logger.getStats();
                 const today = new Date().toLocaleDateString('ru-RU');
@@ -1523,7 +1508,6 @@
                 this.openModal('stats-modal');
             }
 
-            // Показ деталей статистики
             showStatDetails(statType) {
                 const stats = this.logger.getStats();
                 const sales = this.logger.getSalesByPeriod(statType);
@@ -1576,7 +1560,6 @@
                         </div>
                     `;
                 } else {
-                    // Показываем детали по продажам
                     sales.forEach(sale => {
                         const saleDate = new Date(sale.timestamp).toLocaleString('ru-RU');
                         const item = document.createElement('div');
@@ -1613,7 +1596,6 @@
                 this.openModal('stats-detail-modal');
             }
 
-            // Окно корзины
             openCartModal() {
                 if (this.scannedGames.length === 0) {
                     alert('🛒 Корзина пуста');
@@ -1659,7 +1641,6 @@
                         </div>
                     `;
                     
-                    // Обработчики
                     const minusBtn = item.querySelector('.minus');
                     const plusBtn = item.querySelector('.plus');
                     const removeBtn = item.querySelector('.cart-remove');
@@ -1679,7 +1660,6 @@
                         this.removeFromCart(index);
                     });
                     
-                    // Клик по товару - показываем информацию
                     item.addEventListener('click', (e) => {
                         if (!e.target.classList.contains('quantity-btn') && !e.target.classList.contains('cart-remove')) {
                             this.displayGameInfo(game.fullInfo);
@@ -1691,11 +1671,9 @@
                 });
                 
                 document.getElementById('cart-total-amount').textContent = total;
-                // Обновляем кнопку продажи с количеством товаров
                 document.getElementById('sale-btn').textContent = `💰 ОФОРМИТЬ ПРОДАЖУ (${totalItems} шт - ${total} руб)`;
             }
 
-            // Окно поиска
             openSearchModal() {
                 this.openModal('search-modal');
                 document.getElementById('smart-search-input').value = '';
@@ -1742,7 +1720,6 @@
                 return results;
             }
 
-            // Работа с корзиной
             addGameToCart(game) {
                 const price = this.calculateFinalPrice(game.optPrice);
                 const existingIndex = this.scannedGames.findIndex(g => g.barcode === game.barcode);
@@ -1832,20 +1809,17 @@
                 
                 const saleEntry = this.logger.logSale(saleData);
                 
-                // Показываем чек
                 alert(`✅ Продажа оформлена!\n\n` +
                       `ID: ${saleEntry.saleId}\n` +
                       `Товаров: ${totalItems} шт\n` +
                       `Сумма: ${totalAmount} руб`);
                 
-                // Очищаем корзину
                 this.scannedGames = [];
                 this.saveCart();
                 this.closeModal('cart-modal');
                 this.updateStatus('✅ Продажа завершена', 'success');
             }
 
-            // Управление логами
             downloadLogs() {
                 const success = this.logger.downloadLogs();
                 if (success) {
@@ -1860,7 +1834,6 @@
                 }
             }
 
-            // Загрузка данных
             async loadGamesData() {
                 try {
                     this.loadFromLocalStorage();
@@ -1872,7 +1845,6 @@
                         this.updateStatus(`✅ Готов! ${this.gamesData.length} игр в базе`, 'success');
                     }
                     
-                    // Фоновая загрузка обновлений
                     setTimeout(() => this.checkForUpdates(), 1000);
                     
                 } catch (error) {
@@ -1993,7 +1965,6 @@
                         const cells = this.parseCSVRow(rows[i]);
                         if (cells.length < 29) continue;
 
-                        // PS4
                         if (cells[0] && cells[0].includes('PS4') && cells[1] && cells[2]) {
                             games.push({
                                 platform: cells[0],
@@ -2007,7 +1978,6 @@
                             });
                         }
                         
-                        // PS5
                         if (cells[8] && cells[8].includes('PS5') && cells[9] && cells[10]) {
                             games.push({
                                 platform: cells[8],
@@ -2021,7 +1991,6 @@
                             });
                         }
                         
-                        // Nintendo Switch
                         if (cells[16] && (cells[16].includes('NS') || cells[16].includes('Switch')) && cells[17] && cells[18]) {
                             let barcodes = cells[17];
                             if (barcodes.includes('/')) {
@@ -2040,7 +2009,6 @@
                             });
                         }
                         
-                        // Xbox
                         if (cells[23] && cells[23].includes('XBOX') && cells[24] && cells[25]) {
                             games.push({
                                 platform: cells[23],
@@ -2088,7 +2056,7 @@
                 }
             }
 
-            // ========== СКАНИРОВАНИЕ ==========
+            // ========== СТАБИЛЬНАЯ ВЕРСИЯ КАМЕРЫ ==========
             async startScanner() {
                 if (this.gamesData.length === 0) {
                     alert('❌ Нет данных об играх');
@@ -2101,7 +2069,8 @@
             }
 
             showCameraModal() {
-                this.openModal('camera-modal');
+                document.getElementById('modal-overlay').style.display = 'block';
+                document.getElementById('camera-modal').style.display = 'block';
                 this.initializeCamera();
             }
 
@@ -2127,8 +2096,7 @@
                     };
                     
                     this.cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
-                    const videoElement = document.getElementById('camera-view');
-                    videoElement.srcObject = this.cameraStream;
+                    document.getElementById('camera-view').srcObject = this.cameraStream;
                     
                     this.updateCameraStatus('🔍 Камера запущена, инициализируем сканер...');
                     
@@ -2144,7 +2112,6 @@
 
             startQuaggaScanner() {
                 if (this.isScanning) {
-                    console.log('⚠️ Сканер уже запущен');
                     return;
                 }
                 
@@ -2194,7 +2161,6 @@
 
             handleBarcodeDetection(result) {
                 if (!result.codeResult?.code) {
-                    console.log('🚫 Пустой результат сканирования');
                     return;
                 }
                 
@@ -2202,7 +2168,6 @@
                 console.log('📷 Сканирован код:', code);
                 
                 if (code.length < 6) {
-                    console.log('🚫 Слишком короткий код');
                     return;
                 }
                 
@@ -2228,25 +2193,32 @@
                 if (game) {
                     console.log('✅ Найдена игра:', game.name);
                     
-                    // В клиентском режиме только показываем информацию
                     if (this.isClientMode) {
                         this.displayGameInfo(game);
                         this.updateCameraStatus('✅ Цена найдена!', 'scanning-success');
                     } else {
-                        // В полном режиме добавляем в корзину
                         this.addGameToCart(game);
                         this.updateCameraStatus('✅ Игра найдена!', 'scanning-success');
                     }
                     
                     if (navigator.vibrate) navigator.vibrate(100);
-                    setTimeout(() => this.stopScanner(), 1000);
+                    setTimeout(() => {
+                        this.stopScanner();
+                        this.scanCooldown = false; // Сбрасываем кулдаун после остановки
+                    }, 1000);
                     
                 } else {
                     console.log('❌ Игра не найдена для кода:', code);
                     this.updateCameraStatus('❌ Игра не найдена', 'scanning-error');
                     
                     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-                    setTimeout(() => this.safeRestartScanner(), 2000);
+                    
+                    // ВАЖНО: После неудачного сканирования СБРАСЫВАЕМ состояние
+                    setTimeout(() => {
+                        this.scanCooldown = false;
+                        this.lastScannedCode = null;
+                        this.safeRestartScanner(); // Перезапускаем сканер
+                    }, 1500);
                 }
             }
 
@@ -2280,12 +2252,11 @@
                 if (!this.isScanning) return;
                 
                 console.log('🔄 Безопасный перезапуск сканера');
-                this.scanCooldown = false;
-                this.lastScannedCode = null;
                 this.updateCameraStatus('🔍 Сканирую...');
                 
                 try {
                     this.stopQuagga();
+                    await new Promise(resolve => setTimeout(resolve, 300)); // Короткая пауза
                     this.startQuaggaScanner();
                 } catch (e) {
                     console.error('❌ Ошибка безопасного перезапуска:', e);
@@ -2332,13 +2303,14 @@
                 console.log('🛑 Полная остановка сканера');
                 
                 this.isScanning = false;
-                this.scanCooldown = false;
-                this.lastScannedCode = null;
+                this.scanCooldown = false; // ВАЖНО: сбрасываем кулдаун
+                this.lastScannedCode = null; // ВАЖНО: сбрасываем последний код
                 
                 this.stopQuagga();
                 this.stopCamera();
                 
-                this.closeModal('camera-modal');
+                document.getElementById('modal-overlay').style.display = 'none';
+                document.getElementById('camera-modal').style.display = 'none';
                 document.getElementById('camera-status').style.display = 'none';
                 
                 console.log('✅ Сканер полностью остановлен');
@@ -2374,22 +2346,18 @@
                 this.scanCooldown = false;
             }
 
-            // ========== ОТОБРАЖЕНИЕ ИНФОРМАЦИИ ОБ ИГРЕ ==========
             displayGameInfo(game) {
                 const price = this.calculateFinalPrice(game.optPrice);
                 
-                // 1. Цена сверху (увеличенная в клиентском режиме)
                 document.getElementById('current-price-value').textContent = price || '0';
                 document.getElementById('current-price').classList.add('visible');
                 
-                // 2. Краткая информация (цена, название, платформа)
                 document.getElementById('game-summary-price').textContent = price || '0';
                 document.getElementById('game-summary-name').textContent = game.name;
                 document.getElementById('game-summary-platform').innerHTML = 
                     this.getPlatformIcon(game.platform) + game.platform;
                 document.getElementById('game-summary').classList.add('visible');
                 
-                // 3. Полная информация (внизу) - скрыта в клиентском режиме
                 if (!this.isClientMode) {
                     document.getElementById('game-final-price').textContent = price || '—';
                     document.getElementById('game-name').textContent = game.name;
@@ -2444,7 +2412,6 @@
             }
         }
 
-        // Инициализация приложения
         document.addEventListener('DOMContentLoaded', () => {
             window.gameApp = new GameScannerApp();
         });
