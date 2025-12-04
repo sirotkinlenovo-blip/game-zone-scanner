@@ -1092,49 +1092,62 @@ class GameScannerApp {
         this.saveToLocalStorage();
     }
 
-     async checkForUpdates() {
+      async checkForUpdates() {
         try {
             console.log('🔄 Проверяем обновления...');
+            console.log('📋 URL таблицы:', this.sheetsUrl);
             
-            const response = await fetch(this.sheetsUrl + '&t=' + Date.now());
+            // Добавляем таймаут для запроса
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000);
+            
+            const response = await fetch(this.sheetsUrl + '&t=' + Date.now(), {
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            
             if (!response.ok) {
-                console.error('❌ Ошибка сети при обновлении:', response.status);
+                console.error('❌ Ошибка сети:', response.status, response.statusText);
                 return;
             }
             
             const csvText = await response.text();
-            if (!csvText || csvText.length < 100) {
-                console.log('⚠️ Получены пустые данные от Google Sheets');
+            console.log('📊 Ответ получен, длина:', csvText.length, 'символов');
+            
+            if (!csvText || csvText.trim() === '' || csvText.length < 100) {
+                console.log('⚠️ Получены пустые или слишком короткие данные');
                 return;
             }
             
-            console.log('📊 Получено данных:', csvText.length, 'символов');
+            // Отладочный вывод первых 500 символов
+            console.log('📋 Первые 500 символов ответа:', csvText.substring(0, 500));
             
             const newData = this.parseCSV(csvText);
+            console.log(`🔄 Парсинг завершен, найдено ${newData.length} игр`);
+            
             if (newData.length > 0) {
-                console.log(`🔄 Найдено ${newData.length} игр в таблице`);
                 this.gamesData = newData;
                 this.saveToLocalStorage();
                 console.log(`✅ Обновлено ${this.gamesData.length} игр`);
                 
                 // Обновляем статус
                 this.updateStatus(`✅ База обновлена: ${this.gamesData.length} игр`, 'success');
-            } else {
-                console.log('⚠️ В таблице не найдено игр');
             }
             
         } catch (error) {
-            console.log('⚠️ Не удалось обновить данные:', error.message);
+            console.error('❌ Ошибка при обновлении:', error);
             
-            // Если в локальном хранилище уже есть данные, не показываем ошибку
-            if (this.gamesData.length > 0) {
-                console.log('ℹ️ Используем локальные данные');
-            } else {
-                console.log('⚠️ Нет интернета. Используем демо-данные');
+            if (error.name === 'AbortError') {
+                console.log('⏱️ Таймаут запроса к Google Sheets');
+            }
+            
+            // Не обновляем статус при ошибке, чтобы не пугать пользователя
+            if (this.gamesData.length === 0) {
+                console.log('ℹ️ Используем локальные данные из предыдущей сессии');
             }
         }
     }
-
     parseCSV(csvText) {
         const games = [];
         const rows = csvText.split('\n');
@@ -1632,4 +1645,5 @@ class GameScannerApp {
 document.addEventListener('DOMContentLoaded', () => {
     window.gameApp = new GameScannerApp();
 });
+
 
