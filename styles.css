@@ -1067,7 +1067,9 @@ body::before {
 .client-mode .log-buttons,
 .client-mode #open-search-btn,
 .client-mode #sale-btn,
-.client-mode .game-info,
+.client-mode .game-info {
+    display: none !important;
+}
 
 .client-mode #scanner-container {
     height: 300px;
@@ -1110,4 +1112,5 @@ body::before {
         transform: translateY(0); 
     }
 }
+
 
