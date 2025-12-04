@@ -1,5 +1,5 @@
 // Версия программы - теперь всегда доступна в HTML
-const APP_VERSION = "5.1";
+const APP_VERSION = "5.0";
 document.getElementById('app-version-number').textContent = APP_VERSION;
 
 // Проверяем режим из URL и localStorage
@@ -474,16 +474,9 @@ class GameScannerApp {
             
             // В клиентском режиме кнопка переключения всегда видна и называется "Вернуться в режим разработчика"
             switchBtn.style.display = 'block';
-            switchBtn.textContent = '👨‍💻 Вернуться в режим разработчика';
+            switchBtn.textContent = '👨‍💻 Режим разработчика';
             switchBtn.classList.remove('switch-mode');
             switchBtn.classList.add('developer-mode');
-            
-            // В клиентском режиме скрываем ненужные элементы
-            document.getElementById('open-search-btn').style.display = 'none';
-            document.getElementById('sale-btn').style.display = 'none';
-            document.getElementById('stats-btn').style.display = 'none';
-            document.getElementById('log-buttons').style.display = 'none';
-            document.getElementById('game-info').style.display = 'none';
             
         } else {
             container.classList.remove('client-mode');
@@ -491,19 +484,10 @@ class GameScannerApp {
             modeStatus.textContent = 'ПОЛНЫЙ';
             appSubtitle.textContent = 'Сканер игровых дисков';
             scannerText.textContent = 'Нажмите для запуска сканера';
-            
-            // В полном режиме показываем все кнопки
             switchBtn.style.display = 'block';
             switchBtn.textContent = '👤 Переключить на клиентский режим';
             switchBtn.classList.add('switch-mode');
             switchBtn.classList.remove('developer-mode');
-            
-            // Показываем все элементы в полном режиме
-            document.getElementById('open-search-btn').style.display = 'block';
-            document.getElementById('sale-btn').style.display = 'block';
-            document.getElementById('stats-btn').style.display = 'block';
-            document.getElementById('log-buttons').style.display = 'flex';
-            document.getElementById('game-info').style.display = 'none'; // Будет показан при сканировании
         }
         
         this.logger.logAppAction('MODE_CHANGED', { 
@@ -512,20 +496,14 @@ class GameScannerApp {
         });
     }
 
-    // Переключение режима с защитой паролем
+    // Переключение режима
     toggleMode() {
         if (this.isClientMode) {
-            // Если в клиентском режиме - запрашиваем пароль для перехода в полный
-            const password = prompt('🔒 Введите пароль для доступа к режиму разработчика:', '');
-            if (password === '123321') {
-                this.setMode(false);
-                this.updateStatus('✅ Переключен в режим разработчика', 'success');
-            } else if (password !== null) {
-                alert('❌ Неверный пароль!');
-                this.updateStatus('❌ Неверный пароль', 'error');
-            }
+            // Если в клиентском режиме - переключаемся в полный
+            this.setMode(false);
+            this.updateStatus('✅ Переключен в режим разработчика', 'success');
         } else {
-            // Если в полном режиме - переключаемся в клиентский без пароля
+            // Если в полном режиме - переключаемся в клиентский
             this.setMode(true);
             this.updateStatus('✅ Переключен в клиентский режим', 'success');
         }
@@ -1092,62 +1070,28 @@ class GameScannerApp {
         this.saveToLocalStorage();
     }
 
-      async checkForUpdates() {
+    async checkForUpdates() {
         try {
             console.log('🔄 Проверяем обновления...');
-            console.log('📋 URL таблицы:', this.sheetsUrl);
             
-            // Добавляем таймаут для запроса
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000);
-            
-            const response = await fetch(this.sheetsUrl + '&t=' + Date.now(), {
-                signal: controller.signal
-            });
-            
-            clearTimeout(timeoutId);
-            
-            if (!response.ok) {
-                console.error('❌ Ошибка сети:', response.status, response.statusText);
-                return;
-            }
+            const response = await fetch(this.sheetsUrl + '&t=' + Date.now());
+            if (!response.ok) throw new Error('Ошибка сети');
             
             const csvText = await response.text();
-            console.log('📊 Ответ получен, длина:', csvText.length, 'символов');
-            
-            if (!csvText || csvText.trim() === '' || csvText.length < 100) {
-                console.log('⚠️ Получены пустые или слишком короткие данные');
-                return;
-            }
-            
-            // Отладочный вывод первых 500 символов
-            console.log('📋 Первые 500 символов ответа:', csvText.substring(0, 500));
+            if (!csvText || csvText.length < 100) throw new Error('Пустые данные');
             
             const newData = this.parseCSV(csvText);
-            console.log(`🔄 Парсинг завершен, найдено ${newData.length} игр`);
-            
             if (newData.length > 0) {
                 this.gamesData = newData;
                 this.saveToLocalStorage();
-                console.log(`✅ Обновлено ${this.gamesData.length} игр`);
-                
-                // Обновляем статус
-                this.updateStatus(`✅ База обновлена: ${this.gamesData.length} игр`, 'success');
+                console.log(`🔄 Обновлено ${this.gamesData.length} игр`);
             }
             
         } catch (error) {
-            console.error('❌ Ошибка при обновлении:', error);
-            
-            if (error.name === 'AbortError') {
-                console.log('⏱️ Таймаут запроса к Google Sheets');
-            }
-            
-            // Не обновляем статус при ошибке, чтобы не пугать пользователя
-            if (this.gamesData.length === 0) {
-                console.log('ℹ️ Используем локальные данные из предыдущей сессии');
-            }
+            console.log('⚠️ Не удалось обновить данные:', error);
         }
     }
+
     parseCSV(csvText) {
         const games = [];
         const rows = csvText.split('\n');
@@ -1585,7 +1529,6 @@ class GameScannerApp {
                 codeRow.style.display = 'none';
             }
             
-            document.getElementById('game-info').style.display = 'block';
             document.getElementById('game-info').classList.add('visible');
         }
         
@@ -1644,6 +1587,5 @@ class GameScannerApp {
 // Инициализация приложения после загрузки DOM
 document.addEventListener('DOMContentLoaded', () => {
     window.gameApp = new GameScannerApp();
+
 });
-
-
