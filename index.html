@@ -1,612 +1,31 @@
 <!DOCTYPE html>
-<!-- 
-    ВЕРСИЯ: 5.2 - ВОССТАНОВЛЕНА БЫСТРАЯ ЗАГРУЗКА ДАННЫХ
-    ИСПРАВЛЕНИЯ:
-    1. Восстановлены все функции загрузки данных
-    2. Данные загружаются мгновенно как раньше
-    3. Поиск не открывается автоматически
--->
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GAME ZONE - Сканер игр v5.2</title>
-    <meta name="theme-color" content="#3a3a4e">
-    <meta name="description" content="Сканер игровых дисков для магазина GAME ZONE - версия 5.2">
+    <title>GAME ZONE - Сканер игр</title>
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="description" content="Сканер игровых дисков для магазина GAME ZONE">
     
     <!-- PWA мета-теги -->
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="https://avatars.mds.yandex.net/get-altay/16915650/2a0000019a24cb39e7e0f13ab054c8530af6/S_height">
     
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #2a2a3e 0%, #3a3a4e 50%, #323247 100%);
-            min-height: 100vh;
-            padding: 20px;
-            overscroll-behavior-y: none;
-            color: #f0f0f0;
-            position: relative;
-        }
-        
-        /* Skyrim фоновая текстура */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                radial-gradient(circle at 20% 80%, rgba(138, 137, 216, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.15) 0%, transparent 50%),
-                repeating-linear-gradient(
-                    0deg,
-                    transparent,
-                    transparent 2px,
-                    rgba(255, 255, 255, 0.04) 2px,
-                    rgba(255, 255, 255, 0.04) 4px
-                );
-            z-index: -1;
-        }
-        
-        .container {
-            max-width: 400px;
-            margin: 0 auto;
-            background: rgba(58, 58, 78, 0.9);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 
-                0 10px 30px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2),
-                0 0 20px rgba(138, 137, 216, 0.3);
-            position: relative;
-            z-index: 1;
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            backdrop-filter: blur(5px);
-        }
-        
-        .container::before,
-        .container::after {
-            content: '';
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            border: 2px solid rgba(255, 215, 0, 0.3);
-            border-radius: 8px;
-        }
-        
-        .container::before {
-            top: -10px;
-            left: -10px;
-            border-right: none;
-            border-bottom: none;
-        }
-        
-        .container::after {
-            bottom: -10px;
-            right: -10px;
-            border-left: none;
-            border-top: none;
-        }
-        
-        .header { 
-            text-align: center; 
-            margin-bottom: 25px; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
-            position: relative;
-        }
-        
-        .header::after {
-            content: '⚔️';
-            position: absolute;
-            bottom: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(58, 58, 78, 0.9);
-            padding: 0 10px;
-            font-size: 20px;
-        }
-        
-        .header h1 { 
-            color: #ffd700; 
-            font-size: 26px; 
-            margin-bottom: 5px;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-            font-family: 'Cinzel', serif;
-            letter-spacing: 1px;
-        }
-        
-        .header h1::first-letter {
-            color: #b8860b;
-            font-size: 32px;
-        }
-        
-        #app-subtitle {
-            color: #d0d0f0;
-            font-size: 14px;
-            letter-spacing: 0.5px;
-        }
-        
-        .store-logo {
-            width: 70px;
-            height: 70px;
-            border-radius: 12px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 
-                0 0 15px rgba(255, 215, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            border: 2px solid rgba(255, 215, 0, 0.4);
-            background: rgba(255, 255, 255, 0.15);
-            transition: all 0.3s ease;
-        }
-        
-        .store-logo:hover {
-            transform: rotate(5deg) scale(1.05);
-            box-shadow: 
-                0 0 20px rgba(255, 215, 0, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.4);
-        }
-        
-        .logo-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 10px;
-        }
-        
-        .btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #9a99e8 0%, #7b7ac8 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            margin: 10px 0;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-            box-shadow: 
-                0 4px 15px rgba(90, 89, 163, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 
-                0 6px 20px rgba(90, 89, 163, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.4);
-            background: linear-gradient(135deg, #aaa9f8 0%, #8b8ad8 100%);
-        }
-        
-        .btn:active {
-            transform: translateY(0);
-            box-shadow: 
-                0 2px 10px rgba(90, 89, 163, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-        }
-        
-        .btn:disabled {
-            background: linear-gradient(135deg, #6a6a8a 0%, #5a5a7a 100%);
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
-        
-        .btn.sale {
-            background: linear-gradient(135deg, #44ee67 0%, #38c757 100%);
-            font-weight: bold;
-            font-size: 18px;
-            box-shadow: 
-                0 4px 15px rgba(40, 167, 69, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        }
-        
-        .btn.sale:hover {
-            background: linear-gradient(135deg, #54ff77 0%, #48d767 100%);
-            box-shadow: 
-                0 6px 20px rgba(40, 167, 69, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.4);
-        }
-        
-        .btn.stats {
-            background: linear-gradient(135deg, #eab530 0%, #c8961b 100%);
-            margin-bottom: 5px;
-            box-shadow: 
-                0 4px 15px rgba(184, 134, 11, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        }
-        
-        .btn.stats:hover {
-            background: linear-gradient(135deg, #fac540 0%, #d8a62b 100%);
-            box-shadow: 
-                0 6px 20px rgba(184, 134, 11, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.4);
-        }
-        
-        .btn.switch-mode {
-            background: linear-gradient(135deg, #7877c6 0%, #5a59a3 100%);
-            margin-top: 10px;
-        }
-        
-        #scanner-container {
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(135deg, rgba(58, 58, 78, 0.8) 0%, rgba(50, 50, 70, 0.8) 100%);
-            border-radius: 15px;
-            margin: 20px 0;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px dashed rgba(255, 215, 0, 0.3);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 
-                inset 0 0 20px rgba(0, 0, 0, 0.3),
-                0 0 15px rgba(138, 137, 216, 0.3);
-        }
-        
-        #scanner-container:hover {
-            border-color: rgba(255, 215, 0, 0.5);
-            background: linear-gradient(135deg, rgba(68, 68, 88, 0.9) 0%, rgba(60, 60, 80, 0.9) 100%);
-            box-shadow: 
-                inset 0 0 30px rgba(0, 0, 0, 0.4),
-                0 0 20px rgba(138, 137, 216, 0.4);
-        }
-        
-        #scanner-container:active {
-            transform: scale(0.98);
-        }
-        
-        .scanner-placeholder {
-            text-align: center;
-            color: #d0d0f0;
-        }
-        
-        .scanner-placeholder .icon {
-            font-size: 48px;
-            margin-bottom: 10px;
-            color: #ffd700;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-        }
-        
-        .scanner-placeholder .text {
-            font-size: 16px;
-            font-weight: 500;
-            color: #f0f0ff;
-        }
-        
-        .current-price {
-            background: linear-gradient(135deg, rgba(40, 167, 69, 0.9) 0%, rgba(30, 126, 52, 0.9) 100%);
-            color: white;
-            text-align: center;
-            padding: 25px;
-            border-radius: 15px;
-            margin: 20px 0;
-            font-weight: bold;
-            font-size: 32px;
-            display: none;
-            box-shadow: 
-                0 4px 20px rgba(40, 167, 69, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .current-price::before {
-            content: '⚔️';
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 20px;
-            opacity: 0.5;
-        }
-        
-        .current-price::after {
-            content: '🛡️';
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            font-size: 20px;
-            opacity: 0.5;
-        }
-        
-        .current-price.visible { 
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .price-details {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 2px solid rgba(255, 255, 255, 0.3);
-            font-size: 16px;
-            line-height: 1.4;
-        }
-        
-        .price-details-platform {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            justify-content: center;
-            margin-bottom: 8px;
-        }
-        
-        .price-details-name {
-            font-size: 18px;
-            font-weight: bold;
-            opacity: 0.95;
-            color: #ffd700;
-        }
-        
-        .game-info {
-            background: rgba(50, 50, 70, 0.8);
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 20px;
-            display: none;
-            border: 1px solid rgba(255, 215, 0, 0.25);
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
-        }
-        
-        .game-info.visible { 
-            display: block;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
-        }
-        
-        .info-label { 
-            color: #d0d0f0; 
-            font-weight: 500; 
-            min-width: 140px; 
-        }
-        
-        .info-value { 
-            color: #f0f0f0; 
-            font-weight: 600; 
-            text-align: right; 
-            flex: 1; 
-            display: flex; 
-            align-items: center; 
-            justify-content: flex-end; 
-            gap: 8px; 
-        }
-        
-        .status {
-            text-align: center;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 10px;
-            background: rgba(184, 134, 11, 0.3);
-            color: #ffd700;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            font-weight: 500;
-        }
-        
-        .status.error {
-            background: rgba(220, 53, 69, 0.3);
-            color: #f8d7da;
-            border-color: rgba(220, 53, 69, 0.4);
-        }
-        
-        .status.success {
-            background: rgba(40, 167, 69, 0.3);
-            color: #d4edda;
-            border-color: rgba(40, 167, 69, 0.4);
-        }
-        
-        /* Модальные окна */
-        .modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 95%;
-            max-width: 500px;
-            max-height: 90vh;
-            background: rgba(58, 58, 78, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 
-                0 20px 40px rgba(0,0,0,0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            z-index: 1000;
-            display: none;
-            overflow-y: auto;
-            border: 2px solid rgba(255, 215, 0, 0.3);
-        }
-        
-        #search-modal {
-            top: 0;
-            left: 0;
-            transform: none;
-            width: 100%;
-            height: 100%;
-            max-width: none;
-            max-height: none;
-            border-radius: 0;
-            padding: 0;
-            display: none;
-            flex-direction: column;
-            background: rgba(40, 40, 60, 0.98);
-        }
-        
-        #search-modal .modal-header {
-            background: linear-gradient(135deg, #9a99e8 0%, #7b7ac8 100%);
-            color: white;
-            padding: 20px;
-            margin: 0;
-            border-radius: 0;
-            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
-        }
-        
-        #search-modal .modal-title {
-            color: #ffd700;
-            font-size: 22px;
-            font-family: 'Cinzel', serif;
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
-        }
-        
-        .modal-title {
-            font-size: 22px;
-            font-weight: bold;
-            color: #ffd700;
-            font-family: 'Cinzel', serif;
-        }
-        
-        .modal-close {
-            background: rgba(220, 53, 69, 0.9);
-            color: white;
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            font-size: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-        
-        .modal-close:hover {
-            background: rgba(220, 53, 69, 1);
-            transform: scale(1.1);
-        }
-        
-        #search-modal .search-input-container {
-            margin-bottom: 20px;
-            margin-top: 10px;
-            padding: 0 20px;
-        }
-        
-        #search-modal .search-input {
-            width: 100%;
-            padding: 20px;
-            border: 3px solid rgba(255, 215, 0, 0.4);
-            border-radius: 15px;
-            font-size: 18px;
-            text-align: center;
-            background: rgba(58, 58, 78, 0.8);
-            color: #f0f0f0;
-            box-shadow: 
-                0 4px 15px rgba(0,0,0,0.3),
-                inset 0 0 10px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-        }
-        
-        #search-modal .search-input:focus {
-            outline: none;
-            border-color: rgba(255, 215, 0, 0.6);
-            box-shadow: 
-                0 4px 20px rgba(255, 215, 0, 0.3),
-                inset 0 0 15px rgba(0,0,0,0.3);
-        }
-        
-        .search-hint {
-            text-align: center;
-            color: #d0d0f0;
-            font-size: 15px;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: rgba(50, 50, 70, 0.7);
-            border-radius: 10px;
-            border: 1px solid rgba(255, 215, 0, 0.25);
-            margin: 0 20px 20px;
-        }
-        
-        .search-results-container {
-            flex: 1;
-            overflow-y: auto;
-            border: 1px solid rgba(255, 215, 0, 0.25);
-            border-radius: 10px;
-            padding: 10px;
-            background: rgba(58, 58, 78, 0.7);
-            margin: 0 20px 20px;
-        }
-        
-        #modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 999;
-            display: none;
-        }
-        
-        .loading-spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-top: 2px solid #ffd700;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .app-version {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 12px;
-            color: #b0b0d0;
-            padding: 10px;
-            border-top: 1px solid rgba(255, 215, 0, 0.2);
-        }
-
-        @keyframes fadeIn {
-            from { 
-                opacity: 0; 
-                transform: translateY(20px); 
-            }
-            to { 
-                opacity: 1; 
-                transform: translateY(0); 
-            }
-        }
-    </style>
+    <!-- Подключаем стили -->
+    <link rel="stylesheet" href="styles.css">
     
+    <!-- Шрифт Cinzel для Skyrim стиля -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- Уведомление об установке -->
+    <div id="install-prompt" class="install-prompt">
+        ⚔️ Установите GAME ZONE для быстрого доступа!
+        <button id="install-btn">Установить</button>
+        <button id="dismiss-install" style="background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);">Позже</button>
+    </div>
+
+    <!-- Основной контейнер -->
     <div class="container" id="app-container">
         <div id="mode-indicator" class="mode-indicator" style="display: none;">⚔️ КЛИЕНТ</div>
         
@@ -618,10 +37,11 @@
             </div>
             <div>
                 <h1>GAME ZONE</h1>
-                <p id="app-subtitle">Сканер игровых дисков v5.2</p>
+                <p id="app-subtitle">Сканер игровых дисков</p>
             </div>
         </div>
 
+        <!-- ОДНО ЕДИНОЕ ПОЛЕ ЦЕНЫ С ИНФОРМАЦИЕЙ -->
         <div id="current-price" class="current-price">
             ⚔️ Цена: <span id="current-price-value">0</span> руб
             <div id="price-details" class="price-details" style="display: none;">
@@ -638,10 +58,17 @@
         </div>
 
         <button id="open-search-btn" class="btn">🔍 Умный поиск</button>
+
+        <!-- Только кнопка оформления продажи -->
         <button id="sale-btn" class="btn sale">💰 ОФОРМИТЬ ПРОДАЖУ</button>
+
+        <!-- Кнопка статистики -->
         <button id="stats-btn" class="btn stats">📊 Статистика продаж</button>
+
+        <!-- Кнопка переключения режима (только в полной версии) -->
         <button id="switch-mode-btn" class="btn switch-mode">👤 Переключить на клиентский режим</button>
 
+        <!-- Кнопки управления логами -->
         <div class="log-buttons">
             <button id="download-logs-btn" class="log-btn download">📥 Скачать логи</button>
             <button id="clear-logs-btn" class="log-btn clear">🗑️ Очистить логи</button>
@@ -654,11 +81,13 @@
             <span id="status-text">Загружаем данные...</span>
         </div>
 
+        <!-- Полная информация об игре (для полного режима) -->
         <div id="game-info" class="game-info">
             <div class="info-row">
                 <span class="info-label">Язык игры:</span>
                 <span class="info-value" id="game-language"></span>
             </div>
+            
             <div class="info-row">
                 <span class="info-label">Платформа:</span>
                 <span class="info-value" id="game-platform"></span>
@@ -678,11 +107,31 @@
         </div>
 
         <div class="app-version">
-            🐉 Версия 5.2 | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span> | Загрузка: ✅ Быстрая
+            🐉 Версия <span id="app-version-number">5.0</span> | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span>
         </div>
     </div>
 
-    <!-- Модальные окна -->
+    <!-- Окно корзины -->
+    <div id="cart-modal" class="modal">
+        <div class="modal-header">
+            <div class="modal-title">🛒 Корзина</div>
+            <button class="modal-close" id="close-cart-btn">×</button>
+        </div>
+        <div class="modal-body">
+            <div id="cart-items" class="cart-list">
+                <!-- Список товаров будет здесь -->
+            </div>
+            <div id="cart-total" class="cart-total">
+                Общая сумма: <span id="cart-total-amount">0</span> руб
+            </div>
+            <div class="cart-buttons">
+                <button id="clear-cart-btn" class="btn" style="background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);">🗑️ Очистить корзину</button>
+                <button id="process-sale-btn" class="btn" style="background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);">💰 Завершить продажу</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Окно поиска - ПОЛНЫЙ ЭКРАН -->
     <div id="search-modal" class="modal">
         <div class="modal-header">
             <div class="modal-title">🔍 Умный поиск</div>
@@ -696,658 +145,98 @@
             <div class="search-hint">
                 💡 Поиск по: названию игры, CUSA/PPSA коду или штрих-коду
             </div>
-            <div id="smart-search-results" class="search-results-container"></div>
+            <div id="smart-search-results" class="search-results-container">
+                <!-- Результаты поиска будут здесь -->
+            </div>
         </div>
     </div>
 
+    <!-- Окно камеры -->
+    <div id="camera-modal" class="modal">
+        <div class="modal-header">
+            <div class="modal-title">📷 Сканер штрих-кодов</div>
+            <button class="modal-close" id="close-camera-btn">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="camera-container">
+                <video id="camera-view" class="camera-view" autoplay playsinline></video>
+                <div class="camera-overlay">
+                    <div class="camera-line"></div>
+                </div>
+            </div>
+            <div class="camera-controls">
+                <button id="restart-camera" class="camera-btn restart">🔄 Перезапустить камеру</button>
+                <button id="stop-camera" class="camera-btn secondary">❌ Остановить</button>
+            </div>
+            <div id="camera-status" class="scanning-status" style="margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <!-- Окно статистики -->
+    <div id="stats-modal" class="modal">
+        <div class="modal-header">
+            <div class="modal-title">📊 Статистика продаж</div>
+            <button class="modal-close" id="close-stats-btn">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="stats-period">
+                📅 Статистика на: <span id="stats-date"></span>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card" data-stat="today-sales">
+                    <div class="stat-value" id="today-sales">0</div>
+                    <div class="stat-label">Продаж сегодня</div>
+                </div>
+                <div class="stat-card" data-stat="today-revenue">
+                    <div class="stat-value" id="today-revenue">0</div>
+                    <div class="stat-label">Выручка сегодня</div>
+                </div>
+                <div class="stat-card" data-stat="today-items">
+                    <div class="stat-value" id="today-items">0</div>
+                    <div class="stat-label">Товаров сегодня</div>
+                </div>
+                <div class="stat-card" data-stat="total-sales">
+                    <div class="stat-value" id="total-sales">0</div>
+                    <div class="stat-label">Всего продаж</div>
+                </div>
+                <div class="stat-card" data-stat="total-revenue">
+                    <div class="stat-value" id="total-revenue">0</div>
+                    <div class="stat-label">Общая выручка</div>
+                </div>
+                <div class="stat-card" data-stat="total-items">
+                    <div class="stat-value" id="total-items">0</div>
+                    <div class="stat-label">Всего товаров</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Окно детальной статистики -->
+    <div id="stats-detail-modal" class="modal">
+        <div class="modal-header">
+            <div class="modal-header-title">
+                <button class="modal-back-btn" id="back-to-stats-btn">← Назад</button>
+                <div class="modal-title" id="stats-detail-title">📋 Детали продаж</div>
+            </div>
+            <button class="modal-close" id="close-stats-detail-btn">×</button>
+        </div>
+        <div class="modal-body">
+            <div id="stats-detail-period" class="stats-period">
+                <!-- Период будет здесь -->
+            </div>
+            <div id="stats-detail-content" class="sale-details-list">
+                <!-- Детали продаж будут здесь -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Затемнение -->
     <div id="modal-overlay"></div>
 
-    <script>
-        // =============================================
-        // GAME ZONE SCANNER v5.2 - БЫСТРАЯ ЗАГРУЗКА
-        // =============================================
-        
-        const urlParams = new URLSearchParams(window.location.search);
-        const isUrlClientMode = urlParams.get('mode') === 'client';
-        const savedMode = localStorage.getItem('gamezone_mode');
-        const isClientMode = isUrlClientMode ? true : (savedMode ? savedMode === 'client' : false);
-        
-        const DEVICE_ID = localStorage.getItem('gamezone_device_id') || 
-                         'DEV_' + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem('gamezone_device_id', DEVICE_ID);
-
-        class SimpleLogger {
-            constructor() {
-                this.appLog = [];
-                this.salesLog = [];
-                this.deviceId = DEVICE_ID;
-                this.init();
-            }
-
-            init() {
-                this.loadFromStorage();
-                console.log(`📊 Логгер инициализирован`);
-            }
-
-            smartSearch(gamesData, query) {
-                if (!query || query.length < 2) return [];
-                
-                const searchQuery = query.toLowerCase().trim();
-                const results = [];
-                
-                gamesData.forEach(game => {
-                    let score = 0;
-                    
-                    if (game.name && game.name.toLowerCase().includes(searchQuery)) {
-                        score += 100;
-                    }
-                    
-                    if (game.code && game.code.toLowerCase().includes(searchQuery)) {
-                        score += 80;
-                    }
-                    
-                    if (game.barcode) {
-                        const barcodes = game.barcode.split('/').map(b => b.trim());
-                        if (barcodes.some(b => b.includes(searchQuery))) {
-                            score += 70;
-                        }
-                    }
-                    
-                    if (score > 0) {
-                        results.push({
-                            game: game,
-                            score: score
-                        });
-                    }
-                });
-                
-                results.sort((a, b) => b.score - a.score);
-                return results.map(r => r.game);
-            }
-
-            logAppAction(action, details = {}) {
-                const logEntry = {
-                    timestamp: new Date().toISOString(),
-                    action: action,
-                    details: details,
-                    deviceId: this.deviceId
-                };
-                
-                this.appLog.push(logEntry);
-                this.saveToStorage();
-                return logEntry;
-            }
-
-            saveToStorage() {
-                try {
-                    const storageKey = `gamezone_logs_${this.deviceId}`;
-                    localStorage.setItem(storageKey, JSON.stringify({
-                        deviceId: this.deviceId,
-                        appLog: this.appLog.slice(-1000),
-                        salesLog: this.salesLog.slice(-1000),
-                        lastUpdated: new Date().toISOString()
-                    }));
-                } catch (error) {
-                    console.error('❌ Ошибка сохранения логов:', error);
-                }
-            }
-
-            loadFromStorage() {
-                try {
-                    const storageKey = `gamezone_logs_${this.deviceId}`;
-                    const saved = localStorage.getItem(storageKey);
-                    
-                    if (saved) {
-                        const data = JSON.parse(saved);
-                        this.appLog = data.appLog || [];
-                        this.salesLog = data.salesLog || [];
-                    }
-                } catch (error) {
-                    console.error('❌ Ошибка загрузки логов:', error);
-                }
-            }
-        }
-
-        class GameScannerApp {
-            constructor() {
-                this.sheetsUrl = 'https://docs.google.com/spreadsheets/d/1fMWJan1HP7tcKwa_hm86oCm0KPtC_zN50UhU72Q8xeA/export?format=csv&gid=1995791598';
-                this.localDataKey = 'gameZoneGamesData';
-                this.scannedGamesKey = 'gameZoneScannedGames';
-                
-                this.gamesData = [];
-                this.scannedGames = [];
-                
-                this.appVersion = "5.2";
-                this.isClientMode = isClientMode;
-                this.logger = new SimpleLogger();
-                
-                this.init();
-            }
-
-            async init() {
-                console.log(`⚔️ GAME ZONE Scanner ${this.appVersion} запущен`);
-                
-                this.setMode(this.isClientMode);
-                this.logger.logAppAction('APP_START', { 
-                    version: this.appVersion,
-                    mode: this.isClientMode ? 'client' : 'full'
-                });
-                
-                this.setupEventListeners();
-                this.updateStatus('⚔️ Загружаем данные...');
-                
-                // БЫСТРАЯ ЗАГРУЗКА СРАЗУ
-                await this.loadGamesData();
-                
-                this.updateStatus(`✅ Готов! ${this.gamesData.length} игр в базе`, 'success');
-            }
-
-            setMode(isClientMode) {
-                this.isClientMode = isClientMode;
-                localStorage.setItem('gamezone_mode', isClientMode ? 'client' : 'full');
-                
-                const container = document.getElementById('app-container');
-                const modeIndicator = document.getElementById('mode-indicator');
-                const modeStatus = document.getElementById('mode-status');
-                const appSubtitle = document.getElementById('app-subtitle');
-                const scannerText = document.getElementById('scanner-text');
-                const switchBtn = document.getElementById('switch-mode-btn');
-                
-                if (isClientMode) {
-                    container.classList.add('client-mode');
-                    modeIndicator.style.display = 'block';
-                    modeStatus.textContent = 'КЛИЕНТ';
-                    appSubtitle.textContent = 'Сканер цен для клиентов v5.2';
-                    scannerText.textContent = 'Наведите камеру на штрих-код игры';
-                    switchBtn.textContent = '👨‍💻 Режим разработчика';
-                } else {
-                    container.classList.remove('client-mode');
-                    modeIndicator.style.display = 'none';
-                    modeStatus.textContent = 'ПОЛНЫЙ';
-                    appSubtitle.textContent = 'Сканер игровых дисков v5.2';
-                    scannerText.textContent = 'Нажмите для запуска сканера';
-                    switchBtn.textContent = '👤 Переключить на клиентский режим';
-                }
-            }
-
-            toggleMode() {
-                this.setMode(!this.isClientMode);
-                this.updateStatus(`✅ Переключен в ${this.isClientMode ? 'клиентский' : 'полный'} режим`, 'success');
-            }
-
-            updateStatus(message, type = '') {
-                const statusEl = document.getElementById('status');
-                const statusText = document.getElementById('status-text');
-                
-                statusText.textContent = message;
-                statusEl.className = 'status';
-                
-                if (type === 'error') statusEl.classList.add('error');
-                else if (type === 'success') statusEl.classList.add('success');
-                
-                if (type !== '') {
-                    setTimeout(() => {
-                        const spinner = statusEl.querySelector('.loading-spinner');
-                        if (spinner) spinner.style.display = 'none';
-                    }, 500);
-                }
-            }
-
-            setupEventListeners() {
-                document.getElementById('scanner-container').addEventListener('click', () => this.startScanner());
-                document.getElementById('open-search-btn').addEventListener('click', () => this.openSearchModal());
-                document.getElementById('sale-btn').addEventListener('click', () => this.openCartModal());
-                document.getElementById('stats-btn').addEventListener('click', () => this.openStatsModal());
-                document.getElementById('switch-mode-btn').addEventListener('click', () => this.toggleMode());
-                
-                document.getElementById('close-search-btn').addEventListener('click', () => this.closeModal('search-modal'));
-                document.getElementById('modal-overlay').addEventListener('click', () => this.closeAllModals());
-                
-                document.getElementById('smart-search-input').addEventListener('input', (e) => {
-                    this.performSmartSearch(e.target.value);
-                });
-            }
-
-            openModal(modalId) {
-                document.getElementById(modalId).style.display = 'block';
-                document.getElementById('modal-overlay').style.display = 'block';
-                document.body.style.overflow = 'hidden';
-                
-                if (modalId === 'search-modal') {
-                    setTimeout(() => {
-                        document.getElementById('smart-search-input').focus();
-                    }, 100);
-                }
-            }
-
-            closeModal(modalId) {
-                document.getElementById(modalId).style.display = 'none';
-                document.getElementById('modal-overlay').style.display = 'none';
-                document.body.style.overflow = 'auto';
-            }
-
-            closeAllModals() {
-                document.querySelectorAll('.modal').forEach(modal => {
-                    modal.style.display = 'none';
-                });
-                document.getElementById('modal-overlay').style.display = 'none';
-                document.body.style.overflow = 'auto';
-            }
-
-            openSearchModal() {
-                this.openModal('search-modal');
-                document.getElementById('smart-search-input').value = '';
-                document.getElementById('smart-search-results').innerHTML = 
-                    '<div style="padding: 20px; text-align: center; color: #d0d0f0;">Введите запрос для поиска игр</div>';
-            }
-
-            performSmartSearch(query) {
-                const resultsContainer = document.getElementById('smart-search-results');
-                
-                if (!query || query.length < 2) {
-                    resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #d0d0f0;">Введите минимум 2 символа</div>';
-                    return [];
-                }
-                
-                const results = this.logger.smartSearch(this.gamesData, query);
-                
-                if (results.length === 0) {
-                    resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #d0d0f0;">Игры не найдены</div>';
-                    return [];
-                }
-                
-                resultsContainer.innerHTML = '';
-                results.slice(0, 15).forEach(game => {
-                    const item = document.createElement('div');
-                    item.className = 'search-result-item';
-                    item.innerHTML = `
-                        <div class="search-result-name">
-                            ${this.getPlatformIconOnly(game.platform)}
-                            <span>${game.name}</span>
-                        </div>
-                        <div class="search-result-details">
-                            <span></span>
-                            <span class="search-result-price">${this.calculateFinalPrice(game.optPrice)} руб</span>
-                        </div>
-                    `;
-                    
-                    item.addEventListener('click', () => {
-                        this.addGameToCart(game);
-                        this.closeModal('search-modal');
-                        document.getElementById('smart-search-input').value = '';
-                    });
-                    
-                    resultsContainer.appendChild(item);
-                });
-                
-                return results;
-            }
-
-            addGameToCart(game) {
-                const price = this.calculateFinalPrice(game.optPrice);
-                const existingIndex = this.scannedGames.findIndex(g => g.barcode === game.barcode);
-                
-                if (existingIndex !== -1) {
-                    this.scannedGames[existingIndex].quantity = (this.scannedGames[existingIndex].quantity || 1) + 1;
-                } else {
-                    this.scannedGames.push({
-                        name: game.name,
-                        barcode: game.barcode,
-                        price: price,
-                        platform: game.platform,
-                        fullInfo: game,
-                        quantity: 1
-                    });
-                }
-                
-                this.saveCart();
-                this.displayGameInfo(game);
-                this.updateStatus('✅ Игра добавлена в корзину', 'success');
-            }
-
-            // ВОССТАНОВЛЕННЫЕ ФУНКЦИИ ДЛЯ БЫСТРОЙ ЗАГРУЗКИ
-            async loadGamesData() {
-                try {
-                    // Сначала загружаем из localStorage - мгновенно
-                    this.loadFromLocalStorage();
-                    
-                    // Если есть данные - сразу показываем готово
-                    if (this.gamesData.length > 0) {
-                        console.log(`📊 Загружено ${this.gamesData.length} игр из кэша`);
-                        return;
-                    }
-                    
-                    // Если нет данных - создаем демо-данные мгновенно
-                    console.log('📊 Создаем демо-данные...');
-                    this.createSampleData();
-                    this.updateStatus('✅ Загружены демо-данные', 'success');
-                    
-                    // Параллельно проверяем обновления (не блокируя интерфейс)
-                    setTimeout(() => this.checkForUpdates(), 100);
-                    
-                } catch (error) {
-                    console.error('Ошибка загрузки данных:', error);
-                    // В любом случае создаем демо-данные
-                    this.createSampleData();
-                    this.updateStatus('✅ Загружены демо-данные', 'success');
-                }
-            }
-
-            loadFromLocalStorage() {
-                try {
-                    const savedData = localStorage.getItem(this.localDataKey);
-                    const savedCart = localStorage.getItem(this.scannedGamesKey);
-                    
-                    if (savedData) {
-                        this.gamesData = JSON.parse(savedData);
-                        console.log(`📊 Загружено ${this.gamesData.length} игр из кэша`);
-                    }
-                    
-                    if (savedCart) {
-                        this.scannedGames = JSON.parse(savedCart);
-                        console.log(`🛒 Загружено ${this.scannedGames.length} товаров в корзине`);
-                    }
-                } catch (error) {
-                    console.error('Ошибка загрузки данных:', error);
-                    this.gamesData = [];
-                    this.scannedGames = [];
-                }
-            }
-
-            createSampleData() {
-                // Создаем демо-данные мгновенно
-                this.gamesData = [
-                    {
-                        platform: 'PS4',
-                        barcode: '711719803278',
-                        name: 'The Last of Us Part II',
-                        code: 'CUSA-18278',
-                        language: 'RUS',
-                        optPrice: '1999',
-                        marketplace: '2499',
-                        codeType: 'CUSA'
-                    },
-                    {
-                        platform: 'PS5',
-                        barcode: '711719998653',
-                        name: 'Spider-Man: Miles Morales',
-                        code: 'PPSA-01462',
-                        language: 'RUS',
-                        optPrice: '2499',
-                        marketplace: '3499',
-                        codeType: 'PPSA'
-                    },
-                    {
-                        platform: 'NS',
-                        barcode: '045496873285',
-                        name: 'The Legend of Zelda: Breath of the Wild',
-                        code: '',
-                        language: 'ENG',
-                        optPrice: '2999',
-                        marketplace: '3999',
-                        codeType: ''
-                    },
-                    {
-                        platform: 'XBOX ONE',
-                        barcode: '889842414205',
-                        name: 'Halo Infinite',
-                        code: '',
-                        language: 'RUS',
-                        optPrice: '2299',
-                        marketplace: '3299',
-                        codeType: ''
-                    },
-                    {
-                        platform: 'PS4',
-                        barcode: '711719803279',
-                        name: 'God of War',
-                        code: 'CUSA-18279',
-                        language: 'RUS',
-                        optPrice: '1799',
-                        marketplace: '2299',
-                        codeType: 'CUSA'
-                    },
-                    {
-                        platform: 'PS5',
-                        barcode: '711719998654',
-                        name: 'Horizon Forbidden West',
-                        code: 'PPSA-01463',
-                        language: 'RUS',
-                        optPrice: '2699',
-                        marketplace: '3699',
-                        codeType: 'PPSA'
-                    }
-                ];
-                
-                this.saveToLocalStorage();
-                console.log(`📊 Создано ${this.gamesData.length} демо-игр`);
-            }
-
-            async checkForUpdates() {
-                try {
-                    console.log('🔄 Проверяем обновления...');
-                    
-                    const response = await fetch(this.sheetsUrl + '&t=' + Date.now());
-                    if (!response.ok) throw new Error('Ошибка сети');
-                    
-                    const csvText = await response.text();
-                    if (!csvText || csvText.length < 100) throw new Error('Пустые данные');
-                    
-                    const newData = this.parseCSV(csvText);
-                    if (newData.length > 0) {
-                        this.gamesData = newData;
-                        this.saveToLocalStorage();
-                        console.log(`🔄 Обновлено ${this.gamesData.length} игр`);
-                    }
-                    
-                } catch (error) {
-                    console.log('⚠️ Не удалось обновить данные:', error);
-                }
-            }
-
-            parseCSV(csvText) {
-                const games = [];
-                const rows = csvText.split('\n');
-                
-                for (let i = 1; i < rows.length; i++) {
-                    if (!rows[i].trim()) continue;
-                    
-                    try {
-                        const cells = this.parseCSVRow(rows[i]);
-                        if (cells.length < 29) continue;
-
-                        if (cells[0] && cells[0].includes('PS4') && cells[1] && cells[2]) {
-                            games.push({
-                                platform: cells[0],
-                                barcode: cells[1],
-                                name: cells[2],
-                                code: cells[3] || '',
-                                language: cells[4] || '',
-                                optPrice: cells[5] || '',
-                                marketplace: cells[6] || '',
-                                codeType: 'CUSA'
-                            });
-                        }
-                        
-                        if (cells[8] && cells[8].includes('PS5') && cells[9] && cells[10]) {
-                            games.push({
-                                platform: cells[8],
-                                barcode: cells[9],
-                                name: cells[10],
-                                code: cells[11] || '',
-                                language: cells[12] || '',
-                                optPrice: cells[13] || '',
-                                marketplace: cells[14] || '',
-                                codeType: 'PPSA'
-                            });
-                        }
-                        
-                        if (cells[16] && (cells[16].includes('NS') || cells[16].includes('Switch')) && cells[17] && cells[18]) {
-                            let barcodes = cells[17];
-                            if (barcodes.includes('/')) {
-                                barcodes = barcodes.split('/').map(b => b.trim()).join('/');
-                            }
-                            
-                            games.push({
-                                platform: cells[16],
-                                barcode: barcodes,
-                                name: cells[18],
-                                code: '',
-                                language: cells[19] || '',
-                                optPrice: cells[20] || '',
-                                marketplace: cells[21] || '',
-                                codeType: ''
-                            });
-                        }
-                        
-                        if (cells[23] && cells[23].includes('XBOX') && cells[24] && cells[25]) {
-                            games.push({
-                                platform: cells[23],
-                                barcode: cells[24],
-                                name: cells[25],
-                                code: '',
-                                language: cells[26] || '',
-                                optPrice: cells[27] || '',
-                                marketplace: cells[28] || '',
-                                codeType: ''
-                            });
-                        }
-                    } catch (error) {
-                        console.log('Ошибка парсинга строки', i, error);
-                    }
-                }
-                
-                return games;
-            }
-
-            parseCSVRow(row) {
-                const cells = [];
-                let current = '';
-                let inQuotes = false;
-                
-                for (let char of row) {
-                    if (char === '"') {
-                        inQuotes = !inQuotes;
-                    } else if (char === ',' && !inQuotes) {
-                        cells.push(current.trim());
-                        current = '';
-                    } else {
-                        current += char;
-                    }
-                }
-                cells.push(current.trim());
-                return cells;
-            }
-
-            saveToLocalStorage() {
-                try {
-                    localStorage.setItem(this.localDataKey, JSON.stringify(this.gamesData));
-                } catch (error) {
-                    console.error('Ошибка сохранения данных:', error);
-                }
-            }
-
-            saveCart() {
-                try {
-                    localStorage.setItem(this.scannedGamesKey, JSON.stringify(this.scannedGames));
-                } catch (error) {
-                    console.error('Ошибка сохранения корзины:', error);
-                }
-            }
-
-            displayGameInfo(game) {
-                const price = this.calculateFinalPrice(game.optPrice);
-                
-                document.getElementById('current-price-value').textContent = price || '0';
-                document.getElementById('current-price').classList.add('visible');
-                
-                const priceDetails = document.getElementById('price-details');
-                const priceDetailsPlatform = document.getElementById('price-details-platform');
-                const priceDetailsName = document.getElementById('price-details-name');
-                
-                priceDetailsPlatform.innerHTML = this.getPlatformIconOnly(game.platform);
-                priceDetailsName.textContent = game.name;
-                priceDetails.style.display = 'block';
-                
-                if (!this.isClientMode) {
-                    document.getElementById('game-language').textContent = this.getLanguageText(game.language) || '—';
-                    document.getElementById('game-platform').innerHTML = this.getPlatformIconOnly(game.platform);
-                    document.getElementById('game-barcode').textContent = game.barcode;
-                    document.getElementById('game-marketplace').textContent = game.marketplace || '—';
-                    
-                    const codeRow = document.getElementById('game-code-row');
-                    if (game.code && game.codeType) {
-                        document.getElementById('game-code-label').textContent = game.codeType + ':';
-                        document.getElementById('game-code').textContent = game.code;
-                        codeRow.style.display = 'flex';
-                    } else {
-                        codeRow.style.display = 'none';
-                    }
-                    
-                    document.getElementById('game-info').classList.add('visible');
-                }
-            }
-
-            calculateFinalPrice(optPrice) {
-                if (!optPrice) return 0;
-                try {
-                    const clean = optPrice.replace(',', '.').replace(/\s/g, '');
-                    const price = parseFloat(clean);
-                    return isNaN(price) ? 0 : Math.round(price + 1000);
-                } catch {
-                    return 0;
-                }
-            }
-
-            getPlatformIconOnly(platform) {
-                let platformText = '';
-                let platformClass = '';
-                
-                if (platform.includes('PS4')) {
-                    platformText = 'PS4';
-                    platformClass = 'ps4-icon';
-                } else if (platform.includes('PS5')) {
-                    platformText = 'PS5';
-                    platformClass = 'ps5-icon';
-                } else if (platform.includes('NS') || platform.includes('Switch')) {
-                    platformText = 'NS';
-                    platformClass = 'ns-icon';
-                } else if (platform.includes('XBOX')) {
-                    platformText = 'XB';
-                    platformClass = 'xbox-icon';
-                } else {
-                    platformText = platform;
-                    platformClass = 'ps4-icon';
-                }
-                
-                return `<span class="platform-icon ${platformClass}">${platformText}</span>`;
-            }
-
-            getLanguageText(lang) {
-                const map = {
-                    'ENG': 'Английский', 'SUB': 'Русские субтитры', 
-                    'RUS': 'Русский', 'MULTI': 'Мульти язык'
-                };
-                return map[lang?.toUpperCase()] || lang || '';
-            }
-
-            // Старые функции для совместимости
-            startScanner() {
-                alert('📷 Сканер запущен!');
-            }
-
-            openCartModal() {
-                alert('🛒 Корзина');
-            }
-
-            openStatsModal() {
-                alert('📊 Статистика');
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            window.gameApp = new GameScannerApp();
-        });
-    </script>
+    <!-- Подключаем Quagga -->
+    <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.1/dist/quagga.min.js"></script>
+    
+    <!-- Подключаем основной скрипт -->
+    <script src="app.js"></script>
 </body>
 </html>
