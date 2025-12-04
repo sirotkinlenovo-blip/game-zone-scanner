@@ -68,6 +68,15 @@
         <!-- Кнопка переключения режима (только в полной версии) -->
         <button id="switch-mode-btn" class="btn switch-mode">👤 Переключить на клиентский режим</button>
 
+        <!-- Кнопка блокировки клиентского режима -->
+        <div class="lock-toggle">
+            <label class="switch">
+                <input type="checkbox" id="lock-client-mode">
+                <span class="slider"></span>
+            </label>
+            <span class="lock-label">🔓 Разрешить переключение из клиентского режима</span>
+        </div>
+
         <!-- Кнопки управления логами -->
         <div class="log-buttons">
             <button id="download-logs-btn" class="log-btn download">📥 Скачать логи</button>
@@ -107,7 +116,7 @@
         </div>
 
         <div class="app-version">
-            🐉 Версия <span id="app-version-number">5.1</span> | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span>
+            🐉 Версия <span id="app-version-number">5.2</span> | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span>
         </div>
     </div>
 
