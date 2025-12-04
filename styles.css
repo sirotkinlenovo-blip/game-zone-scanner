@@ -220,12 +220,6 @@ body::before {
     margin-top: 10px;
 }
 
-.btn.developer-mode {
-    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
-    color: #000;
-    margin-top: 10px;
-}
-
 #scanner-container {
     width: 100%;
     height: 200px;
@@ -273,6 +267,33 @@ body::before {
     font-size: 16px;
     font-weight: 500;
     color: #c0c0e0;
+}
+
+.search-container {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+#search-type {
+    width: 120px;
+    padding: 12px;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-radius: 10px;
+    font-size: 14px;
+    background: rgba(26, 26, 46, 0.8);
+    color: #f0f0f0;
+}
+
+#barcode-input {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    border-radius: 10px;
+    text-align: center;
+    font-size: 16px;
+    background: rgba(26, 26, 46, 0.8);
+    color: #f0f0f0;
 }
 
 .current-price {
@@ -380,6 +401,18 @@ body::before {
     gap: 8px; 
 }
 
+.price-final {
+    color: #ffd700;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    margin: 15px 0;
+    padding: 15px;
+    background: rgba(184, 134, 11, 0.1);
+    border-radius: 10px;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+}
+
 .status {
     text-align: center;
     padding: 15px;
@@ -436,7 +469,7 @@ body::before {
     max-height: none;
     border-radius: 0;
     padding: 0;
-    display: none;
+    display: none; /* ИСПРАВЛЕНО: было flex, стало none */
     flex-direction: column;
     background: rgba(12, 12, 12, 0.98);
 }
@@ -500,6 +533,26 @@ body::before {
 
 .modal-body {
     margin-bottom: 20px;
+}
+
+/* Кнопка назад в детальной статистике */
+.modal-back-btn {
+    background: linear-gradient(135deg, #7877c6 0%, #5a59a3 100%);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.3s ease;
+}
+
+.modal-back-btn:hover {
+    transform: translateX(-5px);
 }
 
 /* Окно корзины */
@@ -847,6 +900,35 @@ body::before {
     border-color: rgba(220, 53, 69, 0.3);
 }
 
+.install-prompt {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(26, 26, 46, 0.95);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    box-shadow: 
+        0 5px 15px rgba(0,0,0,0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    z-index: 1001;
+    display: none;
+    max-width: 90%;
+    text-align: center;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+}
+
+.install-prompt button {
+    background: linear-gradient(135deg, #7877c6 0%, #5a59a3 100%);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
 .loading-spinner {
     display: inline-block;
     width: 20px;
@@ -1072,15 +1154,9 @@ body::before {
 .client-mode .log-buttons,
 .client-mode #open-search-btn,
 .client-mode #sale-btn,
-.client-mode .game-info {
+.client-mode .game-info,
+.client-mode .btn.switch-mode {
     display: none !important;
-}
-
-/* Кнопка переключения режима всегда видна в клиентском режиме */
-.client-mode .btn.developer-mode {
-    display: block !important;
-    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
-    color: #000;
 }
 
 .client-mode #scanner-container {
@@ -1123,4 +1199,5 @@ body::before {
         opacity: 1; 
         transform: translateY(0); 
     }
+
 }
