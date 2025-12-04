@@ -31,6 +31,7 @@ const LOG_CLEANUP_DAYS = 30; // Очищать логи старше дней
 
 class SimpleLogger {
     constructor() {
+      this.lockClientMode = localStorage.getItem('gamezone_lock_client') === 'true';
         this.appLog = [];
         this.salesLog = [];
         this.deviceId = DEVICE_ID;
@@ -462,12 +463,27 @@ class GameScannerApp {
         
         this.init();
     }
-
+// Переключение блокировки клиентского режима
+toggleLockClientMode(locked) {
+    this.lockClientMode = locked;
+    localStorage.setItem('gamezone_lock_client', locked);
+    
+    if (locked) {
+        this.updateStatus('✅ Блокировка клиентского режима ВКЛЮЧЕНА', 'success');
+        console.log('🔒 Блокировка клиентского режима: ВКЛЮЧЕНА');
+    } else {
+        this.updateStatus('✅ Блокировка клиентского режима ВЫКЛЮЧЕНА', 'success');
+        console.log('🔓 Блокировка клиентского режима: ВЫКЛЮЧЕНА');
+    }
+    
+    this.hapticFeedback('medium');
+    this.trackUsage('LOCK_TOGGLED', { locked: locked });
+}
     // Инициализация приложения
     async init() {
-        console.log(`⚔️ GAME ZONE Scanner ${this.appVersion} запущен`);
-        console.log(`📱 Режим: ${this.isClientMode ? 'КЛИЕНТСКИЙ' : 'ПОЛНЫЙ'}`);
-        console.log(`📱 ID устройства: ${DEVICE_ID}`);
+    console.log(`⚔️ GAME ZONE Scanner ${this.appVersion} запущен`);
+    console.log(`📱 Режим: ${this.isClientMode ? 'КЛИЕНТСКИЙ' : 'ПОЛНЫЙ'}`);
+    console.log(`🔒 Блокировка клиентского режима: ${this.lockClientMode ? 'ВКЛЮЧЕНА' : 'ВЫКЛЮЧЕНА'}`);
         
         // Трекинг запуска
         this.trackUsage('APP_START', { 
@@ -483,52 +499,72 @@ class GameScannerApp {
     }
 
     // Установка режима работы
-    setMode(isClientMode) {
-        this.isClientMode = isClientMode;
-        localStorage.setItem('gamezone_mode', isClientMode ? 'client' : 'full');
+   setMode(isClientMode) {
+    this.isClientMode = isClientMode;
+    localStorage.setItem('gamezone_mode', isClientMode ? 'client' : 'full');
+    
+    const container = document.getElementById('app-container');
+    const modeIndicator = document.getElementById('mode-indicator');
+    const modeStatus = document.getElementById('mode-status');
+    const appSubtitle = document.getElementById('app-subtitle');
+    const scannerText = document.getElementById('scanner-text');
+    const switchBtn = document.getElementById('switch-mode-btn');
+    const lockToggle = document.querySelector('.lock-toggle');
+    
+    if (isClientMode) {
+        container.classList.add('client-mode');
+        modeIndicator.style.display = 'block';
+        modeStatus.textContent = 'КЛИЕНТ';
+        appSubtitle.textContent = 'Сканер цен для клиентов';
+        scannerText.textContent = 'Наведите камеру на штрих-код игры';
         
-        const container = document.getElementById('app-container');
-        const modeIndicator = document.getElementById('mode-indicator');
-        const modeStatus = document.getElementById('mode-status');
-        const appSubtitle = document.getElementById('app-subtitle');
-        const scannerText = document.getElementById('scanner-text');
-        const switchBtn = document.getElementById('switch-mode-btn');
+        // В клиентском режиме кнопка переключения всегда видна
+        switchBtn.style.display = 'block';
+        switchBtn.textContent = '👨‍💻 Режим разработчика';
+        switchBtn.classList.remove('switch-mode');
+        switchBtn.classList.add('developer-mode');
         
-        if (isClientMode) {
-            container.classList.add('client-mode');
-            modeIndicator.style.display = 'block';
-            modeStatus.textContent = 'КЛИЕНТ';
-            appSubtitle.textContent = 'Сканер цен для клиентов';
-            scannerText.textContent = 'Наведите камеру на штрих-код игры';
-            switchBtn.style.display = 'block';
-            switchBtn.textContent = '👨‍💻 Режим разработчика';
-            switchBtn.classList.remove('switch-mode');
-            switchBtn.classList.add('developer-mode');
-        } else {
-            container.classList.remove('client-mode');
-            modeIndicator.style.display = 'none';
-            modeStatus.textContent = 'ПОЛНЫЙ';
-            appSubtitle.textContent = 'Сканер игровых дисков';
-            scannerText.textContent = 'Нажмите для запуска сканера';
-            switchBtn.style.display = 'block';
-            switchBtn.textContent = '👤 Переключить на клиентский режим';
-            switchBtn.classList.add('switch-mode');
-            switchBtn.classList.remove('developer-mode');
-        }
+        // Переключатель блокировки скрываем в клиентском режиме
+        if (lockToggle) lockToggle.style.display = 'none';
         
-        this.trackUsage('MODE_CHANGED', { mode: isClientMode ? 'client' : 'full' });
+    } else {
+        container.classList.remove('client-mode');
+        modeIndicator.style.display = 'none';
+        modeStatus.textContent = 'ПОЛНЫЙ';
+        appSubtitle.textContent = 'Сканер игровых дисков';
+        scannerText.textContent = 'Нажмите для запуска сканера';
+        switchBtn.style.display = 'block';
+        switchBtn.textContent = '👤 Переключить на клиентский режим';
+        switchBtn.classList.add('switch-mode');
+        switchBtn.classList.remove('developer-mode');
+        
+        // Переключатель блокировки показываем в полном режиме
+        if (lockToggle) lockToggle.style.display = 'flex';
     }
+    
+    this.logger.logAppAction('MODE_CHANGED', { 
+        mode: isClientMode ? 'client' : 'full',
+        deviceId: DEVICE_ID 
+    });
+}
 
     // Переключение режима
     toggleMode() {
-        if (this.isClientMode) {
-            this.setMode(false);
-            this.updateStatus('✅ Переключен в режим разработчика', 'success');
-        } else {
-            this.setMode(true);
-            this.updateStatus('✅ Переключен в клиентский режим', 'success');
-        }
+    // Если пытаемся переключиться ИЗ клиентского режима И блокировка включена
+    if (this.isClientMode && this.lockClientMode) {
+        alert('⛔ Переключение в режим разработчика ЗАБЛОКИРОВАНО!\n\nДля разблокировки:\n1. Используйте прямую ссылку: /game-zone-scanner/\n2. Или отключите блокировку в настройках.');
+        this.hapticFeedback('heavy');
+        return;
     }
+    
+    if (this.isClientMode) {
+        this.setMode(false);
+        this.updateStatus('✅ Переключен в режим разработчика', 'success');
+    } else {
+        this.setMode(true);
+        this.updateStatus('✅ Переключен в клиентский режим', 'success');
+    }
+}
 
     // Обновление статуса
     updateStatus(message, type = '') {
@@ -552,11 +588,17 @@ class GameScannerApp {
     // Настройка обработчиков событий
     setupEventListeners() {
         // Основные кнопки
+      // Обработчик переключателя блокировки
+    document.getElementById('lock-client-mode').addEventListener('change', (e) => {
+        this.toggleLockClientMode(e.target.checked);
+    });
         document.getElementById('scanner-container').addEventListener('click', () => this.startScanner());
         document.getElementById('open-search-btn').addEventListener('click', () => this.openSearchModal());
         document.getElementById('sale-btn').addEventListener('click', () => this.openCartModal());
         document.getElementById('stats-btn').addEventListener('click', () => this.openStatsModal());
         document.getElementById('switch-mode-btn').addEventListener('click', () => this.toggleMode());
+        // Установите состояние переключателя
+    document.getElementById('lock-client-mode').checked = this.lockClientMode;
         
         // Управление логами
         document.getElementById('download-logs-btn').addEventListener('click', () => this.downloadLogs());
@@ -1761,3 +1803,4 @@ window.formatPrice = function(price) {
     if (!price) return '0';
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 };
+
