@@ -469,7 +469,7 @@ body::before {
     max-height: none;
     border-radius: 0;
     padding: 0;
-    display: none; /* ИСПРАВЛЕНО: было flex, стало none */
+    display: none;
     flex-direction: column;
     background: rgba(12, 12, 12, 0.98);
 }
@@ -1198,5 +1198,31 @@ body::before {
     to { 
         opacity: 1; 
         transform: translateY(0); 
+    }
+}
+
+/* Оптимизация для touch devices */
+@media (hover: none) and (pointer: coarse) {
+    .btn, .log-btn, .camera-btn, .quantity-btn, .cart-remove {
+        min-height: 44px;
+    }
+    
+    .search-result-item {
+        padding: 20px 15px;
+    }
+    
+    .modal {
+        padding: 15px;
+    }
+}
+
+/* Темная тема для экономии батареи на OLED */
+@media (prefers-color-scheme: dark) {
+    body {
+        background: linear-gradient(135deg, #000000 0%, #0a0a1a 50%, #0d1526 100%);
+    }
+    
+    .container {
+        background: rgba(10, 10, 20, 0.95);
     }
 }
