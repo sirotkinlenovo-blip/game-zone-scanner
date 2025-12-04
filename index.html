@@ -3,264 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GAME ZONE - Сканер игр</title>
-    <meta name="theme-color" content="#1a1a2e">
-    <meta name="description" content="Сканер игровых дисков для магазина GAME ZONE">
-    
-    <!-- PWA мета-теги -->
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" type="image/png" href="https://avatars.mds.yandex.net/get-altay/16915650/2a0000019a24cb39e7e0f13ab054c8530af6/S_height">
-    
-    <!-- Подключаем стили -->
-    <link rel="stylesheet" href="styles.css">
-    
-    <!-- Шрифт Cinzel для Skyrim стиля -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
+    <title>Игровая Зона Сканер</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <!-- Уведомление об установке -->
-    <div id="install-prompt" class="install-prompt">
-        ⚔️ Установите GAME ZONE для быстрого доступа!
-        <button id="install-btn">Установить</button>
-        <button id="dismiss-install" style="background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);">Позже</button>
-    </div>
-
-    <!-- Основной контейнер -->
-    <div class="container" id="app-container">
-        <div id="mode-indicator" class="mode-indicator" style="display: none;">⚔️ КЛИЕНТ</div>
-        
-        <div class="header">
-            <div class="store-logo">
-                <img src="https://avatars.mds.yandex.net/get-altay/16915650/2a0000019a24cb39e7e0f13ab054c8530af6/S_height" 
-                     alt="GAME ZONE" 
-                     class="logo-img">
-            </div>
-            <div>
-                <h1>GAME ZONE</h1>
-                <p id="app-subtitle">Сканер игровых дисков</p>
-            </div>
-        </div>
-
-        <!-- ОДНО ЕДИНОЕ ПОЛЕ ЦЕНЫ С ИНФОРМАЦИЕЙ -->
-        <div id="current-price" class="current-price">
-            ⚔️ Цена: <span id="current-price-value">0</span> руб
-            <div id="price-details" class="price-details" style="display: none;">
-                <div class="price-details-platform" id="price-details-platform"></div>
-                <div class="price-details-name" id="price-details-name"></div>
-            </div>
-        </div>
-
-        <div id="scanner-container">
-            <div class="scanner-placeholder">
-                <div class="icon">📷</div>
-                <div class="text" id="scanner-text">Нажмите для запуска сканера</div>
-            </div>
-        </div>
-
-        <button id="open-search-btn" class="btn">🔍 Умный поиск</button>
-
-        <!-- Только кнопка оформления продажи -->
-        <button id="sale-btn" class="btn sale">💰 ОФОРМИТЬ ПРОДАЖУ</button>
-
-        <!-- Кнопка статистики -->
-        <button id="stats-btn" class="btn stats">📊 Статистика продаж</button>
-
-        <!-- Кнопка переключения режима (только в полной версии) -->
-        <button id="switch-mode-btn" class="btn switch-mode">👤 Переключить на клиентский режим</button>
-
-        <!-- Кнопка блокировки клиентского режима -->
-        <div class="lock-toggle">
-            <label class="switch">
-                <input type="checkbox" id="lock-client-mode">
-                <span class="slider"></span>
-            </label>
-            <span class="lock-label">🔓 Разрешить переключение из клиентского режима</span>
-        </div>
-
-        <!-- Кнопки управления логами -->
-        <div class="log-buttons">
-            <button id="download-logs-btn" class="log-btn download">📥 Скачать логи</button>
-            <button id="clear-logs-btn" class="log-btn clear">🗑️ Очистить логи</button>
-        </div>
-
-        <div id="scanning-status" class="scanning-status" style="display: none;"></div>
-
-        <div id="status" class="status">
-            <div class="loading-spinner"></div>
-            <span id="status-text">Загружаем данные...</span>
-        </div>
-
-        <!-- Полная информация об игре (для полного режима) -->
-        <div id="game-info" class="game-info">
-            <div class="info-row">
-                <span class="info-label">Язык игры:</span>
-                <span class="info-value" id="game-language"></span>
-            </div>
+    <!-- Режим разработчика -->
+    <div id="developerMode" class="mode developer-mode">
+        <div class="content">
+            <h1>Игровая Зона Сканер</h1>
+            <p class="mode-indicator">Режим: Разработчик</p>
             
-            <div class="info-row">
-                <span class="info-label">Платформа:</span>
-                <span class="info-value" id="game-platform"></span>
-            </div>
-            <div class="info-row" id="game-code-row">
-                <span class="info-label" id="game-code-label">CUSA:</span>
-                <span class="info-value" id="game-code"></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Штрих-код:</span>
-                <span class="info-value" id="game-barcode"></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Цена в Маркетплейсе:</span>
-                <span class="info-value" id="game-marketplace"></span>
-            </div>
-        </div>
-
-        <div class="app-version">
-            🐉 Версия <span id="app-version-number">5.2</span> | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span>
-        </div>
-    </div>
-
-    <!-- Окно корзины -->
-    <div id="cart-modal" class="modal">
-        <div class="modal-header">
-            <div class="modal-title">🛒 Корзина</div>
-            <button class="modal-close" id="close-cart-btn">×</button>
-        </div>
-        <div class="modal-body">
-            <div id="cart-items" class="cart-list">
-                <!-- Список товаров будет здесь -->
-            </div>
-            <div id="cart-total" class="cart-total">
-                Общая сумма: <span id="cart-total-amount">0</span> руб
-            </div>
-            <div class="cart-buttons">
-                <button id="clear-cart-btn" class="btn" style="background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);">🗑️ Очистить корзину</button>
-                <button id="process-sale-btn" class="btn" style="background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);">💰 Завершить продажу</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Окно поиска - ПОЛНЫЙ ЭКРАН -->
-    <div id="search-modal" class="modal">
-        <div class="modal-header">
-            <div class="modal-title">🔍 Умный поиск</div>
-            <button class="modal-close" id="close-search-btn">×</button>
-        </div>
-        <div class="modal-body">
-            <div class="search-input-container">
-                <input type="text" id="smart-search-input" class="search-input" 
-                       placeholder="Введите название, код или штрих-код...">
-            </div>
-            <div class="search-hint">
-                💡 Поиск по: названию игры, CUSA/PPSA коду или штрих-коду
-            </div>
-            <div id="smart-search-results" class="search-results-container">
-                <!-- Результаты поиска будут здесь -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Окно камеры -->
-    <div id="camera-modal" class="modal">
-        <div class="modal-header">
-            <div class="modal-title">📷 Сканер штрих-кодов</div>
-            <button class="modal-close" id="close-camera-btn">×</button>
-        </div>
-        <div class="modal-body">
-            <div class="camera-container">
-                <video id="camera-view" class="camera-view" autoplay playsinline></video>
-                <div class="camera-overlay">
-                    <div class="camera-line"></div>
+            <div class="scanner-area">
+                <div class="scanner-container">
+                    <video id="qrVideo" class="scanner-video"></video>
+                    <div class="scanner-frame"></div>
+                    <div class="scan-line"></div>
                 </div>
-            </div>
-            <div class="camera-controls">
-                <button id="restart-camera" class="camera-btn restart">🔄 Перезапустить камеру</button>
-                <button id="stop-camera" class="camera-btn secondary">❌ Остановить</button>
-            </div>
-            <div id="camera-status" class="scanning-status" style="margin-top: 10px;"></div>
-        </div>
-    </div>
-
-    <!-- Окно статистики -->
-    <div id="stats-modal" class="modal">
-        <div class="modal-header">
-            <div class="modal-title">📊 Статистика продаж</div>
-            <button class="modal-close" id="close-stats-btn">×</button>
-        </div>
-        <div class="modal-body">
-            <div class="stats-period">
-                📅 Статистика на: <span id="stats-date"></span>
-            </div>
-            <div class="stats-grid">
-                <div class="stat-card" data-stat="today-sales">
-                    <div class="stat-value" id="today-sales">0</div>
-                    <div class="stat-label">Продаж сегодня</div>
+                
+                <div class="scanner-controls">
+                    <button id="startScanner" class="btn btn-primary">
+                        <i class="fas fa-play"></i> Запустить сканер
+                    </button>
+                    <button id="stopScanner" class="btn btn-secondary" disabled>
+                        <i class="fas fa-stop"></i> Остановить сканер
+                    </button>
+                    <button id="switchCamera" class="btn btn-switch" disabled>
+                        <i class="fas fa-sync-alt"></i> Переключить камеру
+                    </button>
                 </div>
-                <div class="stat-card" data-stat="today-revenue">
-                    <div class="stat-value" id="today-revenue">0</div>
-                    <div class="stat-label">Выручка сегодня</div>
+                
+                <div class="results-panel">
+                    <h3>Результаты сканирования:</h3>
+                    <div id="scanResults" class="results-container">
+                        <!-- Результаты будут появляться здесь -->
+                    </div>
+                    <div class="results-controls">
+                        <button id="clearResults" class="btn btn-clear">
+                            <i class="fas fa-trash"></i> Очистить
+                        </button>
+                        <button id="exportResults" class="btn btn-export">
+                            <i class="fas fa-download"></i> Экспорт
+                        </button>
+                    </div>
                 </div>
-                <div class="stat-card" data-stat="today-items">
-                    <div class="stat-value" id="today-items">0</div>
-                    <div class="stat-label">Товаров сегодня</div>
-                </div>
-                <div class="stat-card" data-stat="total-sales">
-                    <div class="stat-value" id="total-sales">0</div>
-                    <div class="stat-label">Всего продаж</div>
-                </div>
-                <div class="stat-card" data-stat="total-revenue">
-                    <div class="stat-value" id="total-revenue">0</div>
-                    <div class="stat-label">Общая выручка</div>
-                </div>
-                <div class="stat-card" data-stat="total-items">
-                    <div class="stat-value" id="total-items">0</div>
-                    <div class="stat-label">Всего товаров</div>
+                
+                <div class="settings-panel">
+                    <h3>Настройки:</h3>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="autoSave" checked>
+                            Автосохранение результатов
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="soundEnabled" checked>
+                            Звуковые уведомления
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label>
+                            <input type="checkbox" id="vibrationEnabled" checked>
+                            Вибрация
+                        </label>
+                    </div>
+                    
+                    <div class="mode-switcher">
+                        <h3>Переключение режима:</h3>
+                        <div class="toggle-switch">
+                            <span class="toggle-label">Клиентский режим</span>
+                            <label class="switch">
+                                <input type="checkbox" id="modeToggle">
+                                <span class="slider"></span>
+                            </label>
+                            <span class="toggle-label">Разработчик</span>
+                        </div>
+                        <p class="toggle-description">
+                            В клиентском режиме скрыты настройки и расширенные функции
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Окно детальной статистики -->
-    <div id="stats-detail-modal" class="modal">
-        <div class="modal-header">
-            <div class="modal-header-title">
-                <button class="modal-back-btn" id="back-to-stats-btn">← Назад</button>
-                <div class="modal-title" id="stats-detail-title">📋 Детали продаж</div>
-            </div>
-            <button class="modal-close" id="close-stats-detail-btn">×</button>
-        </div>
-        <div class="modal-body">
-            <div id="stats-detail-period" class="stats-period">
-                <!-- Период будет здесь -->
-            </div>
-            <div id="stats-detail-content" class="sale-details-list">
-                <!-- Детали продаж будут здесь -->
+    <!-- Режим клиента -->
+    <div id="clientMode" class="mode client-mode" style="display: none;">
+        <div class="content">
+            <h1>Игровая Зона Сканер</h1>
+            <p class="mode-indicator">Режим: Клиент</p>
+            
+            <div class="scanner-area">
+                <div class="scanner-container">
+                    <video id="qrVideoClient" class="scanner-video"></video>
+                    <div class="scanner-frame"></div>
+                    <div class="scan-line"></div>
+                </div>
+                
+                <div class="scanner-controls">
+                    <button id="startScannerClient" class="btn btn-primary">
+                        <i class="fas fa-play"></i> Запустить сканер
+                    </button>
+                    <button id="stopScannerClient" class="btn btn-secondary" disabled>
+                        <i class="fas fa-stop"></i> Остановить
+                    </button>
+                </div>
+                
+                <div class="client-results">
+                    <h3>Сканирование:</h3>
+                    <div id="clientScanResults" class="client-results-container">
+                        <!-- Результаты для клиента -->
+                    </div>
+                </div>
+                
+                <!-- Панель для переключения по паролю -->
+                <div class="switch-panel" id="switchPanel">
+                    <button class="switch-btn" onclick="showPasswordInput()">
+                        <i class="fas fa-user-cog"></i> Режим разработчика
+                    </button>
+                    <div id="passwordInput" style="display: none; margin-top: 15px;">
+                        <input 
+                            type="password" 
+                            id="devPassword" 
+                            placeholder="Введите пароль"
+                            class="password-input"
+                        />
+                        <button 
+                            class="btn-confirm" 
+                            onclick="checkPassword()"
+                        >
+                            Подтвердить
+                        </button>
+                        <p id="passwordError" class="error-message">
+                            Неверный пароль!
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Затемнение -->
-    <div id="modal-overlay"></div>
+    <!-- Аудио для звуковых эффектов -->
+    <audio id="scanSound" src="https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3" preload="auto"></audio>
+    <audio id="errorSound" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" preload="auto"></audio>
 
-    <!-- Подключаем Quagga -->
-    <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.1/dist/quagga.min.js"></script>
-    
-    <!-- Подключаем основной скрипт -->
-    <script src="app.js"></script>
-    
-    <!-- Регистрация Service Worker -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(registration => {
-                        console.log('✅ Service Worker зарегистрирован:', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('❌ Ошибка регистрации Service Worker:', error);
-                    });
-            });
-        }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
