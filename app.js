@@ -1,5 +1,9 @@
-// Версия программы - теперь всегда доступна в HTML
-const APP_VERSION = "5.0";
+// =============================================
+// КОНСТАНТЫ И НАСТРОЙКИ
+// =============================================
+
+// Версия программы
+const APP_VERSION = "5.1";
 document.getElementById('app-version-number').textContent = APP_VERSION;
 
 // Проверяем режим из URL и localStorage
@@ -7,18 +11,24 @@ const urlParams = new URLSearchParams(window.location.search);
 const isUrlClientMode = urlParams.get('mode') === 'client';
 const savedMode = localStorage.getItem('gamezone_mode');
 
-// Правило: если в URL явно указан client, используем его, 
-// иначе используем сохраненный режим (если он есть), 
-// иначе режим разработчика (full)
+// Определяем режим работы
 const isClientMode = isUrlClientMode ? true : 
                    (savedMode ? savedMode === 'client' : false);
 
-// Уникальный ID устройства для синхронизации логов
+// Уникальный ID устройства
 const DEVICE_ID = localStorage.getItem('gamezone_device_id') || 
                  'DEV_' + Math.random().toString(36).substr(2, 9);
 localStorage.setItem('gamezone_device_id', DEVICE_ID);
 
-// Простой и надежный логгер с синхронизацией между устройствами
+// Константы для производительности
+const SCAN_COOLDOWN_MS = 300; // Задержка между сканированиями
+const SEARCH_DEBOUNCE_MS = 300; // Задержка для поиска
+const LOG_CLEANUP_DAYS = 30; // Очищать логи старше дней
+
+// =============================================
+// КЛАСС ЛОГГЕРА С ОПТИМИЗАЦИЕЙ
+// =============================================
+
 class SimpleLogger {
     constructor() {
         this.appLog = [];
@@ -29,26 +39,49 @@ class SimpleLogger {
 
     init() {
         this.loadFromStorage();
+        this.cleanupOldLogs(); // Очистка старых логов при запуске
         this.syncWithOtherDevices();
         console.log(`📊 Логгер инициализирован на устройстве: ${this.deviceId}`);
         
-        // Синхронизация при запуске и каждые 5 минут
-        setInterval(() => this.syncWithOtherDevices(), 5 * 60 * 1000);
+        // Периодическая синхронизация и очистка
+        setInterval(() => this.syncWithOtherDevices(), 5 * 60 * 1000); // Каждые 5 минут
+        setInterval(() => this.cleanupOldLogs(), 24 * 60 * 60 * 1000); // Раз в день
+    }
+
+    // Очистка старых логов для экономии памяти
+    cleanupOldLogs() {
+        try {
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - LOG_CLEANUP_DAYS);
+            
+            // Очищаем старые продажи
+            this.salesLog = this.salesLog.filter(sale => 
+                new Date(sale.timestamp) > cutoffDate
+            );
+            
+            // Очищаем старые действия (оставляем последние 500)
+            this.appLog = this.appLog.slice(-500);
+            
+            console.log(`🧹 Очистка логов: осталось ${this.salesLog.length} продаж, ${this.appLog.length} действий`);
+            this.saveToStorage();
+            
+        } catch (error) {
+            console.error('❌ Ошибка очистки логов:', error);
+        }
     }
 
     // Синхронизация логов между устройствами
     syncWithOtherDevices() {
         try {
-            // Получаем все логи из localStorage
             const allLogs = {};
             
-            // Собираем все ключи с логами
+            // Собираем все логи из localStorage
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 if (key.startsWith('gamezone_logs_')) {
                     try {
                         const logs = JSON.parse(localStorage.getItem(key));
-                        if (logs && logs.deviceId && logs.salesLog) {
+                        if (logs?.deviceId && logs.salesLog) {
                             allLogs[logs.deviceId] = logs;
                         }
                     } catch (e) {
@@ -85,28 +118,25 @@ class SimpleLogger {
                 }
             });
             
-            // Сортируем по времени
+            // Сортируем и обрезаем
             mergedLogs.salesLog.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
             mergedLogs.appLog.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-            
-            // Обрезаем до последних 1000 записей
             mergedLogs.salesLog = mergedLogs.salesLog.slice(-1000);
-            mergedLogs.appLog = mergedLogs.appLog.slice(-1000);
+            mergedLogs.appLog = mergedLogs.appLog.slice(-500);
             
-            // Обновляем локальные данные
+            // Обновляем данные
             this.salesLog = mergedLogs.salesLog;
             this.appLog = mergedLogs.appLog;
-            
-            // Сохраняем объединенные логи
             this.saveToStorage();
             
-            console.log(`🔄 Синхронизировано логов: продаж - ${this.salesLog.length}, действий - ${this.appLog.length}`);
+            console.log(`🔄 Синхронизировано: ${this.salesLog.length} продаж, ${this.appLog.length} действий`);
             
         } catch (error) {
-            console.error('❌ Ошибка синхронизации логов:', error);
+            console.error('❌ Ошибка синхронизации:', error);
         }
     }
 
+    // Умный поиск
     smartSearch(gamesData, query) {
         if (!query || query.length < 2) return [];
         
@@ -116,14 +146,17 @@ class SimpleLogger {
         gamesData.forEach(game => {
             let score = 0;
             
+            // Поиск по названию
             if (game.name && game.name.toLowerCase().includes(searchQuery)) {
                 score += 100;
             }
             
+            // Поиск по коду
             if (game.code && game.code.toLowerCase().includes(searchQuery)) {
                 score += 80;
             }
             
+            // Поиск по штрих-коду
             if (game.barcode) {
                 const barcodes = game.barcode.split('/').map(b => b.trim());
                 if (barcodes.some(b => b.includes(searchQuery))) {
@@ -132,10 +165,7 @@ class SimpleLogger {
             }
             
             if (score > 0) {
-                results.push({
-                    game: game,
-                    score: score
-                });
+                results.push({ game, score });
             }
         });
         
@@ -143,6 +173,7 @@ class SimpleLogger {
         return results.map(r => r.game);
     }
 
+    // Логирование действий
     logAppAction(action, details = {}) {
         const logEntry = {
             timestamp: new Date().toISOString(),
@@ -158,6 +189,7 @@ class SimpleLogger {
         return logEntry;
     }
 
+    // Логирование продаж
     logSale(saleData) {
         const saleEntry = {
             timestamp: new Date().toISOString(),
@@ -182,12 +214,13 @@ class SimpleLogger {
         return saleEntry;
     }
 
+    // Сохранение в localStorage
     saveToStorage() {
         try {
             const storageKey = `gamezone_logs_${this.deviceId}`;
             localStorage.setItem(storageKey, JSON.stringify({
                 deviceId: this.deviceId,
-                appLog: this.appLog.slice(-1000),
+                appLog: this.appLog.slice(-500),
                 salesLog: this.salesLog.slice(-1000),
                 lastUpdated: new Date().toISOString()
             }));
@@ -196,9 +229,9 @@ class SimpleLogger {
         }
     }
 
+    // Загрузка из localStorage
     loadFromStorage() {
         try {
-            // Загружаем логи с этого устройства
             const storageKey = `gamezone_logs_${this.deviceId}`;
             const saved = localStorage.getItem(storageKey);
             
@@ -212,6 +245,7 @@ class SimpleLogger {
         }
     }
 
+    // Скачивание логов
     downloadLogs() {
         try {
             const today = new Date().toISOString().split('T')[0];
@@ -221,25 +255,22 @@ class SimpleLogger {
             logContent += '                     GAME ZONE - ПОЛНЫЕ ЛОГИ ПРОДАЖ\n';
             logContent += `          Сформировано: ${new Date().toLocaleString('ru-RU')}\n`;
             logContent += `          Устройство: ${this.deviceId}\n`;
+            logContent += `          Версия: ${APP_VERSION}\n`;
             logContent += '═══════════════════════════════════════════════════════════════\n\n';
             
             const stats = this.getStats();
-            logContent += '📊 ПОЛНАЯ СТАТИСТИКА ПРОДАЖ (ВСЕ УСТРОЙСТВА):\n';
+            logContent += '📊 ПОЛНАЯ СТАТИСТИКА ПРОДАЖ:\n';
             logContent += '───────────────────────────────────────────────────────────────\n';
             logContent += `Всего продаж: ${stats.totalSales}\n`;
             logContent += `Всего товаров: ${stats.totalItems} шт\n`;
-            logContent += `Общая выручка: ${stats.totalRevenue} руб\n\n`;
+            logContent += `Общая выручка: ${this.formatPrice(stats.totalRevenue)} руб\n\n`;
             
             // Статистика по дням
             const salesByDate = {};
             this.salesLog.forEach(sale => {
                 const date = new Date(sale.timestamp).toLocaleDateString('ru-RU');
                 if (!salesByDate[date]) {
-                    salesByDate[date] = {
-                        count: 0,
-                        revenue: 0,
-                        items: 0
-                    };
+                    salesByDate[date] = { count: 0, revenue: 0, items: 0 };
                 }
                 salesByDate[date].count++;
                 salesByDate[date].revenue += sale.totalAmount;
@@ -250,7 +281,7 @@ class SimpleLogger {
             logContent += '───────────────────────────────────────────────────────────────\n';
             Object.keys(salesByDate).sort().reverse().forEach(date => {
                 const stats = salesByDate[date];
-                logContent += `${date}: ${stats.count} продаж, ${stats.items} шт, ${stats.revenue} руб\n`;
+                logContent += `${date}: ${stats.count} продаж, ${stats.items} шт, ${this.formatPrice(stats.revenue)} руб\n`;
             });
             
             logContent += '\n═══════════════════════════════════════════════════════════════\n';
@@ -261,40 +292,36 @@ class SimpleLogger {
             const groupedSales = {};
             this.salesLog.forEach(sale => {
                 const date = new Date(sale.timestamp).toLocaleDateString('ru-RU');
-                if (!groupedSales[date]) {
-                    groupedSales[date] = [];
-                }
+                if (!groupedSales[date]) groupedSales[date] = [];
                 groupedSales[date].push(sale);
             });
             
             // Сортируем дни по убыванию
-            const sortedDates = Object.keys(groupedSales).sort().reverse();
-            
-            sortedDates.forEach((date, dateIndex) => {
+            Object.keys(groupedSales).sort().reverse().forEach(date => {
                 const daySales = groupedSales[date];
                 const dayRevenue = daySales.reduce((sum, sale) => sum + sale.totalAmount, 0);
                 const dayItems = daySales.reduce((sum, sale) => sum + sale.totalItems, 0);
                 
                 logContent += `\n${'═'.repeat(60)}\n`;
-                logContent += `  ДЕНЬ: ${date} (${daySales.length} продаж, ${dayItems} шт, ${dayRevenue} руб)\n`;
+                logContent += `  ДЕНЬ: ${date} (${daySales.length} продаж, ${dayItems} шт, ${this.formatPrice(dayRevenue)} руб)\n`;
                 logContent += `${'═'.repeat(60)}\n\n`;
                 
-                daySales.forEach((sale, saleIndex) => {
+                daySales.forEach(sale => {
                     const saleDate = new Date(sale.timestamp).toLocaleString('ru-RU');
-                    const deviceInfo = sale.deviceId ? ` [Устройство: ${sale.deviceId}]` : '';
+                    const deviceInfo = sale.deviceId ? ` [${sale.deviceId}]` : '';
                     
                     logContent += `┌─────────────────────────────────────────────────────────────┐\n`;
                     logContent += `│ ПРОДАЖА: ${sale.saleId}${deviceInfo}\n`;
                     logContent += `│ ВРЕМЯ:  ${saleDate}\n`;
                     logContent += `├─────────────────────────────────────────────────────────────┤\n`;
                     
-                    sale.items.forEach((item, itemIndex) => {
-                        logContent += `│ ${itemIndex + 1}. ${item.name} (${item.platform})\n`;
-                        logContent += `│    ${item.quantity} шт × ${item.price} руб = ${item.total} руб\n`;
+                    sale.items.forEach((item, idx) => {
+                        logContent += `│ ${idx + 1}. ${item.name} (${item.platform})\n`;
+                        logContent += `│    ${item.quantity} шт × ${this.formatPrice(item.price)} руб = ${this.formatPrice(item.total)} руб\n`;
                     });
                     
                     logContent += `├─────────────────────────────────────────────────────────────┤\n`;
-                    logContent += `│ ИТОГО: ${sale.totalItems} шт на сумму ${sale.totalAmount} руб\n`;
+                    logContent += `│ ИТОГО: ${sale.totalItems} шт на сумму ${this.formatPrice(sale.totalAmount)} руб\n`;
                     logContent += `└─────────────────────────────────────────────────────────────┘\n\n`;
                 });
             });
@@ -322,10 +349,10 @@ class SimpleLogger {
         }
     }
 
+    // Очистка всех логов
     clearLogs() {
         if (confirm('Вы уверены, что хотите удалить ВСЕ логи со ВСЕХ устройств?')) {
             try {
-                // Удаляем все логи всех устройств
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
                     if (key.startsWith('gamezone_logs_')) {
@@ -347,6 +374,7 @@ class SimpleLogger {
         return false;
     }
 
+    // Получение статистики
     getStats() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -357,7 +385,6 @@ class SimpleLogger {
         
         const totalRevenue = this.salesLog.reduce((sum, sale) => sum + sale.totalAmount, 0);
         const totalItems = this.salesLog.reduce((sum, sale) => sum + sale.totalItems, 0);
-        
         const todayRevenue = todaySales.reduce((sum, sale) => sum + sale.totalAmount, 0);
         const todayItems = todaySales.reduce((sum, sale) => sum + sale.totalItems, 0);
         
@@ -371,26 +398,19 @@ class SimpleLogger {
         };
     }
 
+    // Продажи за период
     getSalesByPeriod(period) {
         const now = new Date();
         let startDate = new Date();
         
         switch(period) {
             case 'today-sales':
-                startDate.setHours(0, 0, 0, 0);
-                break;
             case 'today-revenue':
-                startDate.setHours(0, 0, 0, 0);
-                break;
             case 'today-items':
                 startDate.setHours(0, 0, 0, 0);
                 break;
             case 'total-sales':
-                startDate = new Date(0);
-                break;
             case 'total-revenue':
-                startDate = new Date(0);
-                break;
             case 'total-items':
                 startDate = new Date(0);
                 break;
@@ -399,16 +419,23 @@ class SimpleLogger {
         }
         
         if (period.includes('today')) {
-            return this.salesLog.filter(sale => 
-                new Date(sale.timestamp) >= startDate
-            );
+            return this.salesLog.filter(sale => new Date(sale.timestamp) >= startDate);
         } else {
             return this.salesLog;
         }
     }
+
+    // Форматирование цены
+    formatPrice(price) {
+        if (!price) return '0';
+        return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    }
 }
 
-// Основной класс приложения со всеми исправлениями
+// =============================================
+// ОСНОВНОЙ КЛАСС ПРИЛОЖЕНИЯ
+// =============================================
+
 class GameScannerApp {
     constructor() {
         this.sheetsUrl = 'https://docs.google.com/spreadsheets/d/1fMWJan1HP7tcKwa_hm86oCm0KPtC_zN50UhU72Q8xeA/export?format=csv&gid=1995791598';
@@ -423,37 +450,39 @@ class GameScannerApp {
         this.isScanning = false;
         this.lastScannedCode = null;
         this.scanCooldown = false;
+        this.lastScanTime = 0;
         
-        this.appVersion = APP_VERSION; // Используем константу версии
+        this.appVersion = APP_VERSION;
         this.isClientMode = isClientMode;
         this.logger = new SimpleLogger();
+        
+        // Переменные для оптимизации
+        this.searchTimeout = null;
+        this.searchScrollPosition = 0;
         
         this.init();
     }
 
+    // Инициализация приложения
     async init() {
         console.log(`⚔️ GAME ZONE Scanner ${this.appVersion} запущен`);
         console.log(`📱 Режим: ${this.isClientMode ? 'КЛИЕНТСКИЙ' : 'ПОЛНЫЙ'}`);
         console.log(`📱 ID устройства: ${DEVICE_ID}`);
         
-        this.setMode(this.isClientMode);
-        
-        this.logger.logAppAction('APP_START', { 
-            version: this.appVersion,
+        // Трекинг запуска
+        this.trackUsage('APP_START', { 
             mode: this.isClientMode ? 'client' : 'full',
-            urlMode: urlParams.get('mode'),
-            deviceId: DEVICE_ID
+            urlMode: urlParams.get('mode')
         });
         
+        this.setMode(this.isClientMode);
         this.setupEventListeners();
         
-        this.updateStatus('⚔️ Загружаем данные...');
+        this.updateStatus('🌐 Загружаем данные...');
         await this.loadGamesData();
-        
-        this.updateStatus(`✅ Готов! ${this.gamesData.length} игр в базе`, 'success');
     }
 
-    // Установка режима (клиентский/полный) с возможностью возврата
+    // Установка режима работы
     setMode(isClientMode) {
         this.isClientMode = isClientMode;
         localStorage.setItem('gamezone_mode', isClientMode ? 'client' : 'full');
@@ -471,13 +500,10 @@ class GameScannerApp {
             modeStatus.textContent = 'КЛИЕНТ';
             appSubtitle.textContent = 'Сканер цен для клиентов';
             scannerText.textContent = 'Наведите камеру на штрих-код игры';
-            
-            // В клиентском режиме кнопка переключения всегда видна и называется "Вернуться в режим разработчика"
             switchBtn.style.display = 'block';
             switchBtn.textContent = '👨‍💻 Режим разработчика';
             switchBtn.classList.remove('switch-mode');
             switchBtn.classList.add('developer-mode');
-            
         } else {
             container.classList.remove('client-mode');
             modeIndicator.style.display = 'none';
@@ -490,25 +516,21 @@ class GameScannerApp {
             switchBtn.classList.remove('developer-mode');
         }
         
-        this.logger.logAppAction('MODE_CHANGED', { 
-            mode: isClientMode ? 'client' : 'full',
-            deviceId: DEVICE_ID 
-        });
+        this.trackUsage('MODE_CHANGED', { mode: isClientMode ? 'client' : 'full' });
     }
 
     // Переключение режима
     toggleMode() {
         if (this.isClientMode) {
-            // Если в клиентском режиме - переключаемся в полный
             this.setMode(false);
             this.updateStatus('✅ Переключен в режим разработчика', 'success');
         } else {
-            // Если в полном режиме - переключаемся в клиентский
             this.setMode(true);
             this.updateStatus('✅ Переключен в клиентский режим', 'success');
         }
     }
 
+    // Обновление статуса
     updateStatus(message, type = '') {
         const statusEl = document.getElementById('status');
         const statusText = document.getElementById('status-text');
@@ -516,11 +538,8 @@ class GameScannerApp {
         statusText.textContent = message;
         statusEl.className = 'status';
         
-        if (type === 'error') {
-            statusEl.classList.add('error');
-        } else if (type === 'success') {
-            statusEl.classList.add('success');
-        }
+        if (type === 'error') statusEl.classList.add('error');
+        else if (type === 'success') statusEl.classList.add('success');
         
         if (type !== '') {
             setTimeout(() => {
@@ -530,11 +549,10 @@ class GameScannerApp {
         }
     }
 
+    // Настройка обработчиков событий
     setupEventListeners() {
-        // Сканер
+        // Основные кнопки
         document.getElementById('scanner-container').addEventListener('click', () => this.startScanner());
-        
-        // Кнопки модальных окон
         document.getElementById('open-search-btn').addEventListener('click', () => this.openSearchModal());
         document.getElementById('sale-btn').addEventListener('click', () => this.openCartModal());
         document.getElementById('stats-btn').addEventListener('click', () => this.openStatsModal());
@@ -552,8 +570,6 @@ class GameScannerApp {
         document.getElementById('close-stats-btn').addEventListener('click', () => this.closeModal('stats-modal'));
         document.getElementById('close-stats-detail-btn').addEventListener('click', () => this.closeModal('stats-detail-modal'));
         document.getElementById('modal-overlay').addEventListener('click', () => this.closeAllModals());
-        
-        // Кнопка назад в детальной статистике
         document.getElementById('back-to-stats-btn').addEventListener('click', () => {
             this.closeModal('stats-detail-modal');
             this.openModal('stats-modal');
@@ -565,12 +581,16 @@ class GameScannerApp {
             this.restartCamera();
         });
         
-        // Поиск - УБРАН autofocus чтобы не открывался автоматически
-        document.getElementById('smart-search-input').addEventListener('input', (e) => {
-            this.performSmartSearch(e.target.value);
+        // Поиск с debounce
+        const searchInput = document.getElementById('smart-search-input');
+        searchInput.addEventListener('input', (e) => {
+            clearTimeout(this.searchTimeout);
+            this.searchTimeout = setTimeout(() => {
+                this.performSmartSearch(e.target.value);
+            }, SEARCH_DEBOUNCE_MS);
         });
         
-        document.getElementById('smart-search-input').addEventListener('keypress', (e) => {
+        searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter' && e.target.value.trim()) {
                 const results = this.performSmartSearch(e.target.value);
                 if (results.length > 0) {
@@ -590,25 +610,292 @@ class GameScannerApp {
             if (e.target.closest('.stat-card')) {
                 const card = e.target.closest('.stat-card');
                 const statType = card.getAttribute('data-stat');
-                if (statType) {
-                    this.showStatDetails(statType);
-                }
+                if (statType) this.showStatDetails(statType);
             }
         });
     }
+
+    // =============================================
+    // ЗАГРУЗКА И ОБРАБОТКА ДАННЫХ
+    // =============================================
+
+    async loadGamesData() {
+        try {
+            this.updateStatus('🌐 Проверяем обновления...');
+            const hasInternetUpdate = await this.checkForUpdates();
+            
+            if (hasInternetUpdate && this.gamesData.length > 0) {
+                this.updateStatus(`✅ Обновлено! ${this.gamesData.length} игр`, 'success');
+                this.trackUsage('DATA_UPDATED', { count: this.gamesData.length });
+            } else {
+                this.loadFromLocalStorage();
+                
+                if (this.gamesData.length === 0) {
+                    this.createSampleData();
+                    this.updateStatus('✅ Загружены демо-данные', 'success');
+                    this.trackUsage('DEMO_DATA_LOADED', { count: this.gamesData.length });
+                } else {
+                    this.updateStatus(`✅ Готов! ${this.gamesData.length} игр в базе`, 'success');
+                }
+            }
+            
+        } catch (error) {
+            console.error('Ошибка загрузки данных:', error);
+            if (this.gamesData.length === 0) {
+                this.createSampleData();
+                this.updateStatus('⚠️ Используем демо-данные', 'error');
+            }
+        }
+    }
+
+    // Проверка обновлений из Google Sheets
+    async checkForUpdates() {
+        try {
+            console.log('🔄 Проверяем обновления...');
+            
+            const response = await fetch(this.sheetsUrl + '&t=' + Date.now());
+            if (!response.ok) throw new Error('Ошибка сети');
+            
+            const csvText = await response.text();
+            if (!csvText || csvText.length < 100) {
+                console.log('⚠️ Пустые данные от сервера');
+                return false;
+            }
+            
+            const newData = this.parseCSV(csvText);
+            if (newData.length > 0) {
+                this.gamesData = newData;
+                this.saveToLocalStorage();
+                console.log(`🔄 Обновлено ${this.gamesData.length} игр`);
+                return true;
+            }
+            
+            return false;
+            
+        } catch (error) {
+            console.log('⚠️ Не удалось обновить данные:', error);
+            return false;
+        }
+    }
+
+    // Загрузка из localStorage
+    loadFromLocalStorage() {
+        try {
+            const savedData = localStorage.getItem(this.localDataKey);
+            const savedCart = localStorage.getItem(this.scannedGamesKey);
+            
+            if (savedData) {
+                this.gamesData = JSON.parse(savedData);
+                console.log(`📊 Загружено ${this.gamesData.length} игр из кэша`);
+            }
+            
+            if (savedCart) {
+                this.scannedGames = JSON.parse(savedCart);
+                console.log(`🛒 Загружено ${this.scannedGames.length} товаров в корзине`);
+            }
+        } catch (error) {
+            console.error('Ошибка загрузки данных:', error);
+            this.gamesData = [];
+            this.scannedGames = [];
+        }
+    }
+
+    // Демо-данные
+    createSampleData() {
+        this.gamesData = [
+            {
+                platform: 'PS4',
+                barcode: '711719803278',
+                name: 'The Last of Us Part II',
+                code: 'CUSA-18278',
+                language: 'RUS',
+                optPrice: '1999',
+                marketplace: '2499',
+                codeType: 'CUSA'
+            },
+            {
+                platform: 'PS5',
+                barcode: '711719998653',
+                name: 'Spider-Man: Miles Morales',
+                code: 'PPSA-01462',
+                language: 'RUS',
+                optPrice: '2499',
+                marketplace: '3499',
+                codeType: 'PPSA'
+            },
+            {
+                platform: 'NS',
+                barcode: '045496873285',
+                name: 'The Legend of Zelda: Breath of the Wild',
+                code: '',
+                language: 'ENG',
+                optPrice: '2999',
+                marketplace: '3999',
+                codeType: ''
+            },
+            {
+                platform: 'XBOX ONE',
+                barcode: '889842414205',
+                name: 'Halo Infinite',
+                code: '',
+                language: 'RUS',
+                optPrice: '2299',
+                marketplace: '3299',
+                codeType: ''
+            }
+        ];
+        
+        this.saveToLocalStorage();
+    }
+
+    // Парсинг CSV
+    parseCSV(csvText) {
+        const games = [];
+        const rows = csvText.split('\n');
+        
+        for (let i = 1; i < rows.length; i++) {
+            if (!rows[i].trim()) continue;
+            
+            try {
+                const cells = this.parseCSVRow(rows[i]);
+                if (cells.length < 29) continue;
+
+                // PS4
+                if (cells[0]?.includes('PS4') && cells[1] && cells[2]) {
+                    games.push({
+                        platform: cells[0],
+                        barcode: cells[1],
+                        name: cells[2],
+                        code: cells[3] || '',
+                        language: cells[4] || '',
+                        optPrice: cells[5] || '',
+                        marketplace: cells[6] || '',
+                        codeType: 'CUSA'
+                    });
+                }
+                
+                // PS5
+                if (cells[8]?.includes('PS5') && cells[9] && cells[10]) {
+                    games.push({
+                        platform: cells[8],
+                        barcode: cells[9],
+                        name: cells[10],
+                        code: cells[11] || '',
+                        language: cells[12] || '',
+                        optPrice: cells[13] || '',
+                        marketplace: cells[14] || '',
+                        codeType: 'PPSA'
+                    });
+                }
+                
+                // Nintendo Switch
+                if (cells[16] && (cells[16].includes('NS') || cells[16].includes('Switch')) && cells[17] && cells[18]) {
+                    let barcodes = cells[17];
+                    if (barcodes.includes('/')) {
+                        barcodes = barcodes.split('/').map(b => b.trim()).join('/');
+                    }
+                    
+                    games.push({
+                        platform: cells[16],
+                        barcode: barcodes,
+                        name: cells[18],
+                        code: '',
+                        language: cells[19] || '',
+                        optPrice: cells[20] || '',
+                        marketplace: cells[21] || '',
+                        codeType: ''
+                    });
+                }
+                
+                // Xbox
+                if (cells[23]?.includes('XBOX') && cells[24] && cells[25]) {
+                    games.push({
+                        platform: cells[23],
+                        barcode: cells[24],
+                        name: cells[25],
+                        code: '',
+                        language: cells[26] || '',
+                        optPrice: cells[27] || '',
+                        marketplace: cells[28] || '',
+                        codeType: ''
+                    });
+                }
+            } catch (error) {
+                console.log('Ошибка парсинга строки', i, error);
+            }
+        }
+        
+        return games;
+    }
+
+    parseCSVRow(row) {
+        const cells = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let char of row) {
+            if (char === '"') {
+                inQuotes = !inQuotes;
+            } else if (char === ',' && !inQuotes) {
+                cells.push(current.trim());
+                current = '';
+            } else {
+                current += char;
+            }
+        }
+        cells.push(current.trim());
+        return cells;
+    }
+
+    // Сохранение в localStorage
+    saveToLocalStorage() {
+        try {
+            localStorage.setItem(this.localDataKey, JSON.stringify(this.gamesData));
+        } catch (error) {
+            console.error('Ошибка сохранения данных:', error);
+        }
+    }
+
+    saveCart() {
+        try {
+            localStorage.setItem(this.scannedGamesKey, JSON.stringify(this.scannedGames));
+        } catch (error) {
+            console.error('Ошибка сохранения корзины:', error);
+        }
+    }
+
+    // =============================================
+    // УПРАВЛЕНИЕ МОДАЛЬНЫМИ ОКНАМИ
+    // =============================================
 
     openModal(modalId) {
         document.getElementById(modalId).style.display = 'block';
         document.getElementById('modal-overlay').style.display = 'block';
         document.body.style.overflow = 'hidden';
         
-        // ИСПРАВЛЕНО: убрана автоматическая фокусировка на поиске
+        // Виброотклик
+        this.hapticFeedback('light');
+        
+        // Восстановление скролла для поиска
         if (modalId === 'search-modal') {
-            // Оставляем пустым, чтобы не фокусировалось автоматически
+            setTimeout(() => {
+                const resultsContainer = document.getElementById('smart-search-results');
+                if (resultsContainer) {
+                    resultsContainer.scrollTop = this.searchScrollPosition;
+                }
+            }, 50);
         }
     }
 
     closeModal(modalId) {
+        // Сохранение позиции скролла для поиска
+        if (modalId === 'search-modal') {
+            const resultsContainer = document.getElementById('smart-search-results');
+            if (resultsContainer) {
+                this.searchScrollPosition = resultsContainer.scrollTop;
+            }
+        }
+        
         document.getElementById(modalId).style.display = 'none';
         document.getElementById('modal-overlay').style.display = 'none';
         document.body.style.overflow = 'auto';
@@ -622,17 +909,262 @@ class GameScannerApp {
         document.body.style.overflow = 'auto';
     }
 
-    // Окно статистики
+    // =============================================
+    // КОРЗИНА И ПРОДАЖИ
+    // =============================================
+
+    openCartModal() {
+        if (this.scannedGames.length === 0) {
+            alert('🛒 Корзина пуста');
+            return;
+        }
+        
+        this.renderCart();
+        this.openModal('cart-modal');
+    }
+
+    renderCart() {
+        const cartItems = document.getElementById('cart-items');
+        cartItems.innerHTML = '';
+        
+        let total = 0;
+        let totalItems = 0;
+        
+        this.scannedGames.forEach((game, index) => {
+            const quantity = game.quantity || 1;
+            const itemTotal = game.price * quantity;
+            total += itemTotal;
+            totalItems += quantity;
+            
+            const item = document.createElement('div');
+            item.className = 'cart-item';
+            item.innerHTML = `
+                <div class="cart-item-header">
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">
+                            ${this.getPlatformIconOnly(game.platform)}
+                            <span>${game.name}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="cart-item-controls">
+                    <div class="cart-item-quantity">
+                        <button class="quantity-btn minus" data-index="${index}">-</button>
+                        <span class="quantity-value">${quantity}</span>
+                        <button class="quantity-btn plus" data-index="${index}">+</button>
+                    </div>
+                    <div style="display: flex; align-items: center;">
+                        <div class="cart-item-price">${this.formatPrice(itemTotal)} руб</div>
+                        <button class="cart-remove" data-index="${index}">×</button>
+                    </div>
+                </div>
+            `;
+            
+            // Обработчики с виброоткликом
+            const addVibration = (e) => {
+                e.stopPropagation();
+                this.hapticFeedback('light');
+                this.updateCartItem(index, 1);
+            };
+            
+            const removeVibration = (e) => {
+                e.stopPropagation();
+                this.hapticFeedback('light');
+                this.updateCartItem(index, -1);
+            };
+            
+            const deleteVibration = (e) => {
+                e.stopPropagation();
+                this.hapticFeedback('medium');
+                this.removeFromCart(index);
+            };
+            
+            item.querySelector('.plus').addEventListener('click', addVibration);
+            item.querySelector('.minus').addEventListener('click', removeVibration);
+            item.querySelector('.cart-remove').addEventListener('click', deleteVibration);
+            
+            item.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('quantity-btn') && !e.target.classList.contains('cart-remove')) {
+                    this.displayGameInfo(game.fullInfo);
+                    this.closeModal('cart-modal');
+                }
+            });
+            
+            cartItems.appendChild(item);
+        });
+        
+        document.getElementById('cart-total-amount').textContent = this.formatPrice(total);
+        document.getElementById('sale-btn').textContent = `💰 ОФОРМИТЬ ПРОДАЖУ (${totalItems} шт - ${this.formatPrice(total)} руб)`;
+    }
+
+    addGameToCart(game) {
+        const price = this.calculateFinalPrice(game.optPrice);
+        const existingIndex = this.scannedGames.findIndex(g => g.barcode === game.barcode);
+        
+        if (existingIndex !== -1) {
+            this.scannedGames[existingIndex].quantity = (this.scannedGames[existingIndex].quantity || 1) + 1;
+        } else {
+            this.scannedGames.push({
+                name: game.name,
+                barcode: game.barcode,
+                price: price,
+                platform: game.platform,
+                platformIcon: this.getPlatformIconOnly(game.platform),
+                fullInfo: game,
+                quantity: 1
+            });
+        }
+        
+        this.saveCart();
+        this.displayGameInfo(game);
+        this.updateStatus('✅ Игра добавлена в корзину', 'success');
+        this.hapticFeedback('medium');
+        
+        this.trackUsage('GAME_ADDED_TO_CART', { name: game.name, price: price });
+    }
+
+    updateCartItem(index, change) {
+        if (index >= 0 && index < this.scannedGames.length) {
+            const currentQuantity = this.scannedGames[index].quantity || 1;
+            const newQuantity = currentQuantity + change;
+            
+            if (newQuantity < 1) {
+                this.removeFromCart(index);
+            } else {
+                this.scannedGames[index].quantity = newQuantity;
+                this.saveCart();
+                this.renderCart();
+            }
+        }
+    }
+
+    removeFromCart(index) {
+        if (index >= 0 && index < this.scannedGames.length) {
+            this.scannedGames.splice(index, 1);
+            this.saveCart();
+            this.renderCart();
+        }
+    }
+
+    clearCart() {
+        if (this.scannedGames.length === 0) return;
+        
+        if (confirm('Очистить всю корзину?')) {
+            this.scannedGames = [];
+            this.saveCart();
+            this.renderCart();
+            this.closeModal('cart-modal');
+            this.updateStatus('✅ Корзина очищена', 'success');
+            this.hapticFeedback('heavy');
+        }
+    }
+
+    processSaleFromCart() {
+        const totalAmount = this.scannedGames.reduce((sum, game) => sum + (game.price * (game.quantity || 1)), 0);
+        const totalItems = this.scannedGames.reduce((sum, game) => sum + (game.quantity || 1), 0);
+        
+        const confirmText = `Подтвердить продажу?\n\n` +
+            `Товаров: ${totalItems} шт\n` +
+            `Сумма: ${this.formatPrice(totalAmount)} руб`;
+        
+        if (!confirm(confirmText)) return;
+        
+        const saleData = {
+            items: this.scannedGames.map(game => ({
+                name: game.name,
+                platform: game.platform,
+                price: game.price,
+                quantity: game.quantity || 1,
+                total: game.price * (game.quantity || 1)
+            })),
+            totalAmount: totalAmount,
+            totalItems: totalItems
+        };
+        
+        const saleEntry = this.logger.logSale(saleData);
+        
+        alert(`✅ Продажа оформлена!\n\n` +
+              `ID: ${saleEntry.saleId}\n` +
+              `Товаров: ${totalItems} шт\n` +
+              `Сумма: ${this.formatPrice(totalAmount)} руб`);
+        
+        this.scannedGames = [];
+        this.saveCart();
+        this.closeModal('cart-modal');
+        this.updateStatus('✅ Продажа завершена', 'success');
+        this.hapticFeedback('heavy');
+        
+        this.trackUsage('SALE_COMPLETED', { 
+            saleId: saleEntry.saleId, 
+            amount: totalAmount, 
+            items: totalItems 
+        });
+    }
+
+    // =============================================
+    // ПОИСК И СТАТИСТИКА
+    // =============================================
+
+    openSearchModal() {
+        this.openModal('search-modal');
+        document.getElementById('smart-search-input').value = '';
+        document.getElementById('smart-search-results').innerHTML = 
+            '<div style="padding: 20px; text-align: center; color: #a0a0c0;">Введите запрос для поиска игр</div>';
+    }
+
+    performSmartSearch(query) {
+        const resultsContainer = document.getElementById('smart-search-results');
+        
+        if (!query || query.length < 2) {
+            resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #a0a0c0;">Введите минимум 2 символа</div>';
+            return [];
+        }
+        
+        const results = this.logger.smartSearch(this.gamesData, query);
+        
+        if (results.length === 0) {
+            resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #a0a0c0;">Игры не найдены</div>';
+            return [];
+        }
+        
+        resultsContainer.innerHTML = '';
+        results.slice(0, 15).forEach(game => {
+            const item = document.createElement('div');
+            item.className = 'search-result-item';
+            item.innerHTML = `
+                <div class="search-result-name">
+                    ${this.getPlatformIconOnly(game.platform)}
+                    <span>${game.name}</span>
+                </div>
+                <div class="search-result-details">
+                    <span></span>
+                    <span class="search-result-price">${this.formatPrice(this.calculateFinalPrice(game.optPrice))} руб</span>
+                </div>
+            `;
+            
+            item.addEventListener('click', () => {
+                this.addGameToCart(game);
+                this.closeModal('search-modal');
+                document.getElementById('smart-search-input').value = '';
+            });
+            
+            resultsContainer.appendChild(item);
+        });
+        
+        this.trackUsage('SEARCH_PERFORMED', { query: query, results: results.length });
+        return results;
+    }
+
     openStatsModal() {
         const stats = this.logger.getStats();
         const today = new Date().toLocaleDateString('ru-RU');
         
         document.getElementById('stats-date').textContent = today;
         document.getElementById('today-sales').textContent = stats.todaySales;
-        document.getElementById('today-revenue').textContent = stats.todayRevenue + ' руб';
+        document.getElementById('today-revenue').textContent = this.formatPrice(stats.todayRevenue) + ' руб';
         document.getElementById('today-items').textContent = stats.todayItems;
         document.getElementById('total-sales').textContent = stats.totalSales;
-        document.getElementById('total-revenue').textContent = stats.totalRevenue + ' руб';
+        document.getElementById('total-revenue').textContent = this.formatPrice(stats.totalRevenue) + ' руб';
         document.getElementById('total-items').textContent = stats.totalItems;
         
         this.openModal('stats-modal');
@@ -702,7 +1234,7 @@ class GameScannerApp {
                             <span>${idx + 1}.</span>
                             ${this.getPlatformIconOnly(game.platform)}
                             <span>${game.name}</span>
-                            <span style="margin-left: auto; font-weight: bold;">${game.total} руб</span>
+                            <span style="margin-left: auto; font-weight: bold;">${this.formatPrice(game.total)} руб</span>
                         </div>
                     `;
                 });
@@ -716,7 +1248,7 @@ class GameScannerApp {
                         ${itemsHtml}
                     </div>
                     <div class="sale-detail-total">
-                        ИТОГО: ${sale.totalItems} шт на сумму ${sale.totalAmount} руб
+                        ИТОГО: ${sale.totalItems} шт на сумму ${this.formatPrice(sale.totalAmount)} руб
                     </div>
                 `;
                 
@@ -728,480 +1260,17 @@ class GameScannerApp {
         this.openModal('stats-detail-modal');
     }
 
-    openCartModal() {
-        if (this.scannedGames.length === 0) {
-            alert('🛒 Корзина пуста');
-            return;
-        }
-        
-        this.renderCart();
-        this.openModal('cart-modal');
-    }
+    // =============================================
+    // СИСТЕМА СКАНИРОВАНИЯ (ОПТИМИЗИРОВАННАЯ)
+    // =============================================
 
-    renderCart() {
-        const cartItems = document.getElementById('cart-items');
-        cartItems.innerHTML = '';
-        
-        let total = 0;
-        let totalItems = 0;
-        
-        this.scannedGames.forEach((game, index) => {
-            const quantity = game.quantity || 1;
-            const itemTotal = game.price * quantity;
-            total += itemTotal;
-            totalItems += quantity;
-            
-            const item = document.createElement('div');
-            item.className = 'cart-item';
-            item.innerHTML = `
-                <div class="cart-item-header">
-                    <div class="cart-item-info">
-                        <div class="cart-item-name">
-                            ${this.getPlatformIconOnly(game.platform)}
-                            <span>${game.name}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="cart-item-controls">
-                    <div class="cart-item-quantity">
-                        <button class="quantity-btn minus" data-index="${index}">-</button>
-                        <span class="quantity-value">${quantity}</span>
-                        <button class="quantity-btn plus" data-index="${index}">+</button>
-                    </div>
-                    <div style="display: flex; align-items: center;">
-                        <div class="cart-item-price">${itemTotal} руб</div>
-                        <button class="cart-remove" data-index="${index}">×</button>
-                    </div>
-                </div>
-            `;
-            
-            const minusBtn = item.querySelector('.minus');
-            const plusBtn = item.querySelector('.plus');
-            const removeBtn = item.querySelector('.cart-remove');
-            
-            minusBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.updateCartItem(index, -1);
-            });
-            
-            plusBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.updateCartItem(index, 1);
-            });
-            
-            removeBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.removeFromCart(index);
-            });
-            
-            item.addEventListener('click', (e) => {
-                if (!e.target.classList.contains('quantity-btn') && !e.target.classList.contains('cart-remove')) {
-                    this.displayGameInfo(game.fullInfo);
-                    this.closeModal('cart-modal');
-                }
-            });
-            
-            cartItems.appendChild(item);
-        });
-        
-        document.getElementById('cart-total-amount').textContent = total;
-        document.getElementById('sale-btn').textContent = `💰 ОФОРМИТЬ ПРОДАЖУ (${totalItems} шт - ${total} руб)`;
-    }
-
-    openSearchModal() {
-        this.openModal('search-modal');
-        document.getElementById('smart-search-input').value = '';
-        document.getElementById('smart-search-results').innerHTML = 
-            '<div style="padding: 20px; text-align: center; color: #a0a0c0;">Введите запрос для поиска игр</div>';
-    }
-
-    performSmartSearch(query) {
-        const resultsContainer = document.getElementById('smart-search-results');
-        
-        if (!query || query.length < 2) {
-            resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #a0a0c0;">Введите минимум 2 символа</div>';
-            return [];
-        }
-        
-        const results = this.logger.smartSearch(this.gamesData, query);
-        
-        if (results.length === 0) {
-            resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #a0a0c0;">Игры не найдены</div>';
-            return [];
-        }
-        
-        resultsContainer.innerHTML = '';
-        results.slice(0, 15).forEach(game => {
-            const item = document.createElement('div');
-            item.className = 'search-result-item';
-            item.innerHTML = `
-                <div class="search-result-name">
-                    ${this.getPlatformIconOnly(game.platform)}
-                    <span>${game.name}</span>
-                </div>
-                <div class="search-result-details">
-                    <span></span>
-                    <span class="search-result-price">${this.calculateFinalPrice(game.optPrice)} руб</span>
-                </div>
-            `;
-            
-            item.addEventListener('click', () => {
-                this.addGameToCart(game);
-                this.closeModal('search-modal');
-                document.getElementById('smart-search-input').value = '';
-            });
-            
-            resultsContainer.appendChild(item);
-        });
-        
-        return results;
-    }
-
-    addGameToCart(game) {
-        const price = this.calculateFinalPrice(game.optPrice);
-        const existingIndex = this.scannedGames.findIndex(g => g.barcode === game.barcode);
-        
-        if (existingIndex !== -1) {
-            this.scannedGames[existingIndex].quantity = (this.scannedGames[existingIndex].quantity || 1) + 1;
-        } else {
-            this.scannedGames.push({
-                name: game.name,
-                barcode: game.barcode,
-                price: price,
-                platform: game.platform,
-                platformIcon: this.getPlatformIconOnly(game.platform),
-                fullInfo: game,
-                quantity: 1
-            });
-        }
-        
-        this.saveCart();
-        this.displayGameInfo(game);
-        this.updateStatus('✅ Игра добавлена в корзину', 'success');
-        
-        this.logger.logAppAction('GAME_ADDED_TO_CART', {
-            name: game.name,
-            price: price,
-            deviceId: DEVICE_ID
-        });
-    }
-
-    updateCartItem(index, change) {
-        if (index >= 0 && index < this.scannedGames.length) {
-            const currentQuantity = this.scannedGames[index].quantity || 1;
-            const newQuantity = currentQuantity + change;
-            
-            if (newQuantity < 1) {
-                this.removeFromCart(index);
-            } else {
-                this.scannedGames[index].quantity = newQuantity;
-                this.saveCart();
-                this.renderCart();
-            }
-        }
-    }
-
-    removeFromCart(index) {
-        if (index >= 0 && index < this.scannedGames.length) {
-            this.scannedGames.splice(index, 1);
-            this.saveCart();
-            this.renderCart();
-        }
-    }
-
-    clearCart() {
-        if (this.scannedGames.length === 0) return;
-        
-        if (confirm('Очистить всю корзину?')) {
-            this.scannedGames = [];
-            this.saveCart();
-            this.renderCart();
-            this.closeModal('cart-modal');
-            this.updateStatus('✅ Корзина очищена', 'success');
-        }
-    }
-
-    processSaleFromCart() {
-        const totalAmount = this.scannedGames.reduce((sum, game) => sum + (game.price * (game.quantity || 1)), 0);
-        const totalItems = this.scannedGames.reduce((sum, game) => sum + (game.quantity || 1), 0);
-        
-        const confirmText = `Подтвердить продажу?\n\n` +
-            `Товаров: ${totalItems} шт\n` +
-            `Сумма: ${totalAmount} руб`;
-        
-        if (!confirm(confirmText)) {
-            return;
-        }
-        
-        const saleData = {
-            items: this.scannedGames.map(game => ({
-                name: game.name,
-                platform: game.platform,
-                price: game.price,
-                quantity: game.quantity || 1,
-                total: game.price * (game.quantity || 1)
-            })),
-            totalAmount: totalAmount,
-            totalItems: totalItems
-        };
-        
-        const saleEntry = this.logger.logSale(saleData);
-        
-        alert(`✅ Продажа оформлена!\n\n` +
-              `ID: ${saleEntry.saleId}\n` +
-              `Товаров: ${totalItems} шт\n` +
-              `Сумма: ${totalAmount} руб`);
-        
-        this.scannedGames = [];
-        this.saveCart();
-        this.closeModal('cart-modal');
-        this.updateStatus('✅ Продажа завершена', 'success');
-    }
-
-    downloadLogs() {
-        const success = this.logger.downloadLogs();
-        if (success) {
-            this.updateStatus('✅ Все логи скачаны', 'success');
-        }
-    }
-
-    clearLogs() {
-        const success = this.logger.clearLogs();
-        if (success) {
-            this.updateStatus('✅ Все логи очищены', 'success');
-        }
-    }
-
-    async loadGamesData() {
-        try {
-            this.loadFromLocalStorage();
-            
-            if (this.gamesData.length === 0) {
-                this.createSampleData();
-                this.updateStatus('✅ Загружены демо-данные', 'success');
-            } else {
-                this.updateStatus(`✅ Готов! ${this.gamesData.length} игр в базе`, 'success');
-            }
-            
-            setTimeout(() => this.checkForUpdates(), 1000);
-            
-        } catch (error) {
-            console.error('Ошибка загрузки данных:', error);
-            if (this.gamesData.length === 0) {
-                this.createSampleData();
-                this.updateStatus('⚠️ Нет интернета. Используем демо-данные', 'error');
-            }
-        }
-    }
-
-    loadFromLocalStorage() {
-        try {
-            const savedData = localStorage.getItem(this.localDataKey);
-            const savedCart = localStorage.getItem(this.scannedGamesKey);
-            
-            if (savedData) {
-                this.gamesData = JSON.parse(savedData);
-                console.log(`📊 Загружено ${this.gamesData.length} игр`);
-            }
-            
-            if (savedCart) {
-                this.scannedGames = JSON.parse(savedCart);
-                console.log(`🛒 Загружено ${this.scannedGames.length} товаров в корзине`);
-            }
-        } catch (error) {
-            console.error('Ошибка загрузки данных:', error);
-            this.gamesData = [];
-            this.scannedGames = [];
-        }
-    }
-
-    saveCart() {
-        try {
-            localStorage.setItem(this.scannedGamesKey, JSON.stringify(this.scannedGames));
-        } catch (error) {
-            console.error('Ошибка сохранения корзины:', error);
-        }
-    }
-
-    createSampleData() {
-        this.gamesData = [
-            {
-                platform: 'PS4',
-                barcode: '711719803278',
-                name: 'The Last of Us Part II',
-                code: 'CUSA-18278',
-                language: 'RUS',
-                optPrice: '1999',
-                marketplace: '2499',
-                codeType: 'CUSA'
-            },
-            {
-                platform: 'PS5',
-                barcode: '711719998653',
-                name: 'Spider-Man: Miles Morales',
-                code: 'PPSA-01462',
-                language: 'RUS',
-                optPrice: '2499',
-                marketplace: '3499',
-                codeType: 'PPSA'
-            },
-            {
-                platform: 'NS',
-                barcode: '045496873285',
-                name: 'The Legend of Zelda: Breath of the Wild',
-                code: '',
-                language: 'ENG',
-                optPrice: '2999',
-                marketplace: '3999',
-                codeType: ''
-            },
-            {
-                platform: 'XBOX ONE',
-                barcode: '889842414205',
-                name: 'Halo Infinite',
-                code: '',
-                language: 'RUS',
-                optPrice: '2299',
-                marketplace: '3299',
-                codeType: ''
-            }
-        ];
-        
-        this.saveToLocalStorage();
-    }
-
-    async checkForUpdates() {
-        try {
-            console.log('🔄 Проверяем обновления...');
-            
-            const response = await fetch(this.sheetsUrl + '&t=' + Date.now());
-            if (!response.ok) throw new Error('Ошибка сети');
-            
-            const csvText = await response.text();
-            if (!csvText || csvText.length < 100) throw new Error('Пустые данные');
-            
-            const newData = this.parseCSV(csvText);
-            if (newData.length > 0) {
-                this.gamesData = newData;
-                this.saveToLocalStorage();
-                console.log(`🔄 Обновлено ${this.gamesData.length} игр`);
-            }
-            
-        } catch (error) {
-            console.log('⚠️ Не удалось обновить данные:', error);
-        }
-    }
-
-    parseCSV(csvText) {
-        const games = [];
-        const rows = csvText.split('\n');
-        
-        for (let i = 1; i < rows.length; i++) {
-            if (!rows[i].trim()) continue;
-            
-            try {
-                const cells = this.parseCSVRow(rows[i]);
-                if (cells.length < 29) continue;
-
-                if (cells[0] && cells[0].includes('PS4') && cells[1] && cells[2]) {
-                    games.push({
-                        platform: cells[0],
-                        barcode: cells[1],
-                        name: cells[2],
-                        code: cells[3] || '',
-                        language: cells[4] || '',
-                        optPrice: cells[5] || '',
-                        marketplace: cells[6] || '',
-                        codeType: 'CUSA'
-                    });
-                }
-                
-                if (cells[8] && cells[8].includes('PS5') && cells[9] && cells[10]) {
-                    games.push({
-                        platform: cells[8],
-                        barcode: cells[9],
-                        name: cells[10],
-                        code: cells[11] || '',
-                        language: cells[12] || '',
-                        optPrice: cells[13] || '',
-                        marketplace: cells[14] || '',
-                        codeType: 'PPSA'
-                    });
-                }
-                
-                if (cells[16] && (cells[16].includes('NS') || cells[16].includes('Switch')) && cells[17] && cells[18]) {
-                    let barcodes = cells[17];
-                    if (barcodes.includes('/')) {
-                        barcodes = barcodes.split('/').map(b => b.trim()).join('/');
-                    }
-                    
-                    games.push({
-                        platform: cells[16],
-                        barcode: barcodes,
-                        name: cells[18],
-                        code: '',
-                        language: cells[19] || '',
-                        optPrice: cells[20] || '',
-                        marketplace: cells[21] || '',
-                        codeType: ''
-                    });
-                }
-                
-                if (cells[23] && cells[23].includes('XBOX') && cells[24] && cells[25]) {
-                    games.push({
-                        platform: cells[23],
-                        barcode: cells[24],
-                        name: cells[25],
-                        code: '',
-                        language: cells[26] || '',
-                        optPrice: cells[27] || '',
-                        marketplace: cells[28] || '',
-                        codeType: ''
-                    });
-                }
-            } catch (error) {
-                console.log('Ошибка парсинга строки', i, error);
-            }
-        }
-        
-        return games;
-    }
-
-    parseCSVRow(row) {
-        const cells = [];
-        let current = '';
-        let inQuotes = false;
-        
-        for (let char of row) {
-            if (char === '"') {
-                inQuotes = !inQuotes;
-            } else if (char === ',' && !inQuotes) {
-                cells.push(current.trim());
-                current = '';
-            } else {
-                current += char;
-            }
-        }
-        cells.push(current.trim());
-        return cells;
-    }
-
-    saveToLocalStorage() {
-        try {
-            localStorage.setItem(this.localDataKey, JSON.stringify(this.gamesData));
-        } catch (error) {
-            console.error('Ошибка сохранения данных:', error);
-        }
-    }
-
-    // ========== СТАБИЛЬНАЯ КАМЕРА ==========
     async startScanner() {
         if (this.gamesData.length === 0) {
             alert('❌ Нет данных об играх');
             return;
         }
         
-        this.logger.logAppAction('SCANNER_STARTED', { deviceId: DEVICE_ID });
+        this.trackUsage('SCAN_START', { hasCamera: true });
         this.resetScannerState();
         this.showCameraModal();
     }
@@ -1229,7 +1298,8 @@ class GameScannerApp {
                 video: {
                     facingMode: "environment",
                     width: { ideal: 640 },
-                    height: { ideal: 480 }
+                    height: { ideal: 480 },
+                    frameRate: { ideal: 24, max: 30 } // Оптимизация FPS
                 }
             };
             
@@ -1249,9 +1319,7 @@ class GameScannerApp {
     }
 
     startQuaggaScanner() {
-        if (this.isScanning) {
-            return;
-        }
+        if (this.isScanning) return;
         
         console.log('🎯 Запуск Quagga сканера');
         
@@ -1298,22 +1366,28 @@ class GameScannerApp {
     }
 
     handleBarcodeDetection(result) {
-        if (!result.codeResult?.code) {
-            return;
-        }
+        if (!result.codeResult?.code) return;
         
         const code = result.codeResult.code.toString().trim();
         console.log('📷 Сканирован код:', code);
         
-        if (code.length < 6) {
+        // Проверка длины кода
+        if (code.length < 6) return;
+        
+        // Проверка таймаута между сканированиями
+        const now = Date.now();
+        if (this.lastScanTime && (now - this.lastScanTime) < SCAN_COOLDOWN_MS) {
+            console.log('⏱️ Слишком быстрое сканирование, пропускаем');
             return;
         }
         
+        // Проверка на повторный код
         if (this.lastScannedCode === code) {
             console.log('🔄 Повторный код, пропускаем');
             return;
         }
         
+        this.lastScanTime = now;
         this.scanCooldown = true;
         this.lastScannedCode = code;
         this.stopQuagga();
@@ -1339,7 +1413,8 @@ class GameScannerApp {
                 this.updateCameraStatus('✅ Игра найдена!', 'scanning-success');
             }
             
-            if (navigator.vibrate) navigator.vibrate(100);
+            this.hapticFeedback('medium');
+            this.trackUsage('SCAN_SUCCESS', { barcode: code, game: game.name });
             
             setTimeout(() => {
                 this.stopScanner();
@@ -1351,7 +1426,8 @@ class GameScannerApp {
             console.log('❌ Игра не найдена для кода:', code);
             this.updateCameraStatus('❌ Игра не найдена', 'scanning-error');
             
-            if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            this.hapticFeedback('heavy');
+            this.trackUsage('SCAN_FAILED', { barcode: code });
             
             setTimeout(() => {
                 this.resetScannerStateForRestart();
@@ -1360,16 +1436,10 @@ class GameScannerApp {
         }
     }
 
-    resetScannerStateForRestart() {
-        this.scanCooldown = false;
-        this.lastScannedCode = null;
-        this.stopQuagga();
-        this.isScanning = false;
-    }
-
     findGameByBarcode(barcode) {
         const cleanBarcode = barcode.toString().trim();
         
+        // Прямое совпадение
         let game = this.gamesData.find(g => {
             if (!g.barcode) return false;
             if (g.barcode.includes('/')) {
@@ -1379,6 +1449,7 @@ class GameScannerApp {
             return g.barcode === cleanBarcode;
         });
         
+        // Частичное совпадение
         if (!game) {
             game = this.gamesData.find(g => {
                 if (!g.barcode) return false;
@@ -1391,6 +1462,13 @@ class GameScannerApp {
         }
         
         return game;
+    }
+
+    resetScannerStateForRestart() {
+        this.scanCooldown = false;
+        this.lastScannedCode = null;
+        this.stopQuagga();
+        this.isScanning = false;
     }
 
     async safeRestartScanner() {
@@ -1455,7 +1533,6 @@ class GameScannerApp {
         console.log('🛑 Полная остановка сканера');
         
         this.resetScannerState();
-        
         this.stopQuagga();
         this.stopCamera();
         
@@ -1464,7 +1541,7 @@ class GameScannerApp {
         document.getElementById('camera-status').style.display = 'none';
         
         console.log('✅ Сканер полностью остановлен');
-        this.logger.logAppAction('SCANNER_STOPPED', { deviceId: DEVICE_ID });
+        this.trackUsage('SCAN_STOPPED');
     }
 
     handleCameraError(error) {
@@ -1494,17 +1571,22 @@ class GameScannerApp {
         this.isScanning = false;
         this.lastScannedCode = null;
         this.scanCooldown = false;
+        this.lastScanTime = 0;
     }
 
-    // ========== ОТОБРАЖЕНИЕ ИНФОРМАЦИИ ОБ ИГРЕ ==========
+    // =============================================
+    // УТИЛИТЫ И ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+    // =============================================
+
+    // Отображение информации об игре
     displayGameInfo(game) {
         const price = this.calculateFinalPrice(game.optPrice);
         
-        // Обновляем ОДНО ЕДИНОЕ поле цены вверху
-        document.getElementById('current-price-value').textContent = price || '0';
+        // Обновляем цену
+        document.getElementById('current-price-value').textContent = this.formatPrice(price || '0');
         document.getElementById('current-price').classList.add('visible');
         
-        // Показываем платформу и название под ценой
+        // Показываем детали
         const priceDetails = document.getElementById('price-details');
         const priceDetailsPlatform = document.getElementById('price-details-platform');
         const priceDetailsName = document.getElementById('price-details-name');
@@ -1513,7 +1595,7 @@ class GameScannerApp {
         priceDetailsName.textContent = game.name;
         priceDetails.style.display = 'block';
         
-        // В режиме разработчика показываем дополнительную информацию
+        // Дополнительная информация для режима разработчика
         if (!this.isClientMode) {
             document.getElementById('game-language').textContent = this.getLanguageText(game.language) || '—';
             document.getElementById('game-platform').innerHTML = this.getPlatformIconOnly(game.platform);
@@ -1532,13 +1614,14 @@ class GameScannerApp {
             document.getElementById('game-info').classList.add('visible');
         }
         
-        this.logger.logAppAction('GAME_INFO_DISPLAYED', { 
-            name: game.name,
-            mode: this.isClientMode ? 'client' : 'full',
-            deviceId: DEVICE_ID 
+        this.trackUsage('GAME_DISPLAYED', { 
+            name: game.name, 
+            price: price,
+            mode: this.isClientMode ? 'client' : 'full'
         });
     }
 
+    // Расчет окончательной цены
     calculateFinalPrice(optPrice) {
         if (!optPrice) return 0;
         try {
@@ -1550,7 +1633,7 @@ class GameScannerApp {
         }
     }
 
-    // ИСПРАВЛЕННЫЕ ИКОНКИ ПЛАТФОРМ - XBOX как XB
+    // Иконки платформ
     getPlatformIconOnly(platform) {
         let platformText = '';
         let platformClass = '';
@@ -1565,7 +1648,7 @@ class GameScannerApp {
             platformText = 'NS';
             platformClass = 'ns-icon';
         } else if (platform.includes('XBOX')) {
-            platformText = 'XB'; // Изменено обратно на XB
+            platformText = 'XB';
             platformClass = 'xbox-icon';
         } else {
             platformText = platform;
@@ -1575,16 +1658,106 @@ class GameScannerApp {
         return `<span class="platform-icon ${platformClass}">${platformText}</span>`;
     }
 
+    // Текст языка
     getLanguageText(lang) {
         const map = {
-            'ENG': 'Английский', 'SUB': 'Русские субтитры', 
-            'RUS': 'Русский', 'MULTI': 'Мульти язык'
+            'ENG': 'Английский', 
+            'SUB': 'Русские субтитры', 
+            'RUS': 'Русский', 
+            'MULTI': 'Мульти язык'
         };
         return map[lang?.toUpperCase()] || lang || '';
     }
+
+    // Форматирование цены с пробелами
+    formatPrice(price) {
+        if (!price) return '0';
+        return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    }
+
+    // Виброотклик
+    hapticFeedback(type = 'light') {
+        if (!navigator.vibrate) return;
+        
+        const patterns = {
+            'light': 50,
+            'medium': 100,
+            'heavy': [100, 50, 100]
+        };
+        
+        navigator.vibrate(patterns[type] || 50);
+    }
+
+    // Трекинг использования
+    trackUsage(action, data = {}) {
+        try {
+            const usageData = {
+                timestamp: new Date().toISOString(),
+                action: action,
+                data: data,
+                version: APP_VERSION,
+                mode: this.isClientMode ? 'client' : 'full',
+                deviceId: DEVICE_ID
+            };
+            
+            // Сохраняем статистику за день
+            const today = new Date().toISOString().split('T')[0];
+            const usageKey = `gamezone_usage_${today}`;
+            const todayUsage = JSON.parse(localStorage.getItem(usageKey) || '[]');
+            todayUsage.push(usageData);
+            
+            // Ограничиваем размер
+            if (todayUsage.length > 100) {
+                todayUsage.splice(0, todayUsage.length - 100);
+            }
+            
+            localStorage.setItem(usageKey, JSON.stringify(todayUsage));
+            
+        } catch (error) {
+            console.error('❌ Ошибка трекинга:', error);
+        }
+    }
+
+    // Управление логами
+    downloadLogs() {
+        const success = this.logger.downloadLogs();
+        if (success) {
+            this.updateStatus('✅ Все логи скачаны', 'success');
+            this.hapticFeedback('medium');
+            this.trackUsage('LOGS_DOWNLOADED');
+        }
+    }
+
+    clearLogs() {
+        const success = this.logger.clearLogs();
+        if (success) {
+            this.updateStatus('✅ Все логи очищены', 'success');
+            this.hapticFeedback('heavy');
+            this.trackUsage('LOGS_CLEARED');
+        }
+    }
 }
 
-// Инициализация приложения после загрузки DOM
+// =============================================
+// ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
+// =============================================
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Проверяем поддержку Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(() => {
+            console.log('✅ Service Worker готов');
+        }).catch(error => {
+            console.log('⚠️ Service Worker не готов:', error);
+        });
+    }
+    
+    // Запускаем приложение
     window.gameApp = new GameScannerApp();
 });
+
+// Глобальные утилиты
+window.formatPrice = function(price) {
+    if (!price) return '0';
+    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+};
