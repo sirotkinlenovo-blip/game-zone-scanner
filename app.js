@@ -3,7 +3,7 @@
 // =============================================
 
 // Версия программы
-const APP_VERSION = "5.1";
+const APP_VERSION = "5.2";
 document.getElementById('app-version-number').textContent = APP_VERSION;
 
 // Проверяем режим из URL и localStorage
@@ -21,9 +21,9 @@ const DEVICE_ID = localStorage.getItem('gamezone_device_id') ||
 localStorage.setItem('gamezone_device_id', DEVICE_ID);
 
 // Константы для производительности
-const SCAN_COOLDOWN_MS = 300; // Задержка между сканированиями
-const SEARCH_DEBOUNCE_MS = 300; // Задержка для поиска
-const LOG_CLEANUP_DAYS = 30; // Очищать логи старше дней
+const SCAN_COOLDOWN_MS = 300;
+const SEARCH_DEBOUNCE_MS = 300;
+const LOG_CLEANUP_DAYS = 30;
 
 // =============================================
 // КЛАСС ЛОГГЕРА С ОПТИМИЗАЦИЕЙ
@@ -31,7 +31,6 @@ const LOG_CLEANUP_DAYS = 30; // Очищать логи старше дней
 
 class SimpleLogger {
     constructor() {
-      this.lockClientMode = localStorage.getItem('gamezone_lock_client') === 'true';
         this.appLog = [];
         this.salesLog = [];
         this.deviceId = DEVICE_ID;
@@ -40,27 +39,23 @@ class SimpleLogger {
 
     init() {
         this.loadFromStorage();
-        this.cleanupOldLogs(); // Очистка старых логов при запуске
+        this.cleanupOldLogs();
         this.syncWithOtherDevices();
         console.log(`📊 Логгер инициализирован на устройстве: ${this.deviceId}`);
         
-        // Периодическая синхронизация и очистка
-        setInterval(() => this.syncWithOtherDevices(), 5 * 60 * 1000); // Каждые 5 минут
-        setInterval(() => this.cleanupOldLogs(), 24 * 60 * 60 * 1000); // Раз в день
+        setInterval(() => this.syncWithOtherDevices(), 5 * 60 * 1000);
+        setInterval(() => this.cleanupOldLogs(), 24 * 60 * 60 * 1000);
     }
 
-    // Очистка старых логов для экономии памяти
     cleanupOldLogs() {
         try {
             const cutoffDate = new Date();
             cutoffDate.setDate(cutoffDate.getDate() - LOG_CLEANUP_DAYS);
             
-            // Очищаем старые продажи
             this.salesLog = this.salesLog.filter(sale => 
                 new Date(sale.timestamp) > cutoffDate
             );
             
-            // Очищаем старые действия (оставляем последние 500)
             this.appLog = this.appLog.slice(-500);
             
             console.log(`🧹 Очистка логов: осталось ${this.salesLog.length} продаж, ${this.appLog.length} действий`);
@@ -71,12 +66,10 @@ class SimpleLogger {
         }
     }
 
-    // Синхронизация логов между устройствами
     syncWithOtherDevices() {
         try {
             const allLogs = {};
             
-            // Собираем все логи из localStorage
             for (let i = 0; i < localStorage.length; i++) {
                 const key = localStorage.key(i);
                 if (key.startsWith('gamezone_logs_')) {
@@ -91,24 +84,20 @@ class SimpleLogger {
                 }
             }
             
-            // Объединяем все логи
             let mergedLogs = {
                 deviceId: this.deviceId,
                 appLog: [...this.appLog],
                 salesLog: [...this.salesLog]
             };
             
-            // Добавляем логи с других устройств
             Object.values(allLogs).forEach(logs => {
                 if (logs.deviceId !== this.deviceId) {
-                    // Добавляем уникальные продажи
                     logs.salesLog.forEach(sale => {
                         if (!mergedLogs.salesLog.some(s => s.saleId === sale.saleId)) {
                             mergedLogs.salesLog.push(sale);
                         }
                     });
                     
-                    // Добавляем уникальные действия
                     logs.appLog.forEach(action => {
                         if (!mergedLogs.appLog.some(a => 
                             a.timestamp === action.timestamp && 
@@ -119,13 +108,11 @@ class SimpleLogger {
                 }
             });
             
-            // Сортируем и обрезаем
             mergedLogs.salesLog.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
             mergedLogs.appLog.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
             mergedLogs.salesLog = mergedLogs.salesLog.slice(-1000);
             mergedLogs.appLog = mergedLogs.appLog.slice(-500);
             
-            // Обновляем данные
             this.salesLog = mergedLogs.salesLog;
             this.appLog = mergedLogs.appLog;
             this.saveToStorage();
@@ -137,7 +124,6 @@ class SimpleLogger {
         }
     }
 
-    // Умный поиск
     smartSearch(gamesData, query) {
         if (!query || query.length < 2) return [];
         
@@ -147,17 +133,14 @@ class SimpleLogger {
         gamesData.forEach(game => {
             let score = 0;
             
-            // Поиск по названию
             if (game.name && game.name.toLowerCase().includes(searchQuery)) {
                 score += 100;
             }
             
-            // Поиск по коду
             if (game.code && game.code.toLowerCase().includes(searchQuery)) {
                 score += 80;
             }
             
-            // Поиск по штрих-коду
             if (game.barcode) {
                 const barcodes = game.barcode.split('/').map(b => b.trim());
                 if (barcodes.some(b => b.includes(searchQuery))) {
@@ -174,7 +157,6 @@ class SimpleLogger {
         return results.map(r => r.game);
     }
 
-    // Логирование действий
     logAppAction(action, details = {}) {
         const logEntry = {
             timestamp: new Date().toISOString(),
@@ -190,7 +172,6 @@ class SimpleLogger {
         return logEntry;
     }
 
-    // Логирование продаж
     logSale(saleData) {
         const saleEntry = {
             timestamp: new Date().toISOString(),
@@ -215,7 +196,6 @@ class SimpleLogger {
         return saleEntry;
     }
 
-    // Сохранение в localStorage
     saveToStorage() {
         try {
             const storageKey = `gamezone_logs_${this.deviceId}`;
@@ -230,7 +210,6 @@ class SimpleLogger {
         }
     }
 
-    // Загрузка из localStorage
     loadFromStorage() {
         try {
             const storageKey = `gamezone_logs_${this.deviceId}`;
@@ -246,7 +225,6 @@ class SimpleLogger {
         }
     }
 
-    // Скачивание логов
     downloadLogs() {
         try {
             const today = new Date().toISOString().split('T')[0];
@@ -266,7 +244,6 @@ class SimpleLogger {
             logContent += `Всего товаров: ${stats.totalItems} шт\n`;
             logContent += `Общая выручка: ${this.formatPrice(stats.totalRevenue)} руб\n\n`;
             
-            // Статистика по дням
             const salesByDate = {};
             this.salesLog.forEach(sale => {
                 const date = new Date(sale.timestamp).toLocaleDateString('ru-RU');
@@ -289,7 +266,6 @@ class SimpleLogger {
             logContent += '                     ПОЛНАЯ ИСТОРИЯ ПРОДАЖ\n';
             logContent += '═══════════════════════════════════════════════════════════════\n\n';
             
-            // Группируем продажи по дням
             const groupedSales = {};
             this.salesLog.forEach(sale => {
                 const date = new Date(sale.timestamp).toLocaleDateString('ru-RU');
@@ -297,7 +273,6 @@ class SimpleLogger {
                 groupedSales[date].push(sale);
             });
             
-            // Сортируем дни по убыванию
             Object.keys(groupedSales).sort().reverse().forEach(date => {
                 const daySales = groupedSales[date];
                 const dayRevenue = daySales.reduce((sum, sale) => sum + sale.totalAmount, 0);
@@ -350,7 +325,6 @@ class SimpleLogger {
         }
     }
 
-    // Очистка всех логов
     clearLogs() {
         if (confirm('Вы уверены, что хотите удалить ВСЕ логи со ВСЕХ устройств?')) {
             try {
@@ -375,7 +349,6 @@ class SimpleLogger {
         return false;
     }
 
-    // Получение статистики
     getStats() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -399,7 +372,6 @@ class SimpleLogger {
         };
     }
 
-    // Продажи за период
     getSalesByPeriod(period) {
         const now = new Date();
         let startDate = new Date();
@@ -426,7 +398,6 @@ class SimpleLogger {
         }
     }
 
-    // Форматирование цены
     formatPrice(price) {
         if (!price) return '0';
         return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
@@ -455,118 +426,108 @@ class GameScannerApp {
         
         this.appVersion = APP_VERSION;
         this.isClientMode = isClientMode;
+        this.lockClientMode = localStorage.getItem('gamezone_lock_client') === 'true';
         this.logger = new SimpleLogger();
         
-        // Переменные для оптимизации
         this.searchTimeout = null;
         this.searchScrollPosition = 0;
         
         this.init();
     }
-// Переключение блокировки клиентского режима
-toggleLockClientMode(locked) {
-    this.lockClientMode = locked;
-    localStorage.setItem('gamezone_lock_client', locked);
-    
-    if (locked) {
-        this.updateStatus('✅ Блокировка клиентского режима ВКЛЮЧЕНА', 'success');
-        console.log('🔒 Блокировка клиентского режима: ВКЛЮЧЕНА');
-    } else {
-        this.updateStatus('✅ Блокировка клиентского режима ВЫКЛЮЧЕНА', 'success');
-        console.log('🔓 Блокировка клиентского режима: ВЫКЛЮЧЕНА');
-    }
-    
-    this.hapticFeedback('medium');
-    this.trackUsage('LOCK_TOGGLED', { locked: locked });
-}
-    // Инициализация приложения
+
     async init() {
-    console.log(`⚔️ GAME ZONE Scanner ${this.appVersion} запущен`);
-    console.log(`📱 Режим: ${this.isClientMode ? 'КЛИЕНТСКИЙ' : 'ПОЛНЫЙ'}`);
-    console.log(`🔒 Блокировка клиентского режима: ${this.lockClientMode ? 'ВКЛЮЧЕНА' : 'ВЫКЛЮЧЕНА'}`);
+        console.log(`⚔️ GAME ZONE Scanner ${this.appVersion} запущен`);
+        console.log(`📱 Режим: ${this.isClientMode ? 'КЛИЕНТСКИЙ' : 'ПОЛНЫЙ'}`);
+        console.log(`🔒 Блокировка клиентского режима: ${this.lockClientMode ? 'ВКЛЮЧЕНА' : 'ВЫКЛЮЧЕНА'}`);
         
-        // Трекинг запуска
         this.trackUsage('APP_START', { 
             mode: this.isClientMode ? 'client' : 'full',
             urlMode: urlParams.get('mode')
         });
         
         this.setMode(this.isClientMode);
+        document.getElementById('lock-client-mode').checked = this.lockClientMode;
         this.setupEventListeners();
         
         this.updateStatus('🌐 Загружаем данные...');
         await this.loadGamesData();
     }
 
-    // Установка режима работы
-   setMode(isClientMode) {
-    this.isClientMode = isClientMode;
-    localStorage.setItem('gamezone_mode', isClientMode ? 'client' : 'full');
-    
-    const container = document.getElementById('app-container');
-    const modeIndicator = document.getElementById('mode-indicator');
-    const modeStatus = document.getElementById('mode-status');
-    const appSubtitle = document.getElementById('app-subtitle');
-    const scannerText = document.getElementById('scanner-text');
-    const switchBtn = document.getElementById('switch-mode-btn');
-    const lockToggle = document.querySelector('.lock-toggle');
-    
-    if (isClientMode) {
-        container.classList.add('client-mode');
-        modeIndicator.style.display = 'block';
-        modeStatus.textContent = 'КЛИЕНТ';
-        appSubtitle.textContent = 'Сканер цен для клиентов';
-        scannerText.textContent = 'Наведите камеру на штрих-код игры';
+    setMode(isClientMode) {
+        this.isClientMode = isClientMode;
+        localStorage.setItem('gamezone_mode', isClientMode ? 'client' : 'full');
         
-        // В клиентском режиме кнопка переключения всегда видна
-        switchBtn.style.display = 'block';
-        switchBtn.textContent = '👨‍💻 Режим разработчика';
-        switchBtn.classList.remove('switch-mode');
-        switchBtn.classList.add('developer-mode');
+        const container = document.getElementById('app-container');
+        const modeIndicator = document.getElementById('mode-indicator');
+        const modeStatus = document.getElementById('mode-status');
+        const appSubtitle = document.getElementById('app-subtitle');
+        const scannerText = document.getElementById('scanner-text');
+        const switchBtn = document.getElementById('switch-mode-btn');
+        const lockToggle = document.querySelector('.lock-toggle');
         
-        // Переключатель блокировки скрываем в клиентском режиме
-        if (lockToggle) lockToggle.style.display = 'none';
+        if (isClientMode) {
+            container.classList.add('client-mode');
+            modeIndicator.style.display = 'block';
+            modeStatus.textContent = 'КЛИЕНТ';
+            appSubtitle.textContent = 'Сканер цен для клиентов';
+            scannerText.textContent = 'Наведите камеру на штрих-код игры';
+            
+            switchBtn.style.display = 'block';
+            switchBtn.textContent = '👨‍💻 Режим разработчика';
+            switchBtn.classList.remove('switch-mode');
+            switchBtn.classList.add('developer-mode');
+            
+            if (lockToggle) lockToggle.style.display = 'none';
+            
+        } else {
+            container.classList.remove('client-mode');
+            modeIndicator.style.display = 'none';
+            modeStatus.textContent = 'ПОЛНЫЙ';
+            appSubtitle.textContent = 'Сканер игровых дисков';
+            scannerText.textContent = 'Нажмите для запуска сканера';
+            switchBtn.style.display = 'block';
+            switchBtn.textContent = '👤 Переключить на клиентский режим';
+            switchBtn.classList.add('switch-mode');
+            switchBtn.classList.remove('developer-mode');
+            
+            if (lockToggle) lockToggle.style.display = 'flex';
+        }
         
-    } else {
-        container.classList.remove('client-mode');
-        modeIndicator.style.display = 'none';
-        modeStatus.textContent = 'ПОЛНЫЙ';
-        appSubtitle.textContent = 'Сканер игровых дисков';
-        scannerText.textContent = 'Нажмите для запуска сканера';
-        switchBtn.style.display = 'block';
-        switchBtn.textContent = '👤 Переключить на клиентский режим';
-        switchBtn.classList.add('switch-mode');
-        switchBtn.classList.remove('developer-mode');
-        
-        // Переключатель блокировки показываем в полном режиме
-        if (lockToggle) lockToggle.style.display = 'flex';
+        this.trackUsage('MODE_CHANGED', { mode: isClientMode ? 'client' : 'full' });
     }
-    
-    this.logger.logAppAction('MODE_CHANGED', { 
-        mode: isClientMode ? 'client' : 'full',
-        deviceId: DEVICE_ID 
-    });
-}
 
-    // Переключение режима
     toggleMode() {
-    // Если пытаемся переключиться ИЗ клиентского режима И блокировка включена
-    if (this.isClientMode && this.lockClientMode) {
-        alert('⛔ Переключение в режим разработчика ЗАБЛОКИРОВАНО!\n\nДля разблокировки:\n1. Используйте прямую ссылку: /game-zone-scanner/\n2. Или отключите блокировку в настройках.');
-        this.hapticFeedback('heavy');
-        return;
+        if (this.isClientMode && this.lockClientMode) {
+            alert('⛔ Переключение в режим разработчика ЗАБЛОКИРОВАНО!\n\nДля разблокировки:\n1. Используйте прямую ссылку: /game-zone-scanner/\n2. Или отключите блокировку в настройках.');
+            this.hapticFeedback('heavy');
+            return;
+        }
+        
+        if (this.isClientMode) {
+            this.setMode(false);
+            this.updateStatus('✅ Переключен в режим разработчика', 'success');
+        } else {
+            this.setMode(true);
+            this.updateStatus('✅ Переключен в клиентский режим', 'success');
+        }
     }
-    
-    if (this.isClientMode) {
-        this.setMode(false);
-        this.updateStatus('✅ Переключен в режим разработчика', 'success');
-    } else {
-        this.setMode(true);
-        this.updateStatus('✅ Переключен в клиентский режим', 'success');
-    }
-}
 
-    // Обновление статуса
+    toggleLockClientMode(locked) {
+        this.lockClientMode = locked;
+        localStorage.setItem('gamezone_lock_client', locked);
+        
+        if (locked) {
+            this.updateStatus('✅ Блокировка клиентского режима ВКЛЮЧЕНА', 'success');
+            console.log('🔒 Блокировка клиентского режима: ВКЛЮЧЕНА');
+        } else {
+            this.updateStatus('✅ Блокировка клиентского режима ВЫКЛЮЧЕНА', 'success');
+            console.log('🔓 Блокировка клиентского режима: ВЫКЛЮЧЕНА');
+        }
+        
+        this.hapticFeedback('medium');
+        this.trackUsage('LOCK_TOGGLED', { locked: locked });
+    }
+
     updateStatus(message, type = '') {
         const statusEl = document.getElementById('status');
         const statusText = document.getElementById('status-text');
@@ -585,26 +546,16 @@ toggleLockClientMode(locked) {
         }
     }
 
-    // Настройка обработчиков событий
     setupEventListeners() {
-        // Основные кнопки
-      // Обработчик переключателя блокировки
-    document.getElementById('lock-client-mode').addEventListener('change', (e) => {
-        this.toggleLockClientMode(e.target.checked);
-    });
         document.getElementById('scanner-container').addEventListener('click', () => this.startScanner());
         document.getElementById('open-search-btn').addEventListener('click', () => this.openSearchModal());
         document.getElementById('sale-btn').addEventListener('click', () => this.openCartModal());
         document.getElementById('stats-btn').addEventListener('click', () => this.openStatsModal());
         document.getElementById('switch-mode-btn').addEventListener('click', () => this.toggleMode());
-        // Установите состояние переключателя
-    document.getElementById('lock-client-mode').checked = this.lockClientMode;
         
-        // Управление логами
         document.getElementById('download-logs-btn').addEventListener('click', () => this.downloadLogs());
         document.getElementById('clear-logs-btn').addEventListener('click', () => this.clearLogs());
         
-        // Закрытие модальных окон
         document.getElementById('close-cart-btn').addEventListener('click', () => this.closeModal('cart-modal'));
         document.getElementById('close-search-btn').addEventListener('click', () => this.closeModal('search-modal'));
         document.getElementById('close-camera-btn').addEventListener('click', () => this.stopScanner());
@@ -617,13 +568,11 @@ toggleLockClientMode(locked) {
             this.openModal('stats-modal');
         });
         
-        // Камера
         document.getElementById('restart-camera').addEventListener('click', () => {
             console.log('🔄 Перезапуск камеры');
             this.restartCamera();
         });
         
-        // Поиск с debounce
         const searchInput = document.getElementById('smart-search-input');
         searchInput.addEventListener('input', (e) => {
             clearTimeout(this.searchTimeout);
@@ -643,11 +592,13 @@ toggleLockClientMode(locked) {
             }
         });
         
-        // Корзина
         document.getElementById('clear-cart-btn').addEventListener('click', () => this.clearCart());
         document.getElementById('process-sale-btn').addEventListener('click', () => this.processSaleFromCart());
         
-        // Кликабельная статистика
+        document.getElementById('lock-client-mode').addEventListener('change', (e) => {
+            this.toggleLockClientMode(e.target.checked);
+        });
+        
         document.addEventListener('click', (e) => {
             if (e.target.closest('.stat-card')) {
                 const card = e.target.closest('.stat-card');
@@ -656,10 +607,6 @@ toggleLockClientMode(locked) {
             }
         });
     }
-
-    // =============================================
-    // ЗАГРУЗКА И ОБРАБОТКА ДАННЫХ
-    // =============================================
 
     async loadGamesData() {
         try {
@@ -690,7 +637,6 @@ toggleLockClientMode(locked) {
         }
     }
 
-    // Проверка обновлений из Google Sheets
     async checkForUpdates() {
         try {
             console.log('🔄 Проверяем обновления...');
@@ -720,7 +666,6 @@ toggleLockClientMode(locked) {
         }
     }
 
-    // Загрузка из localStorage
     loadFromLocalStorage() {
         try {
             const savedData = localStorage.getItem(this.localDataKey);
@@ -742,7 +687,6 @@ toggleLockClientMode(locked) {
         }
     }
 
-    // Демо-данные
     createSampleData() {
         this.gamesData = [
             {
@@ -790,7 +734,6 @@ toggleLockClientMode(locked) {
         this.saveToLocalStorage();
     }
 
-    // Парсинг CSV
     parseCSV(csvText) {
         const games = [];
         const rows = csvText.split('\n');
@@ -802,7 +745,6 @@ toggleLockClientMode(locked) {
                 const cells = this.parseCSVRow(rows[i]);
                 if (cells.length < 29) continue;
 
-                // PS4
                 if (cells[0]?.includes('PS4') && cells[1] && cells[2]) {
                     games.push({
                         platform: cells[0],
@@ -816,7 +758,6 @@ toggleLockClientMode(locked) {
                     });
                 }
                 
-                // PS5
                 if (cells[8]?.includes('PS5') && cells[9] && cells[10]) {
                     games.push({
                         platform: cells[8],
@@ -830,7 +771,6 @@ toggleLockClientMode(locked) {
                     });
                 }
                 
-                // Nintendo Switch
                 if (cells[16] && (cells[16].includes('NS') || cells[16].includes('Switch')) && cells[17] && cells[18]) {
                     let barcodes = cells[17];
                     if (barcodes.includes('/')) {
@@ -849,7 +789,6 @@ toggleLockClientMode(locked) {
                     });
                 }
                 
-                // Xbox
                 if (cells[23]?.includes('XBOX') && cells[24] && cells[25]) {
                     games.push({
                         platform: cells[23],
@@ -889,7 +828,6 @@ toggleLockClientMode(locked) {
         return cells;
     }
 
-    // Сохранение в localStorage
     saveToLocalStorage() {
         try {
             localStorage.setItem(this.localDataKey, JSON.stringify(this.gamesData));
@@ -906,19 +844,13 @@ toggleLockClientMode(locked) {
         }
     }
 
-    // =============================================
-    // УПРАВЛЕНИЕ МОДАЛЬНЫМИ ОКНАМИ
-    // =============================================
-
     openModal(modalId) {
         document.getElementById(modalId).style.display = 'block';
         document.getElementById('modal-overlay').style.display = 'block';
         document.body.style.overflow = 'hidden';
         
-        // Виброотклик
         this.hapticFeedback('light');
         
-        // Восстановление скролла для поиска
         if (modalId === 'search-modal') {
             setTimeout(() => {
                 const resultsContainer = document.getElementById('smart-search-results');
@@ -930,7 +862,6 @@ toggleLockClientMode(locked) {
     }
 
     closeModal(modalId) {
-        // Сохранение позиции скролла для поиска
         if (modalId === 'search-modal') {
             const resultsContainer = document.getElementById('smart-search-results');
             if (resultsContainer) {
@@ -950,10 +881,6 @@ toggleLockClientMode(locked) {
         document.getElementById('modal-overlay').style.display = 'none';
         document.body.style.overflow = 'auto';
     }
-
-    // =============================================
-    // КОРЗИНА И ПРОДАЖИ
-    // =============================================
 
     openCartModal() {
         if (this.scannedGames.length === 0) {
@@ -1002,7 +929,6 @@ toggleLockClientMode(locked) {
                 </div>
             `;
             
-            // Обработчики с виброоткликом
             const addVibration = (e) => {
                 e.stopPropagation();
                 this.hapticFeedback('light');
@@ -1142,10 +1068,6 @@ toggleLockClientMode(locked) {
             items: totalItems 
         });
     }
-
-    // =============================================
-    // ПОИСК И СТАТИСТИКА
-    // =============================================
 
     openSearchModal() {
         this.openModal('search-modal');
@@ -1302,10 +1224,6 @@ toggleLockClientMode(locked) {
         this.openModal('stats-detail-modal');
     }
 
-    // =============================================
-    // СИСТЕМА СКАНИРОВАНИЯ (ОПТИМИЗИРОВАННАЯ)
-    // =============================================
-
     async startScanner() {
         if (this.gamesData.length === 0) {
             alert('❌ Нет данных об играх');
@@ -1341,7 +1259,7 @@ toggleLockClientMode(locked) {
                     facingMode: "environment",
                     width: { ideal: 640 },
                     height: { ideal: 480 },
-                    frameRate: { ideal: 24, max: 30 } // Оптимизация FPS
+                    frameRate: { ideal: 24, max: 30 }
                 }
             };
             
@@ -1413,17 +1331,14 @@ toggleLockClientMode(locked) {
         const code = result.codeResult.code.toString().trim();
         console.log('📷 Сканирован код:', code);
         
-        // Проверка длины кода
         if (code.length < 6) return;
         
-        // Проверка таймаута между сканированиями
         const now = Date.now();
         if (this.lastScanTime && (now - this.lastScanTime) < SCAN_COOLDOWN_MS) {
             console.log('⏱️ Слишком быстрое сканирование, пропускаем');
             return;
         }
         
-        // Проверка на повторный код
         if (this.lastScannedCode === code) {
             console.log('🔄 Повторный код, пропускаем');
             return;
@@ -1481,7 +1396,6 @@ toggleLockClientMode(locked) {
     findGameByBarcode(barcode) {
         const cleanBarcode = barcode.toString().trim();
         
-        // Прямое совпадение
         let game = this.gamesData.find(g => {
             if (!g.barcode) return false;
             if (g.barcode.includes('/')) {
@@ -1491,7 +1405,6 @@ toggleLockClientMode(locked) {
             return g.barcode === cleanBarcode;
         });
         
-        // Частичное совпадение
         if (!game) {
             game = this.gamesData.find(g => {
                 if (!g.barcode) return false;
@@ -1616,19 +1529,12 @@ toggleLockClientMode(locked) {
         this.lastScanTime = 0;
     }
 
-    // =============================================
-    // УТИЛИТЫ И ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-    // =============================================
-
-    // Отображение информации об игре
     displayGameInfo(game) {
         const price = this.calculateFinalPrice(game.optPrice);
         
-        // Обновляем цену
         document.getElementById('current-price-value').textContent = this.formatPrice(price || '0');
         document.getElementById('current-price').classList.add('visible');
         
-        // Показываем детали
         const priceDetails = document.getElementById('price-details');
         const priceDetailsPlatform = document.getElementById('price-details-platform');
         const priceDetailsName = document.getElementById('price-details-name');
@@ -1637,7 +1543,6 @@ toggleLockClientMode(locked) {
         priceDetailsName.textContent = game.name;
         priceDetails.style.display = 'block';
         
-        // Дополнительная информация для режима разработчика
         if (!this.isClientMode) {
             document.getElementById('game-language').textContent = this.getLanguageText(game.language) || '—';
             document.getElementById('game-platform').innerHTML = this.getPlatformIconOnly(game.platform);
@@ -1663,7 +1568,6 @@ toggleLockClientMode(locked) {
         });
     }
 
-    // Расчет окончательной цены
     calculateFinalPrice(optPrice) {
         if (!optPrice) return 0;
         try {
@@ -1675,7 +1579,6 @@ toggleLockClientMode(locked) {
         }
     }
 
-    // Иконки платформ
     getPlatformIconOnly(platform) {
         let platformText = '';
         let platformClass = '';
@@ -1700,7 +1603,6 @@ toggleLockClientMode(locked) {
         return `<span class="platform-icon ${platformClass}">${platformText}</span>`;
     }
 
-    // Текст языка
     getLanguageText(lang) {
         const map = {
             'ENG': 'Английский', 
@@ -1711,13 +1613,11 @@ toggleLockClientMode(locked) {
         return map[lang?.toUpperCase()] || lang || '';
     }
 
-    // Форматирование цены с пробелами
     formatPrice(price) {
         if (!price) return '0';
         return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
     }
 
-    // Виброотклик
     hapticFeedback(type = 'light') {
         if (!navigator.vibrate) return;
         
@@ -1730,7 +1630,6 @@ toggleLockClientMode(locked) {
         navigator.vibrate(patterns[type] || 50);
     }
 
-    // Трекинг использования
     trackUsage(action, data = {}) {
         try {
             const usageData = {
@@ -1742,13 +1641,11 @@ toggleLockClientMode(locked) {
                 deviceId: DEVICE_ID
             };
             
-            // Сохраняем статистику за день
             const today = new Date().toISOString().split('T')[0];
             const usageKey = `gamezone_usage_${today}`;
             const todayUsage = JSON.parse(localStorage.getItem(usageKey) || '[]');
             todayUsage.push(usageData);
             
-            // Ограничиваем размер
             if (todayUsage.length > 100) {
                 todayUsage.splice(0, todayUsage.length - 100);
             }
@@ -1760,7 +1657,6 @@ toggleLockClientMode(locked) {
         }
     }
 
-    // Управление логами
     downloadLogs() {
         const success = this.logger.downloadLogs();
         if (success) {
@@ -1785,7 +1681,6 @@ toggleLockClientMode(locked) {
 // =============================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Проверяем поддержку Service Worker
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.ready.then(() => {
             console.log('✅ Service Worker готов');
@@ -1794,13 +1689,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Запускаем приложение
     window.gameApp = new GameScannerApp();
 });
 
-// Глобальные утилиты
 window.formatPrice = function(price) {
     if (!price) return '0';
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 };
-
