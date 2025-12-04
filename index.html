@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GAME ZONE - Сканер игр</title>
-    <meta name="theme-color" content="#1a1a2e">
+    <meta name="theme-color" content="#2a2a3e">
     <meta name="description" content="Сканер игровых дисков для магазина GAME ZONE">
     
     <!-- PWA мета-теги -->
@@ -15,7 +15,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 50%, #232338 100%);
             min-height: 100vh;
             padding: 20px;
             overscroll-behavior-y: none;
@@ -23,7 +23,7 @@
             position: relative;
         }
         
-        /* Skyrim фоновая текстура */
+        /* Skyrim фоновая текстура - СВЕТЛАЯ ВЕРСИЯ */
         body::before {
             content: '';
             position: fixed;
@@ -32,14 +32,14 @@
             width: 100%;
             height: 100%;
             background-image: 
-                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
                 repeating-linear-gradient(
                     0deg,
                     transparent,
                     transparent 2px,
-                    rgba(255, 255, 255, 0.02) 2px,
-                    rgba(255, 255, 255, 0.02) 4px
+                    rgba(255, 255, 255, 0.03) 2px,
+                    rgba(255, 255, 255, 0.03) 4px
                 );
             z-index: -1;
         }
@@ -47,16 +47,17 @@
         .container {
             max-width: 400px;
             margin: 0 auto;
-            background: rgba(26, 26, 46, 0.9);
+            background: rgba(42, 42, 62, 0.85);
             border-radius: 20px;
             padding: 20px;
             box-shadow: 
-                0 10px 30px rgba(0, 0, 0, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                0 0 20px rgba(120, 119, 198, 0.2);
+                0 10px 30px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                0 0 20px rgba(120, 119, 198, 0.25);
             position: relative;
             z-index: 1;
-            border: 1px solid rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            backdrop-filter: blur(5px);
         }
         
         /* Skyrim узоры по углам */
@@ -66,7 +67,7 @@
             position: absolute;
             width: 40px;
             height: 40px;
-            border: 2px solid rgba(255, 215, 0, 0.3);
+            border: 2px solid rgba(255, 215, 0, 0.25);
             border-radius: 8px;
         }
         
@@ -92,7 +93,7 @@
             justify-content: center;
             gap: 15px;
             padding-bottom: 15px;
-            border-bottom: 2px solid rgba(255, 215, 0, 0.2);
+            border-bottom: 2px solid rgba(255, 215, 0, 0.25);
             position: relative;
         }
         
@@ -102,7 +103,7 @@
             bottom: -12px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(26, 26, 46, 0.9);
+            background: rgba(42, 42, 62, 0.85);
             padding: 0 10px;
             font-size: 20px;
         }
@@ -111,7 +112,7 @@
             color: #ffd700; 
             font-size: 26px; 
             margin-bottom: 5px;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
             font-family: 'Cinzel', serif;
             letter-spacing: 1px;
         }
@@ -122,7 +123,7 @@
         }
         
         #app-subtitle {
-            color: #a0a0c0;
+            color: #c0c0e0;
             font-size: 14px;
             letter-spacing: 0.5px;
         }
@@ -136,17 +137,17 @@
             align-items: center;
             justify-content: center;
             box-shadow: 
-                0 0 15px rgba(255, 215, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 215, 0, 0.4);
-            background: rgba(0, 0, 0, 0.3);
+                0 0 15px rgba(255, 215, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            background: rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
         }
         
         .store-logo:hover {
             transform: rotate(5deg) scale(1.05);
             box-shadow: 
-                0 0 20px rgba(255, 215, 0, 0.5),
+                0 0 20px rgba(255, 215, 0, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
         
@@ -160,7 +161,7 @@
         .btn {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, #7877c6 0%, #5a59a3 100%);
+            background: linear-gradient(135deg, #8a89d8 0%, #6b6ab8 100%);
             color: white;
             border: none;
             border-radius: 12px;
@@ -172,60 +173,60 @@
             letter-spacing: 0.5px;
             text-shadow: 0 1px 2px rgba(0,0,0,0.3);
             box-shadow: 
-                0 4px 15px rgba(90, 89, 163, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+                0 4px 15px rgba(90, 89, 163, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
         
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 
-                0 6px 20px rgba(90, 89, 163, 0.5),
+                0 6px 20px rgba(90, 89, 163, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            background: linear-gradient(135deg, #8a89d8 0%, #6b6ab8 100%);
+            background: linear-gradient(135deg, #9a99e8 0%, #7b7ac8 100%);
         }
         
         .btn:active {
             transform: translateY(0);
             box-shadow: 
-                0 2px 10px rgba(90, 89, 163, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                0 2px 10px rgba(90, 89, 163, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
         
         .btn:disabled {
-            background: linear-gradient(135deg, #4a4a6a 0%, #3a3a5a 100%);
+            background: linear-gradient(135deg, #5a5a7a 0%, #4a4a6a 100%);
             cursor: not-allowed;
             opacity: 0.6;
         }
         
         .btn.sale {
-            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            background: linear-gradient(135deg, #34ce57 0%, #28a745 100%);
             font-weight: bold;
             font-size: 18px;
             box-shadow: 
-                0 4px 15px rgba(40, 167, 69, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                0 4px 15px rgba(40, 167, 69, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
         }
         
         .btn.sale:hover {
-            background: linear-gradient(135deg, #34ce57 0%, #228b3a 100%);
+            background: linear-gradient(135deg, #44ee67 0%, #38c757 100%);
             box-shadow: 
-                0 6px 20px rgba(40, 167, 69, 0.5),
+                0 6px 20px rgba(40, 167, 69, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
         
         .btn.stats {
-            background: linear-gradient(135deg, #b8860b 0%, #8b6914 100%);
+            background: linear-gradient(135deg, #daa520 0%, #b8860b 100%);
             margin-bottom: 5px;
             box-shadow: 
-                0 4px 15px rgba(184, 134, 11, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                0 4px 15px rgba(184, 134, 11, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
         }
         
         .btn.stats:hover {
-            background: linear-gradient(135deg, #daa520 0%, #b8860b 100%);
+            background: linear-gradient(135deg, #eab530 0%, #c8961b 100%);
             box-shadow: 
-                0 6px 20px rgba(184, 134, 11, 0.5),
+                0 6px 20px rgba(184, 134, 11, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
         
@@ -237,7 +238,7 @@
         #scanner-container {
             width: 100%;
             height: 200px;
-            background: linear-gradient(135deg, rgba(26, 26, 46, 0.8) 0%, rgba(22, 33, 62, 0.8) 100%);
+            background: linear-gradient(135deg, rgba(42, 42, 62, 0.7) 0%, rgba(35, 35, 56, 0.7) 100%);
             border-radius: 15px;
             margin: 20px 0;
             position: relative;
@@ -245,20 +246,20 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px dashed rgba(255, 215, 0, 0.3);
+            border: 2px dashed rgba(255, 215, 0, 0.25);
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 
-                inset 0 0 20px rgba(0, 0, 0, 0.5),
+                inset 0 0 20px rgba(0, 0, 0, 0.4),
                 0 0 15px rgba(120, 119, 198, 0.2);
         }
         
         #scanner-container:hover {
-            border-color: rgba(255, 215, 0, 0.6);
-            background: linear-gradient(135deg, rgba(32, 32, 56, 0.9) 0%, rgba(28, 39, 72, 0.9) 100%);
+            border-color: rgba(255, 215, 0, 0.4);
+            background: linear-gradient(135deg, rgba(52, 52, 72, 0.8) 0%, rgba(45, 45, 65, 0.8) 100%);
             box-shadow: 
-                inset 0 0 30px rgba(0, 0, 0, 0.7),
-                0 0 20px rgba(120, 119, 198, 0.4);
+                inset 0 0 30px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(120, 119, 198, 0.3);
         }
         
         #scanner-container:active {
@@ -267,20 +268,20 @@
         
         .scanner-placeholder {
             text-align: center;
-            color: #a0a0c0;
+            color: #c0c0e0;
         }
         
         .scanner-placeholder .icon {
             font-size: 48px;
             margin-bottom: 10px;
             color: #ffd700;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
         }
         
         .scanner-placeholder .text {
             font-size: 16px;
             font-weight: 500;
-            color: #c0c0e0;
+            color: #e0e0f0;
         }
         
         .search-container {
@@ -292,26 +293,26 @@
         #search-type {
             width: 120px;
             padding: 12px;
-            border: 2px solid rgba(255, 215, 0, 0.3);
+            border: 2px solid rgba(255, 215, 0, 0.25);
             border-radius: 10px;
             font-size: 14px;
-            background: rgba(26, 26, 46, 0.8);
+            background: rgba(42, 42, 62, 0.7);
             color: #f0f0f0;
         }
         
         #barcode-input {
             flex: 1;
             padding: 12px;
-            border: 2px solid rgba(255, 215, 0, 0.3);
+            border: 2px solid rgba(255, 215, 0, 0.25);
             border-radius: 10px;
             text-align: center;
             font-size: 16px;
-            background: rgba(26, 26, 46, 0.8);
+            background: rgba(42, 42, 62, 0.7);
             color: #f0f0f0;
         }
         
         .current-price {
-            background: linear-gradient(135deg, rgba(40, 167, 69, 0.9) 0%, rgba(30, 126, 52, 0.9) 100%);
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.85) 0%, rgba(30, 126, 52, 0.85) 100%);
             color: white;
             text-align: center;
             padding: 25px;
@@ -321,9 +322,9 @@
             font-size: 32px;
             display: none;
             box-shadow: 
-                0 4px 20px rgba(40, 167, 69, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+                0 4px 20px rgba(40, 167, 69, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.15);
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
             position: relative;
             overflow: hidden;
@@ -335,7 +336,7 @@
             top: 10px;
             left: 10px;
             font-size: 20px;
-            opacity: 0.3;
+            opacity: 0.4;
         }
         
         .current-price::after {
@@ -344,7 +345,7 @@
             bottom: 10px;
             right: 10px;
             font-size: 20px;
-            opacity: 0.3;
+            opacity: 0.4;
         }
         
         .current-price.visible { 
@@ -356,7 +357,7 @@
         .price-details {
             margin-top: 15px;
             padding-top: 15px;
-            border-top: 2px solid rgba(255, 255, 255, 0.2);
+            border-top: 2px solid rgba(255, 255, 255, 0.25);
             font-size: 16px;
             line-height: 1.4;
         }
@@ -377,13 +378,13 @@
         }
         
         .game-info {
-            background: rgba(22, 33, 62, 0.8);
+            background: rgba(35, 35, 56, 0.7);
             border-radius: 15px;
             padding: 20px;
             margin-top: 20px;
             display: none;
             border: 1px solid rgba(255, 215, 0, 0.2);
-            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.3);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
         }
         
         .game-info.visible { 
@@ -395,11 +396,11 @@
             display: flex;
             justify-content: space-between;
             padding: 10px 0;
-            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.15);
         }
         
         .info-label { 
-            color: #a0a0c0; 
+            color: #c0c0e0; 
             font-weight: 500; 
             min-width: 140px; 
         }
@@ -422,9 +423,9 @@
             text-align: center;
             margin: 15px 0;
             padding: 15px;
-            background: rgba(184, 134, 11, 0.1);
+            background: rgba(184, 134, 11, 0.15);
             border-radius: 10px;
-            border: 2px solid rgba(255, 215, 0, 0.3);
+            border: 2px solid rgba(255, 215, 0, 0.25);
         }
         
         .status {
@@ -432,20 +433,20 @@
             padding: 15px;
             margin: 15px 0;
             border-radius: 10px;
-            background: rgba(184, 134, 11, 0.2);
+            background: rgba(184, 134, 11, 0.25);
             color: #ffd700;
-            border: 1px solid rgba(255, 215, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.25);
             font-weight: 500;
         }
         
         .status.error {
-            background: rgba(220, 53, 69, 0.2);
+            background: rgba(220, 53, 69, 0.25);
             color: #f8d7da;
             border-color: rgba(220, 53, 69, 0.3);
         }
         
         .status.success {
-            background: rgba(40, 167, 69, 0.2);
+            background: rgba(40, 167, 69, 0.25);
             color: #d4edda;
             border-color: rgba(40, 167, 69, 0.3);
         }
@@ -459,17 +460,17 @@
             width: 95%;
             max-width: 500px;
             max-height: 90vh;
-            background: rgba(26, 26, 46, 0.95);
+            background: rgba(42, 42, 62, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 20px;
             box-shadow: 
-                0 20px 40px rgba(0,0,0,0.7),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                0 20px 40px rgba(0,0,0,0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
             z-index: 1000;
             display: none;
             overflow-y: auto;
-            border: 2px solid rgba(255, 215, 0, 0.3);
+            border: 2px solid rgba(255, 215, 0, 0.25);
         }
         
         /* Модальное окно поиска на весь экран */
@@ -485,16 +486,16 @@
             padding: 0;
             display: flex;
             flex-direction: column;
-            background: rgba(12, 12, 12, 0.98);
+            background: rgba(30, 30, 46, 0.98);
         }
         
         #search-modal .modal-header {
-            background: linear-gradient(135deg, #7877c6 0%, #5a59a3 100%);
+            background: linear-gradient(135deg, #8a89d8 0%, #6b6ab8 100%);
             color: white;
             padding: 20px;
             margin: 0;
             border-radius: 0;
-            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+            border-bottom: 2px solid rgba(255, 215, 0, 0.25);
         }
         
         #search-modal .modal-title {
@@ -504,8 +505,8 @@
         }
         
         #search-modal .modal-close {
-            background: rgba(255, 215, 0, 0.9);
-            color: #1a1a2e;
+            background: rgba(255, 215, 0, 0.8);
+            color: #2a2a3e;
             border: none;
         }
         
@@ -515,7 +516,7 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+            border-bottom: 2px solid rgba(255, 215, 0, 0.25);
         }
         
         .modal-title {
@@ -526,7 +527,7 @@
         }
         
         .modal-close {
-            background: rgba(220, 53, 69, 0.9);
+            background: rgba(220, 53, 69, 0.8);
             color: white;
             border: none;
             width: 36px;
@@ -551,7 +552,7 @@
         
         /* Кнопка назад в детальной статистике */
         .modal-back-btn {
-            background: linear-gradient(135deg, #7877c6 0%, #5a59a3 100%);
+            background: linear-gradient(135deg, #8a89d8 0%, #6b6ab8 100%);
             color: white;
             border: none;
             padding: 10px 15px;
@@ -581,14 +582,14 @@
             border: 1px solid rgba(255, 215, 0, 0.2);
             border-radius: 12px;
             margin-bottom: 10px;
-            background: rgba(22, 33, 62, 0.6);
+            background: rgba(35, 35, 56, 0.6);
             transition: all 0.3s ease;
         }
         
         .cart-item:hover {
-            background: rgba(32, 43, 72, 0.8);
+            background: rgba(45, 45, 65, 0.8);
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
         }
         
         .cart-item-header {
@@ -616,7 +617,7 @@
         
         .cart-item-platform {
             font-size: 14px;
-            color: #a0a0c0;
+            color: #c0c0e0;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -639,7 +640,7 @@
         .quantity-btn {
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, #7877c6 0%, #5a59a3 100%);
+            background: linear-gradient(135deg, #8a89d8 0%, #6b6ab8 100%);
             color: white;
             border: none;
             border-radius: 8px;
@@ -690,7 +691,7 @@
         }
         
         .cart-total {
-            background: linear-gradient(135deg, rgba(40, 167, 69, 0.9) 0%, rgba(30, 126, 52, 0.9) 100%);
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.85) 0%, rgba(30, 126, 52, 0.85) 100%);
             color: white;
             padding: 20px;
             border-radius: 15px;
@@ -698,7 +699,7 @@
             font-size: 22px;
             font-weight: bold;
             margin: 20px 0;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.15);
         }
         
         .cart-buttons {
@@ -717,33 +718,33 @@
         #search-modal .search-input {
             width: 100%;
             padding: 20px;
-            border: 3px solid rgba(255, 215, 0, 0.4);
+            border: 3px solid rgba(255, 215, 0, 0.3);
             border-radius: 15px;
             font-size: 18px;
             text-align: center;
-            background: rgba(26, 26, 46, 0.8);
+            background: rgba(42, 42, 62, 0.7);
             color: #f0f0f0;
             box-shadow: 
-                0 4px 15px rgba(0,0,0,0.3),
-                inset 0 0 10px rgba(0,0,0,0.2);
+                0 4px 15px rgba(0,0,0,0.25),
+                inset 0 0 10px rgba(0,0,0,0.15);
             transition: all 0.3s ease;
         }
         
         #search-modal .search-input:focus {
             outline: none;
-            border-color: rgba(255, 215, 0, 0.7);
+            border-color: rgba(255, 215, 0, 0.5);
             box-shadow: 
-                0 4px 20px rgba(255, 215, 0, 0.3),
-                inset 0 0 15px rgba(0,0,0,0.3);
+                0 4px 20px rgba(255, 215, 0, 0.25),
+                inset 0 0 15px rgba(0,0,0,0.2);
         }
         
         .search-hint {
             text-align: center;
-            color: #a0a0c0;
+            color: #c0c0e0;
             font-size: 15px;
             margin-bottom: 20px;
             padding: 15px;
-            background: rgba(22, 33, 62, 0.6);
+            background: rgba(35, 35, 56, 0.6);
             border-radius: 10px;
             border: 1px solid rgba(255, 215, 0, 0.2);
             margin: 0 20px 20px;
@@ -755,13 +756,13 @@
             border: 1px solid rgba(255, 215, 0, 0.2);
             border-radius: 10px;
             padding: 10px;
-            background: rgba(26, 26, 46, 0.6);
+            background: rgba(42, 42, 62, 0.6);
             margin: 0 20px 20px;
         }
         
         .search-result-item {
             padding: 15px;
-            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.15);
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
@@ -772,7 +773,7 @@
         }
         
         .search-result-item:hover {
-            background: rgba(255, 215, 0, 0.1);
+            background: rgba(255, 215, 0, 0.15);
             transform: translateY(-2px);
             border-left: 3px solid #ffd700;
         }
@@ -795,7 +796,7 @@
             justify-content: space-between;
             align-items: center;
             font-size: 15px;
-            color: #a0a0c0;
+            color: #c0c0e0;
         }
         
         .search-result-price {
@@ -813,7 +814,7 @@
             border-radius: 15px;
             overflow: hidden;
             margin-bottom: 15px;
-            border: 2px solid rgba(255, 215, 0, 0.3);
+            border: 2px solid rgba(255, 215, 0, 0.25);
         }
         
         .camera-view {
@@ -828,7 +829,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            border: 3px solid rgba(255, 215, 0, 0.5);
+            border: 3px solid rgba(255, 215, 0, 0.4);
             pointer-events: none;
         }
         
@@ -854,7 +855,7 @@
         .camera-btn {
             flex: 1;
             padding: 12px;
-            background: linear-gradient(135deg, #7877c6 0%, #5a59a3 100%);
+            background: linear-gradient(135deg, #8a89d8 0%, #6b6ab8 100%);
             color: white;
             border: none;
             border-radius: 10px;
@@ -877,7 +878,7 @@
         }
         
         .camera-btn:disabled {
-            background: linear-gradient(135deg, #4a4a6a 0%, #3a3a5a 100%);
+            background: linear-gradient(135deg, #5a5a7a 0%, #4a4a6a 100%);
             cursor: not-allowed;
         }
         
@@ -887,7 +888,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: rgba(0,0,0,0.8);
             z-index: 999;
             display: none;
         }
@@ -898,18 +899,18 @@
             margin: 5px 0;
             border-radius: 8px;
             font-size: 14px;
-            background: rgba(22, 33, 62, 0.8);
+            background: rgba(35, 35, 56, 0.8);
             border: 1px solid rgba(255, 215, 0, 0.2);
         }
         
         .scanning-success {
-            background: rgba(40, 167, 69, 0.2);
+            background: rgba(40, 167, 69, 0.25);
             color: #d4edda;
             border-color: rgba(40, 167, 69, 0.3);
         }
         
         .scanning-error {
-            background: rgba(220, 53, 69, 0.2);
+            background: rgba(220, 53, 69, 0.25);
             color: #f8d7da;
             border-color: rgba(220, 53, 69, 0.3);
         }
@@ -919,22 +920,22 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(26, 26, 46, 0.95);
+            background: rgba(42, 42, 62, 0.95);
             color: white;
             padding: 15px 20px;
             border-radius: 10px;
             box-shadow: 
-                0 5px 15px rgba(0,0,0,0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                0 5px 15px rgba(0,0,0,0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
             z-index: 1001;
             display: none;
             max-width: 90%;
             text-align: center;
-            border: 1px solid rgba(255, 215, 0, 0.3);
+            border: 1px solid rgba(255, 215, 0, 0.25);
         }
         
         .install-prompt button {
-            background: linear-gradient(135deg, #7877c6 0%, #5a59a3 100%);
+            background: linear-gradient(135deg, #8a89d8 0%, #6b6ab8 100%);
             color: white;
             border: none;
             padding: 8px 15px;
@@ -947,7 +948,7 @@
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.15);
             border-top: 2px solid #ffd700;
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -965,7 +966,7 @@
             font-size: 12px;
             color: #a0a0c0;
             padding: 10px;
-            border-top: 1px solid rgba(255, 215, 0, 0.1);
+            border-top: 1px solid rgba(255, 215, 0, 0.15);
         }
 
         /* ИСПРАВЛЕННЫЕ СТИЛИ ИКОНОК ПЛАТФОРМ */
@@ -982,7 +983,7 @@
             min-width: 40px;
             height: 22px;
             flex-shrink: 0;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
         }
         
         .ps4-icon { 
@@ -992,7 +993,7 @@
         
         .ps5-icon { 
             background: linear-gradient(135deg, #000 0%, #333 100%);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.25);
         }
         
         .ns-icon { 
@@ -1029,7 +1030,7 @@
         }
         
         .log-btn.download {
-            background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+            background: linear-gradient(135deg, #34ce57 0%, #28a745 100%);
         }
         
         .log-btn.clear {
@@ -1045,7 +1046,7 @@
         }
         
         .stat-card {
-            background: linear-gradient(135deg, rgba(120, 119, 198, 0.8) 0%, rgba(90, 89, 163, 0.8) 100%);
+            background: linear-gradient(135deg, rgba(138, 137, 216, 0.8) 0%, rgba(107, 106, 184, 0.8) 100%);
             color: white;
             padding: 15px;
             border-radius: 10px;
@@ -1059,8 +1060,8 @@
         
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            background: linear-gradient(135deg, rgba(138, 137, 216, 0.9) 0%, rgba(107, 106, 184, 0.9) 100%);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+            background: linear-gradient(135deg, rgba(158, 157, 236, 0.9) 0%, rgba(127, 126, 204, 0.9) 100%);
         }
         
         .stat-card:active {
@@ -1081,7 +1082,7 @@
         
         .stats-period {
             text-align: center;
-            color: #a0a0c0;
+            color: #c0c0e0;
             margin-bottom: 15px;
             font-size: 14px;
         }
@@ -1106,13 +1107,13 @@
             border-radius: 10px;
             padding: 10px;
             margin-bottom: 20px;
-            background: rgba(22, 33, 62, 0.6);
+            background: rgba(35, 35, 56, 0.6);
         }
         
         .sale-detail-item {
             padding: 12px;
-            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
-            background: rgba(26, 26, 46, 0.6);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.15);
+            background: rgba(42, 42, 62, 0.6);
             border-radius: 8px;
             margin-bottom: 8px;
         }
@@ -1137,7 +1138,7 @@
         
         .sale-detail-date {
             font-size: 12px;
-            color: #a0a0c0;
+            color: #c0c0e0;
         }
         
         .sale-detail-items {
@@ -1146,7 +1147,7 @@
         
         .sale-detail-game {
             font-size: 13px;
-            color: #c0c0e0;
+            color: #d0d0f0;
             margin-left: 10px;
             display: flex;
             align-items: center;
@@ -1193,15 +1194,15 @@
             position: absolute;
             top: 15px;
             right: 15px;
-            background: linear-gradient(135deg, #7877c6 0%, #5a59a3 100%);
+            background: linear-gradient(135deg, #8a89d8 0%, #6b6ab8 100%);
             color: white;
             padding: 5px 10px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: bold;
             z-index: 10;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.25);
         }
         
         @keyframes fadeIn {
@@ -1328,7 +1329,7 @@
             </div>
             <div class="cart-buttons">
                 <button id="clear-cart-btn" class="btn" style="background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);">🗑️ Очистить корзину</button>
-                <button id="process-sale-btn" class="btn" style="background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);">💰 Завершить продажу</button>
+                <button id="process-sale-btn" class="btn" style="background: linear-gradient(135deg, #34ce57 0%, #28a745 100%);">💰 Завершить продажу</button>
             </div>
         </div>
     </div>
@@ -1341,6 +1342,7 @@
         </div>
         <div class="modal-body">
             <div class="search-input-container">
+                <!-- ВАЖНО: autofocus убран! -->
                 <input type="text" id="smart-search-input" class="search-input" 
                        placeholder="Введите название, код или штрих-код...">
             </div>
@@ -2039,8 +2041,12 @@
                 document.body.style.overflow = 'hidden';
                 
                 // ИСПРАВЛЕНО: убрана автоматическая фокусировка на поиске
+                // Только когда открываем поиск - ставим фокус
                 if (modalId === 'search-modal') {
-                    // Оставляем пустым, чтобы не фокусировалось автоматически
+                    // Небольшая задержка для корректного фокуса
+                    setTimeout(() => {
+                        document.getElementById('smart-search-input').focus();
+                    }, 100);
                 }
             }
 
@@ -2119,7 +2125,7 @@
                 
                 if (sales.length === 0) {
                     detailContent.innerHTML = `
-                        <div style="padding: 30px; text-align: center; color: #a0a0c0;">
+                        <div style="padding: 30px; text-align: center; color: #c0c0e0;">
                             <div style="font-size: 48px; margin-bottom: 15px;">📭</div>
                             <div style="font-size: 16px; margin-bottom: 10px;">Нет данных</div>
                             <div style="font-size: 14px; color: #888;">Продажи за этот период отсутствуют</div>
@@ -2248,21 +2254,21 @@
                 this.openModal('search-modal');
                 document.getElementById('smart-search-input').value = '';
                 document.getElementById('smart-search-results').innerHTML = 
-                    '<div style="padding: 20px; text-align: center; color: #a0a0c0;">Введите запрос для поиска игр</div>';
+                    '<div style="padding: 20px; text-align: center; color: #c0c0e0;">Введите запрос для поиска игр</div>';
             }
 
             performSmartSearch(query) {
                 const resultsContainer = document.getElementById('smart-search-results');
                 
                 if (!query || query.length < 2) {
-                    resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #a0a0c0;">Введите минимум 2 символа</div>';
+                    resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #c0c0e0;">Введите минимум 2 символа</div>';
                     return [];
                 }
                 
                 const results = this.logger.smartSearch(this.gamesData, query);
                 
                 if (results.length === 0) {
-                    resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #a0a0c0;">Игры не найдены</div>';
+                    resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #c0c0e0;">Игры не найдены</div>';
                     return [];
                 }
                 
