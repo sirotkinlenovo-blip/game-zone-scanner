@@ -1092,25 +1092,46 @@ class GameScannerApp {
         this.saveToLocalStorage();
     }
 
-    async checkForUpdates() {
+     async checkForUpdates() {
         try {
             console.log('🔄 Проверяем обновления...');
             
             const response = await fetch(this.sheetsUrl + '&t=' + Date.now());
-            if (!response.ok) throw new Error('Ошибка сети');
+            if (!response.ok) {
+                console.error('❌ Ошибка сети при обновлении:', response.status);
+                return;
+            }
             
             const csvText = await response.text();
-            if (!csvText || csvText.length < 100) throw new Error('Пустые данные');
+            if (!csvText || csvText.length < 100) {
+                console.log('⚠️ Получены пустые данные от Google Sheets');
+                return;
+            }
+            
+            console.log('📊 Получено данных:', csvText.length, 'символов');
             
             const newData = this.parseCSV(csvText);
             if (newData.length > 0) {
+                console.log(`🔄 Найдено ${newData.length} игр в таблице`);
                 this.gamesData = newData;
                 this.saveToLocalStorage();
-                console.log(`🔄 Обновлено ${this.gamesData.length} игр`);
+                console.log(`✅ Обновлено ${this.gamesData.length} игр`);
+                
+                // Обновляем статус
+                this.updateStatus(`✅ База обновлена: ${this.gamesData.length} игр`, 'success');
+            } else {
+                console.log('⚠️ В таблице не найдено игр');
             }
             
         } catch (error) {
-            console.log('⚠️ Не удалось обновить данные:', error);
+            console.log('⚠️ Не удалось обновить данные:', error.message);
+            
+            // Если в локальном хранилище уже есть данные, не показываем ошибку
+            if (this.gamesData.length > 0) {
+                console.log('ℹ️ Используем локальные данные');
+            } else {
+                console.log('⚠️ Нет интернета. Используем демо-данные');
+            }
         }
     }
 
@@ -1611,3 +1632,4 @@ class GameScannerApp {
 document.addEventListener('DOMContentLoaded', () => {
     window.gameApp = new GameScannerApp();
 });
+
