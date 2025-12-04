@@ -1,5 +1,5 @@
 // Версия программы - теперь всегда доступна в HTML
-const APP_VERSION = "5.0";
+const APP_VERSION = "5.1";
 document.getElementById('app-version-number').textContent = APP_VERSION;
 
 // Проверяем режим из URL и localStorage
@@ -474,9 +474,16 @@ class GameScannerApp {
             
             // В клиентском режиме кнопка переключения всегда видна и называется "Вернуться в режим разработчика"
             switchBtn.style.display = 'block';
-            switchBtn.textContent = '👨‍💻 Режим разработчика';
+            switchBtn.textContent = '👨‍💻 Вернуться в режим разработчика';
             switchBtn.classList.remove('switch-mode');
             switchBtn.classList.add('developer-mode');
+            
+            // В клиентском режиме скрываем ненужные элементы
+            document.getElementById('open-search-btn').style.display = 'none';
+            document.getElementById('sale-btn').style.display = 'none';
+            document.getElementById('stats-btn').style.display = 'none';
+            document.getElementById('log-buttons').style.display = 'none';
+            document.getElementById('game-info').style.display = 'none';
             
         } else {
             container.classList.remove('client-mode');
@@ -484,10 +491,19 @@ class GameScannerApp {
             modeStatus.textContent = 'ПОЛНЫЙ';
             appSubtitle.textContent = 'Сканер игровых дисков';
             scannerText.textContent = 'Нажмите для запуска сканера';
+            
+            // В полном режиме показываем все кнопки
             switchBtn.style.display = 'block';
             switchBtn.textContent = '👤 Переключить на клиентский режим';
             switchBtn.classList.add('switch-mode');
             switchBtn.classList.remove('developer-mode');
+            
+            // Показываем все элементы в полном режиме
+            document.getElementById('open-search-btn').style.display = 'block';
+            document.getElementById('sale-btn').style.display = 'block';
+            document.getElementById('stats-btn').style.display = 'block';
+            document.getElementById('log-buttons').style.display = 'flex';
+            document.getElementById('game-info').style.display = 'none'; // Будет показан при сканировании
         }
         
         this.logger.logAppAction('MODE_CHANGED', { 
@@ -1535,6 +1551,7 @@ class GameScannerApp {
                 codeRow.style.display = 'none';
             }
             
+            document.getElementById('game-info').style.display = 'block';
             document.getElementById('game-info').classList.add('visible');
         }
         
