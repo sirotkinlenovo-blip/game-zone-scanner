@@ -2,20 +2,69 @@
   "name": "GAME ZONE - Сканер игр",
   "short_name": "GAME ZONE",
   "description": "Сканер игровых дисков для магазина GAME ZONE",
-  "start_url": "/",
+  "start_url": "/game-zone-scanner/",
+  "scope": "/game-zone-scanner/",
   "display": "standalone",
   "background_color": "#1a1a2e",
   "theme_color": "#1a1a2e",
+  "orientation": "portrait",
+  "categories": ["business", "productivity", "utilities"],
   "icons": [
     {
       "src": "https://avatars.mds.yandex.net/get-altay/16915650/2a0000019a24cb39e7e0f13ab054c8530af6/S_height",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "https://avatars.mds.yandex.net/get-altay/16915650/2a0000019a24cb39e7e0f13ab054c8530af6/S_height",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "screenshots": [
+    {
+      "src": "https://via.placeholder.com/540x720/1a1a2e/ffffff?text=GAME+ZONE+Scanner",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Главный экран сканера"
+    },
+    {
+      "src": "https://via.placeholder.com/720x540/1a1a2e/ffffff?text=Camera+Scanner",
+      "sizes": "720x540",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Сканер камеры"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Сканировать игру",
+      "short_name": "Сканер",
+      "description": "Быстрый запуск сканера",
+      "url": "/game-zone-scanner/?action=scan",
+      "icons": [
+        {
+          "src": "https://via.placeholder.com/96/0070d1/ffffff?text=📷",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Статистика",
+      "short_name": "Статистика",
+      "description": "Просмотр статистики продаж",
+      "url": "/game-zone-scanner/?action=stats",
+      "icons": [
+        {
+          "src": "https://via.placeholder.com/96/b8860b/ffffff?text=📊",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
 }
