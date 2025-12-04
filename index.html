@@ -107,7 +107,7 @@
         </div>
 
         <div class="app-version">
-            🐉 Версия <span id="app-version-number">5.0</span> | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span>
+            🐉 Версия <span id="app-version-number">5.1</span> | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span>
         </div>
     </div>
 
@@ -238,5 +238,20 @@
     
     <!-- Подключаем основной скрипт -->
     <script src="app.js"></script>
+    
+    <!-- Регистрация Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('✅ Service Worker зарегистрирован:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('❌ Ошибка регистрации Service Worker:', error);
+                    });
+            });
+        }
+    </script>
 </body>
 </html>
