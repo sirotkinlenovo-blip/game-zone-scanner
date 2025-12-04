@@ -1,19 +1,18 @@
 <!DOCTYPE html>
 <!-- 
-    ВЕРСИЯ: 5.0 - ФИНАЛЬНЫЙ ИСПРАВЛЕННЫЙ ВАРИАНТ
+    ВЕРСИЯ: 5.1 - ИСПРАВЛЕНА ПРОБЛЕМА С АВТОМАТИЧЕСКИМ ПОИСКОМ
     ИСПРАВЛЕНИЯ:
-    1. Убрана автоматическая фокусировка на поиске (не выскакивает при запуске)
-    2. Светлая тематика Skyrim с сохранением всех элементов
-    3. Сохранена рабочая камера (не вносились изменения в сканирование)
-    4. Добавлена четкая версионирование для отслеживания изменений
+    1. Поиск НЕ открывается автоматически при загрузке
+    2. Поиск открывается на весь экран только при нажатии кнопки
+    3. Еще более светлая тематика
 -->
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GAME ZONE - Сканер игр v5.0</title>
-    <meta name="theme-color" content="#2a2a3e">
-    <meta name="description" content="Сканер игровых дисков для магазина GAME ZONE - версия 5.0">
+    <title>GAME ZONE - Сканер игр v5.1</title>
+    <meta name="theme-color" content="#3a3a4e">
+    <meta name="description" content="Сканер игровых дисков для магазина GAME ZONE - версия 5.1">
     
     <!-- PWA мета-теги -->
     <link rel="manifest" href="manifest.json">
@@ -23,7 +22,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e1e2e 0%, #2a2a3e 50%, #232338 100%);
+            background: linear-gradient(135deg, #2a2a3e 0%, #3a3a4e 50%, #323247 100%);
             min-height: 100vh;
             padding: 20px;
             overscroll-behavior-y: none;
@@ -31,7 +30,7 @@
             position: relative;
         }
         
-        /* Skyrim фоновая текстура - СВЕТЛАЯ ВЕРСИЯ */
+        /* ЕЩЕ БОЛЕЕ СВЕТЛАЯ Skyrim фоновая текстура */
         body::before {
             content: '';
             position: fixed;
@@ -40,14 +39,14 @@
             width: 100%;
             height: 100%;
             background-image: 
-                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(138, 137, 216, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.15) 0%, transparent 50%),
                 repeating-linear-gradient(
                     0deg,
                     transparent,
                     transparent 2px,
-                    rgba(255, 255, 255, 0.03) 2px,
-                    rgba(255, 255, 255, 0.03) 4px
+                    rgba(255, 255, 255, 0.04) 2px,
+                    rgba(255, 255, 255, 0.04) 4px
                 );
             z-index: -1;
         }
@@ -55,16 +54,16 @@
         .container {
             max-width: 400px;
             margin: 0 auto;
-            background: rgba(42, 42, 62, 0.85);
+            background: rgba(58, 58, 78, 0.9);
             border-radius: 20px;
             padding: 20px;
             box-shadow: 
-                0 10px 30px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15),
-                0 0 20px rgba(120, 119, 198, 0.25);
+                0 10px 30px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                0 0 20px rgba(138, 137, 216, 0.3);
             position: relative;
             z-index: 1;
-            border: 1px solid rgba(255, 215, 0, 0.15);
+            border: 1px solid rgba(255, 215, 0, 0.2);
             backdrop-filter: blur(5px);
         }
         
@@ -75,7 +74,7 @@
             position: absolute;
             width: 40px;
             height: 40px;
-            border: 2px solid rgba(255, 215, 0, 0.25);
+            border: 2px solid rgba(255, 215, 0, 0.3);
             border-radius: 8px;
         }
         
@@ -101,7 +100,7 @@
             justify-content: center;
             gap: 15px;
             padding-bottom: 15px;
-            border-bottom: 2px solid rgba(255, 215, 0, 0.25);
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
             position: relative;
         }
         
@@ -111,7 +110,7 @@
             bottom: -12px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(42, 42, 62, 0.85);
+            background: rgba(58, 58, 78, 0.9);
             padding: 0 10px;
             font-size: 20px;
         }
@@ -120,7 +119,7 @@
             color: #ffd700; 
             font-size: 26px; 
             margin-bottom: 5px;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
             font-family: 'Cinzel', serif;
             letter-spacing: 1px;
         }
@@ -131,7 +130,7 @@
         }
         
         #app-subtitle {
-            color: #c0c0e0;
+            color: #d0d0f0;
             font-size: 14px;
             letter-spacing: 0.5px;
         }
@@ -145,18 +144,18 @@
             align-items: center;
             justify-content: center;
             box-shadow: 
-                0 0 15px rgba(255, 215, 0, 0.25),
-                inset 0 1px 0 rgba(255, 255, 255, 0.25);
-            border: 2px solid rgba(255, 215, 0, 0.3);
-            background: rgba(255, 255, 255, 0.1);
+                0 0 15px rgba(255, 215, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255, 215, 0, 0.4);
+            background: rgba(255, 255, 255, 0.15);
             transition: all 0.3s ease;
         }
         
         .store-logo:hover {
             transform: rotate(5deg) scale(1.05);
             box-shadow: 
-                0 0 20px rgba(255, 215, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+                0 0 20px rgba(255, 215, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
         
         .logo-img {
@@ -169,7 +168,7 @@
         .btn {
             width: 100%;
             padding: 16px;
-            background: linear-gradient(135deg, #8a89d8 0%, #6b6ab8 100%);
+            background: linear-gradient(135deg, #9a99e8 0%, #7b7ac8 100%);
             color: white;
             border: none;
             border-radius: 12px;
@@ -181,61 +180,61 @@
             letter-spacing: 0.5px;
             text-shadow: 0 1px 2px rgba(0,0,0,0.3);
             box-shadow: 
-                0 4px 15px rgba(90, 89, 163, 0.25),
-                inset 0 1px 0 rgba(255, 255, 255, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+                0 4px 15px rgba(90, 89, 163, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 
-                0 6px 20px rgba(90, 89, 163, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            background: linear-gradient(135deg, #9a99e8 0%, #7b7ac8 100%);
+                0 6px 20px rgba(90, 89, 163, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            background: linear-gradient(135deg, #aaa9f8 0%, #8b8ad8 100%);
         }
         
         .btn:active {
             transform: translateY(0);
             box-shadow: 
-                0 2px 10px rgba(90, 89, 163, 0.25),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+                0 2px 10px rgba(90, 89, 163, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
         
         .btn:disabled {
-            background: linear-gradient(135deg, #5a5a7a 0%, #4a4a6a 100%);
+            background: linear-gradient(135deg, #6a6a8a 0%, #5a5a7a 100%);
             cursor: not-allowed;
             opacity: 0.6;
         }
         
         .btn.sale {
-            background: linear-gradient(135deg, #34ce57 0%, #28a745 100%);
+            background: linear-gradient(135deg, #44ee67 0%, #38c757 100%);
             font-weight: bold;
             font-size: 18px;
             box-shadow: 
-                0 4px 15px rgba(40, 167, 69, 0.25),
-                inset 0 1px 0 rgba(255, 255, 255, 0.25);
+                0 4px 15px rgba(40, 167, 69, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
         
         .btn.sale:hover {
-            background: linear-gradient(135deg, #44ee67 0%, #38c757 100%);
+            background: linear-gradient(135deg, #54ff77 0%, #48d767 100%);
             box-shadow: 
-                0 6px 20px rgba(40, 167, 69, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+                0 6px 20px rgba(40, 167, 69, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
         
         .btn.stats {
-            background: linear-gradient(135deg, #daa520 0%, #b8860b 100%);
+            background: linear-gradient(135deg, #eab530 0%, #c8961b 100%);
             margin-bottom: 5px;
             box-shadow: 
-                0 4px 15px rgba(184, 134, 11, 0.25),
-                inset 0 1px 0 rgba(255, 255, 255, 0.25);
+                0 4px 15px rgba(184, 134, 11, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
         
         .btn.stats:hover {
-            background: linear-gradient(135deg, #eab530 0%, #c8961b 100%);
+            background: linear-gradient(135deg, #fac540 0%, #d8a62b 100%);
             box-shadow: 
-                0 6px 20px rgba(184, 134, 11, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+                0 6px 20px rgba(184, 134, 11, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
         }
         
         .btn.switch-mode {
@@ -246,7 +245,7 @@
         #scanner-container {
             width: 100%;
             height: 200px;
-            background: linear-gradient(135deg, rgba(42, 42, 62, 0.7) 0%, rgba(35, 35, 56, 0.7) 100%);
+            background: linear-gradient(135deg, rgba(58, 58, 78, 0.8) 0%, rgba(50, 50, 70, 0.8) 100%);
             border-radius: 15px;
             margin: 20px 0;
             position: relative;
@@ -254,20 +253,20 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px dashed rgba(255, 215, 0, 0.25);
+            border: 2px dashed rgba(255, 215, 0, 0.3);
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 
-                inset 0 0 20px rgba(0, 0, 0, 0.4),
-                0 0 15px rgba(120, 119, 198, 0.2);
+                inset 0 0 20px rgba(0, 0, 0, 0.3),
+                0 0 15px rgba(138, 137, 216, 0.3);
         }
         
         #scanner-container:hover {
-            border-color: rgba(255, 215, 0, 0.4);
-            background: linear-gradient(135deg, rgba(52, 52, 72, 0.8) 0%, rgba(45, 45, 65, 0.8) 100%);
+            border-color: rgba(255, 215, 0, 0.5);
+            background: linear-gradient(135deg, rgba(68, 68, 88, 0.9) 0%, rgba(60, 60, 80, 0.9) 100%);
             box-shadow: 
-                inset 0 0 30px rgba(0, 0, 0, 0.5),
-                0 0 20px rgba(120, 119, 198, 0.3);
+                inset 0 0 30px rgba(0, 0, 0, 0.4),
+                0 0 20px rgba(138, 137, 216, 0.4);
         }
         
         #scanner-container:active {
@@ -276,51 +275,24 @@
         
         .scanner-placeholder {
             text-align: center;
-            color: #c0c0e0;
+            color: #d0d0f0;
         }
         
         .scanner-placeholder .icon {
             font-size: 48px;
             margin-bottom: 10px;
             color: #ffd700;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
         
         .scanner-placeholder .text {
             font-size: 16px;
             font-weight: 500;
-            color: #e0e0f0;
-        }
-        
-        .search-container {
-            display: flex;
-            gap: 10px;
-            margin: 10px 0;
-        }
-        
-        #search-type {
-            width: 120px;
-            padding: 12px;
-            border: 2px solid rgba(255, 215, 0, 0.25);
-            border-radius: 10px;
-            font-size: 14px;
-            background: rgba(42, 42, 62, 0.7);
-            color: #f0f0f0;
-        }
-        
-        #barcode-input {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid rgba(255, 215, 0, 0.25);
-            border-radius: 10px;
-            text-align: center;
-            font-size: 16px;
-            background: rgba(42, 42, 62, 0.7);
-            color: #f0f0f0;
+            color: #f0f0ff;
         }
         
         .current-price {
-            background: linear-gradient(135deg, rgba(40, 167, 69, 0.85) 0%, rgba(30, 126, 52, 0.85) 100%);
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.9) 0%, rgba(30, 126, 52, 0.9) 100%);
             color: white;
             text-align: center;
             padding: 25px;
@@ -330,9 +302,9 @@
             font-size: 32px;
             display: none;
             box-shadow: 
-                0 4px 20px rgba(40, 167, 69, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.25);
-            border: 2px solid rgba(255, 255, 255, 0.15);
+                0 4px 20px rgba(40, 167, 69, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.2);
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
             position: relative;
             overflow: hidden;
@@ -344,7 +316,7 @@
             top: 10px;
             left: 10px;
             font-size: 20px;
-            opacity: 0.4;
+            opacity: 0.5;
         }
         
         .current-price::after {
@@ -353,7 +325,7 @@
             bottom: 10px;
             right: 10px;
             font-size: 20px;
-            opacity: 0.4;
+            opacity: 0.5;
         }
         
         .current-price.visible { 
@@ -361,11 +333,10 @@
             animation: fadeIn 0.5s ease;
         }
         
-        /* Информация под ценой */
         .price-details {
             margin-top: 15px;
             padding-top: 15px;
-            border-top: 2px solid rgba(255, 255, 255, 0.25);
+            border-top: 2px solid rgba(255, 255, 255, 0.3);
             font-size: 16px;
             line-height: 1.4;
         }
@@ -386,12 +357,12 @@
         }
         
         .game-info {
-            background: rgba(35, 35, 56, 0.7);
+            background: rgba(50, 50, 70, 0.8);
             border-radius: 15px;
             padding: 20px;
             margin-top: 20px;
             display: none;
-            border: 1px solid rgba(255, 215, 0, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.25);
             box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
         }
         
@@ -404,11 +375,11 @@
             display: flex;
             justify-content: space-between;
             padding: 10px 0;
-            border-bottom: 1px solid rgba(255, 215, 0, 0.15);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
         }
         
         .info-label { 
-            color: #c0c0e0; 
+            color: #d0d0f0; 
             font-weight: 500; 
             min-width: 140px; 
         }
@@ -424,39 +395,27 @@
             gap: 8px; 
         }
         
-        .price-final {
-            color: #ffd700;
-            font-size: 20px;
-            font-weight: bold;
-            text-align: center;
-            margin: 15px 0;
-            padding: 15px;
-            background: rgba(184, 134, 11, 0.15);
-            border-radius: 10px;
-            border: 2px solid rgba(255, 215, 0, 0.25);
-        }
-        
         .status {
             text-align: center;
             padding: 15px;
             margin: 15px 0;
             border-radius: 10px;
-            background: rgba(184, 134, 11, 0.25);
+            background: rgba(184, 134, 11, 0.3);
             color: #ffd700;
-            border: 1px solid rgba(255, 215, 0, 0.25);
+            border: 1px solid rgba(255, 215, 0, 0.3);
             font-weight: 500;
         }
         
         .status.error {
-            background: rgba(220, 53, 69, 0.25);
+            background: rgba(220, 53, 69, 0.3);
             color: #f8d7da;
-            border-color: rgba(220, 53, 69, 0.3);
+            border-color: rgba(220, 53, 69, 0.4);
         }
         
         .status.success {
-            background: rgba(40, 167, 69, 0.25);
+            background: rgba(40, 167, 69, 0.3);
             color: #d4edda;
-            border-color: rgba(40, 167, 69, 0.3);
+            border-color: rgba(40, 167, 69, 0.4);
         }
         
         /* Стили для модальных окон */
@@ -468,17 +427,17 @@
             width: 95%;
             max-width: 500px;
             max-height: 90vh;
-            background: rgba(42, 42, 62, 0.95);
+            background: rgba(58, 58, 78, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 20px;
             box-shadow: 
-                0 20px 40px rgba(0,0,0,0.6),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+                0 20px 40px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
             z-index: 1000;
-            display: none;
+            display: none; /* ВАЖНО: display: none вместо flex! */
             overflow-y: auto;
-            border: 2px solid rgba(255, 215, 0, 0.25);
+            border: 2px solid rgba(255, 215, 0, 0.3);
         }
         
         /* Модальное окно поиска на весь экран */
@@ -492,18 +451,18 @@
             max-height: none;
             border-radius: 0;
             padding: 0;
-            display: flex;
+            display: none; /* ВАЖНО: display: none вместо flex! */
             flex-direction: column;
-            background: rgba(30, 30, 46, 0.98);
+            background: rgba(40, 40, 60, 0.98);
         }
         
         #search-modal .modal-header {
-            background: linear-gradient(135deg, #8a89d8 0%, #6b6ab8 100%);
+            background: linear-gradient(135deg, #9a99e8 0%, #7b7ac8 100%);
             color: white;
             padding: 20px;
             margin: 0;
             border-radius: 0;
-            border-bottom: 2px solid rgba(255, 215, 0, 0.25);
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
         }
         
         #search-modal .modal-title {
@@ -513,8 +472,8 @@
         }
         
         #search-modal .modal-close {
-            background: rgba(255, 215, 0, 0.8);
-            color: #2a2a3e;
+            background: rgba(255, 215, 0, 0.9);
+            color: #3a3a4e;
             border: none;
         }
         
@@ -524,7 +483,7 @@
             align-items: center;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 2px solid rgba(255, 215, 0, 0.25);
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
         }
         
         .modal-title {
@@ -535,7 +494,7 @@
         }
         
         .modal-close {
-            background: rgba(220, 53, 69, 0.8);
+            background: rgba(220, 53, 69, 0.9);
             color: white;
             border: none;
             width: 36px;
@@ -558,164 +517,6 @@
             margin-bottom: 20px;
         }
         
-        /* Кнопка назад в детальной статистике */
-        .modal-back-btn {
-            background: linear-gradient(135deg, #8a89d8 0%, #6b6ab8 100%);
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 14px;
-            cursor: pointer;
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: all 0.3s ease;
-        }
-        
-        .modal-back-btn:hover {
-            transform: translateX(-5px);
-        }
-        
-        /* Окно корзины */
-        #cart-modal .cart-list {
-            margin-bottom: 20px;
-        }
-        
-        .cart-item {
-            display: flex;
-            flex-direction: column;
-            padding: 15px;
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            border-radius: 12px;
-            margin-bottom: 10px;
-            background: rgba(35, 35, 56, 0.6);
-            transition: all 0.3s ease;
-        }
-        
-        .cart-item:hover {
-            background: rgba(45, 45, 65, 0.8);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.25);
-        }
-        
-        .cart-item-header {
-            display: flex;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-        
-        .cart-item-info {
-            flex: 1;
-            margin-right: 10px;
-        }
-        
-        .cart-item-name {
-            font-weight: bold;
-            font-size: 16px;
-            color: #f0f0f0;
-            line-height: 1.3;
-            word-break: break-word;
-            margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .cart-item-platform {
-            font-size: 14px;
-            color: #c0c0e0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .cart-item-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 10px;
-            border-top: 1px dashed rgba(255, 215, 0, 0.2);
-        }
-        
-        .cart-item-quantity {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .quantity-btn {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #8a89d8 0%, #6b6ab8 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 22px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-        
-        .quantity-btn:active {
-            transform: scale(0.95);
-        }
-        
-        .quantity-value {
-            font-size: 20px;
-            font-weight: bold;
-            min-width: 50px;
-            text-align: center;
-            color: #ffd700;
-        }
-        
-        .cart-item-price {
-            font-weight: bold;
-            font-size: 20px;
-            color: #28a745;
-        }
-        
-        .cart-remove {
-            background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
-            color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            font-size: 22px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-left: 10px;
-            transition: all 0.3s ease;
-        }
-        
-        .cart-remove:hover {
-            background: linear-gradient(135deg, #e05260 0%, #c9302c 100%);
-        }
-        
-        .cart-total {
-            background: linear-gradient(135deg, rgba(40, 167, 69, 0.85) 0%, rgba(30, 126, 52, 0.85) 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            font-size: 22px;
-            font-weight: bold;
-            margin: 20px 0;
-            border: 2px solid rgba(255, 255, 255, 0.15);
-        }
-        
-        .cart-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        
         /* Окно поиска - ПОЛНЫЙ ЭКРАН */
         #search-modal .search-input-container {
             margin-bottom: 20px;
@@ -726,51 +527,51 @@
         #search-modal .search-input {
             width: 100%;
             padding: 20px;
-            border: 3px solid rgba(255, 215, 0, 0.3);
+            border: 3px solid rgba(255, 215, 0, 0.4);
             border-radius: 15px;
             font-size: 18px;
             text-align: center;
-            background: rgba(42, 42, 62, 0.7);
+            background: rgba(58, 58, 78, 0.8);
             color: #f0f0f0;
             box-shadow: 
-                0 4px 15px rgba(0,0,0,0.25),
-                inset 0 0 10px rgba(0,0,0,0.15);
+                0 4px 15px rgba(0,0,0,0.3),
+                inset 0 0 10px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
         }
         
         #search-modal .search-input:focus {
             outline: none;
-            border-color: rgba(255, 215, 0, 0.5);
+            border-color: rgba(255, 215, 0, 0.6);
             box-shadow: 
-                0 4px 20px rgba(255, 215, 0, 0.25),
-                inset 0 0 15px rgba(0,0,0,0.2);
+                0 4px 20px rgba(255, 215, 0, 0.3),
+                inset 0 0 15px rgba(0,0,0,0.3);
         }
         
         .search-hint {
             text-align: center;
-            color: #c0c0e0;
+            color: #d0d0f0;
             font-size: 15px;
             margin-bottom: 20px;
             padding: 15px;
-            background: rgba(35, 35, 56, 0.6);
+            background: rgba(50, 50, 70, 0.7);
             border-radius: 10px;
-            border: 1px solid rgba(255, 215, 0, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.25);
             margin: 0 20px 20px;
         }
         
         .search-results-container {
             flex: 1;
             overflow-y: auto;
-            border: 1px solid rgba(255, 215, 0, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.25);
             border-radius: 10px;
             padding: 10px;
-            background: rgba(42, 42, 62, 0.6);
+            background: rgba(58, 58, 78, 0.7);
             margin: 0 20px 20px;
         }
         
         .search-result-item {
             padding: 15px;
-            border-bottom: 1px solid rgba(255, 215, 0, 0.15);
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
@@ -781,7 +582,7 @@
         }
         
         .search-result-item:hover {
-            background: rgba(255, 215, 0, 0.15);
+            background: rgba(255, 215, 0, 0.2);
             transform: translateY(-2px);
             border-left: 3px solid #ffd700;
         }
@@ -804,7 +605,7 @@
             justify-content: space-between;
             align-items: center;
             font-size: 15px;
-            color: #c0c0e0;
+            color: #d0d0f0;
         }
         
         .search-result-price {
@@ -813,7 +614,7 @@
             font-size: 18px;
         }
         
-        /* Окно камеры - НЕ МЕНЯЛИ, РАБОТАЕТ КАК НАДО */
+        /* Окно камеры - НЕ МЕНЯЛИ */
         #camera-modal .camera-container {
             position: relative;
             width: 100%;
@@ -822,7 +623,7 @@
             border-radius: 15px;
             overflow: hidden;
             margin-bottom: 15px;
-            border: 2px solid rgba(255, 215, 0, 0.25);
+            border: 2px solid rgba(255, 215, 0, 0.3);
         }
         
         .camera-view {
@@ -831,96 +632,14 @@
             object-fit: cover;
         }
         
-        .camera-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: 3px solid rgba(255, 215, 0, 0.4);
-            pointer-events: none;
-        }
-        
-        .camera-line {
-            position: absolute;
-            width: 100%;
-            height: 3px;
-            background: #ff0000;
-            animation: scan 2s infinite linear;
-            box-shadow: 0 0 10px #ff0000;
-        }
-        
-        @keyframes scan {
-            0%, 100% { top: 10%; }
-            50% { top: 90%; }
-        }
-        
-        .camera-controls {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .camera-btn {
-            flex: 1;
-            padding: 12px;
-            background: linear-gradient(135deg, #8a89d8 0%, #6b6ab8 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .camera-btn:active {
-            transform: scale(0.95);
-        }
-        
-        .camera-btn.secondary {
-            background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
-        }
-        
-        .camera-btn.restart {
-            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
-            color: #000;
-        }
-        
-        .camera-btn:disabled {
-            background: linear-gradient(135deg, #5a5a7a 0%, #4a4a6a 100%);
-            cursor: not-allowed;
-        }
-        
-        #modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 999;
-            display: none;
-        }
-        
         .scanning-status {
             text-align: center;
             padding: 10px;
             margin: 5px 0;
             border-radius: 8px;
             font-size: 14px;
-            background: rgba(35, 35, 56, 0.8);
-            border: 1px solid rgba(255, 215, 0, 0.2);
-        }
-        
-        .scanning-success {
-            background: rgba(40, 167, 69, 0.25);
-            color: #d4edda;
-            border-color: rgba(40, 167, 69, 0.3);
-        }
-        
-        .scanning-error {
-            background: rgba(220, 53, 69, 0.25);
-            color: #f8d7da;
-            border-color: rgba(220, 53, 69, 0.3);
+            background: rgba(50, 50, 70, 0.9);
+            border: 1px solid rgba(255, 215, 0, 0.25);
         }
         
         .install-prompt {
@@ -928,22 +647,22 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(42, 42, 62, 0.95);
+            background: rgba(58, 58, 78, 0.95);
             color: white;
             padding: 15px 20px;
             border-radius: 10px;
             box-shadow: 
-                0 5px 15px rgba(0,0,0,0.25),
-                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+                0 5px 15px rgba(0,0,0,0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
             z-index: 1001;
             display: none;
             max-width: 90%;
             text-align: center;
-            border: 1px solid rgba(255, 215, 0, 0.25);
+            border: 1px solid rgba(255, 215, 0, 0.3);
         }
         
         .install-prompt button {
-            background: linear-gradient(135deg, #8a89d8 0%, #6b6ab8 100%);
+            background: linear-gradient(135deg, #9a99e8 0%, #7b7ac8 100%);
             color: white;
             border: none;
             padding: 8px 15px;
@@ -956,7 +675,7 @@
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.2);
             border-top: 2px solid #ffd700;
             border-radius: 50%;
             animation: spin 1s linear infinite;
@@ -972,12 +691,11 @@
             text-align: center;
             margin-top: 20px;
             font-size: 12px;
-            color: #a0a0c0;
+            color: #b0b0d0;
             padding: 10px;
-            border-top: 1px solid rgba(255, 215, 0, 0.15);
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
         }
 
-        /* ИСПРАВЛЕННЫЕ СТИЛИ ИКОНОК ПЛАТФОРМ */
         .platform-icon {
             display: inline-flex;
             align-items: center;
@@ -991,7 +709,7 @@
             min-width: 40px;
             height: 22px;
             flex-shrink: 0;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
         
         .ps4-icon { 
@@ -1001,7 +719,7 @@
         
         .ps5-icon { 
             background: linear-gradient(135deg, #000 0%, #333 100%);
-            border: 1px solid rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         
         .ns-icon { 
@@ -1038,14 +756,14 @@
         }
         
         .log-btn.download {
-            background: linear-gradient(135deg, #34ce57 0%, #28a745 100%);
+            background: linear-gradient(135deg, #44ee67 0%, #38c757 100%);
         }
         
         .log-btn.clear {
             background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
         }
         
-        /* Окно статистики с кликабельными карточками */
+        /* Окно статистики */
         #stats-modal .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -1054,7 +772,7 @@
         }
         
         .stat-card {
-            background: linear-gradient(135deg, rgba(138, 137, 216, 0.8) 0%, rgba(107, 106, 184, 0.8) 100%);
+            background: linear-gradient(135deg, rgba(158, 157, 236, 0.9) 0%, rgba(127, 126, 204, 0.9) 100%);
             color: white;
             padding: 15px;
             border-radius: 10px;
@@ -1063,13 +781,13 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(255, 215, 0, 0.2);
+            border: 1px solid rgba(255, 215, 0, 0.25);
         }
         
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.25);
-            background: linear-gradient(135deg, rgba(158, 157, 236, 0.9) 0%, rgba(127, 126, 204, 0.9) 100%);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, rgba(178, 177, 255, 1) 0%, rgba(147, 146, 224, 1) 100%);
         }
         
         .stat-card:active {
@@ -1086,90 +804,6 @@
         .stat-label {
             font-size: 12px;
             opacity: 0.9;
-        }
-        
-        .stats-period {
-            text-align: center;
-            color: #c0c0e0;
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
-        
-        /* Окно детальной статистики */
-        #stats-detail-modal .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        .modal-header-title {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .sale-details-list {
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 20px;
-            background: rgba(35, 35, 56, 0.6);
-        }
-        
-        .sale-detail-item {
-            padding: 12px;
-            border-bottom: 1px solid rgba(255, 215, 0, 0.15);
-            background: rgba(42, 42, 62, 0.6);
-            border-radius: 8px;
-            margin-bottom: 8px;
-        }
-        
-        .sale-detail-item:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-        }
-        
-        .sale-detail-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            padding-bottom: 5px;
-            border-bottom: 1px dashed rgba(255, 215, 0, 0.2);
-        }
-        
-        .sale-detail-id {
-            font-weight: bold;
-            color: #f0f0f0;
-        }
-        
-        .sale-detail-date {
-            font-size: 12px;
-            color: #c0c0e0;
-        }
-        
-        .sale-detail-items {
-            margin-top: 5px;
-        }
-        
-        .sale-detail-game {
-            font-size: 13px;
-            color: #d0d0f0;
-            margin-left: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            line-height: 1.3;
-        }
-        
-        .sale-detail-total {
-            font-weight: bold;
-            color: #28a745;
-            text-align: right;
-            margin-top: 8px;
-            padding-top: 5px;
-            border-top: 1px dashed rgba(255, 215, 0, 0.2);
         }
         
         /* Клиентский режим */
@@ -1202,15 +836,15 @@
             position: absolute;
             top: 15px;
             right: 15px;
-            background: linear-gradient(135deg, #8a89d8 0%, #6b6ab8 100%);
+            background: linear-gradient(135deg, #9a99e8 0%, #7b7ac8 100%);
             color: white;
             padding: 5px 10px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: bold;
             z-index: 10;
-            border: 1px solid rgba(255, 215, 0, 0.25);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
         
         @keyframes fadeIn {
@@ -1248,7 +882,7 @@
             </div>
             <div>
                 <h1>GAME ZONE</h1>
-                <p id="app-subtitle">Сканер игровых дисков v5.0</p>
+                <p id="app-subtitle">Сканер игровых дисков v5.1</p>
             </div>
         </div>
 
@@ -1318,7 +952,7 @@
         </div>
 
         <div class="app-version">
-            🐉 Версия 5.0 | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span> | Камера: ✅ Работает
+            🐉 Версия 5.1 | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span> | Камера: ✅ Работает
         </div>
     </div>
 
@@ -1337,12 +971,12 @@
             </div>
             <div class="cart-buttons">
                 <button id="clear-cart-btn" class="btn" style="background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);">🗑️ Очистить корзину</button>
-                <button id="process-sale-btn" class="btn" style="background: linear-gradient(135deg, #34ce57 0%, #28a745 100%);">💰 Завершить продажу</button>
+                <button id="process-sale-btn" class="btn" style="background: linear-gradient(135deg, #44ee67 0%, #38c757 100%);">💰 Завершить продажу</button>
             </div>
         </div>
     </div>
 
-    <!-- Окно поиска - ПОЛНЫЙ ЭКРАН -->
+    <!-- Окно поиска - ПОЛНЫЙ ЭКРАН (ВАЖНО: display: none!) -->
     <div id="search-modal" class="modal">
         <div class="modal-header">
             <div class="modal-title">🔍 Умный поиск</div>
@@ -1350,7 +984,6 @@
         </div>
         <div class="modal-body">
             <div class="search-input-container">
-                <!-- ВНИМАНИЕ: autofocus УБРАН! Поиск не открывается автоматически -->
                 <input type="text" id="smart-search-input" class="search-input" 
                        placeholder="Введите название, код или штрих-код...">
             </div>
@@ -1363,7 +996,7 @@
         </div>
     </div>
 
-    <!-- Окно камеры - НЕ ИЗМЕНЯЛОСЬ, РАБОТАЕТ ИДЕАЛЬНО -->
+    <!-- Окно камеры - НЕ ИЗМЕНЯЛОСЬ -->
     <div id="camera-modal" class="modal">
         <div class="modal-header">
             <div class="modal-title">📷 Сканер штрих-кодов</div>
@@ -1449,13 +1082,12 @@
     
     <script>
         // =============================================
-        // GAME ZONE SCANNER v5.0 - ИСПРАВЛЕННАЯ ВЕРСИЯ
+        // GAME ZONE SCANNER v5.1 - ИСПРАВЛЕНА ПРОБЛЕМА
         // =============================================
         // ИСПРАВЛЕНИЯ:
-        // 1. Убрана автоматическая фокусировка на поиске
-        // 2. Светлая тематика Skyrim
-        // 3. Камера НЕ ИЗМЕНЯЛАСЬ - работает как надо
-        // 4. Четкая версионирование
+        // 1. Поиск НЕ открывается автоматически при загрузке
+        // 2. Еще более светлая тематика
+        // 3. Камера работает как надо
         // =============================================
 
         // Проверяем режим из URL и localStorage
@@ -1463,9 +1095,6 @@
         const isUrlClientMode = urlParams.get('mode') === 'client';
         const savedMode = localStorage.getItem('gamezone_mode');
         
-        // Правило: если в URL явно указан client, используем его, 
-        // иначе используем сохраненный режим (если он есть), 
-        // иначе режим разработчика (full)
         const isClientMode = isUrlClientMode ? true : 
                            (savedMode ? savedMode === 'client' : false);
 
@@ -1492,13 +1121,10 @@
                 setInterval(() => this.syncWithOtherDevices(), 5 * 60 * 1000);
             }
 
-            // Синхронизация логов между устройствами
             syncWithOtherDevices() {
                 try {
-                    // Получаем все логи из localStorage
                     const allLogs = {};
                     
-                    // Собираем все ключи с логами
                     for (let i = 0; i < localStorage.length; i++) {
                         const key = localStorage.key(i);
                         if (key.startsWith('gamezone_logs_')) {
@@ -1513,24 +1139,20 @@
                         }
                     }
                     
-                    // Объединяем все логи
                     let mergedLogs = {
                         deviceId: this.deviceId,
                         appLog: [...this.appLog],
                         salesLog: [...this.salesLog]
                     };
                     
-                    // Добавляем логи с других устройств
                     Object.values(allLogs).forEach(logs => {
                         if (logs.deviceId !== this.deviceId) {
-                            // Добавляем уникальные продажи
                             logs.salesLog.forEach(sale => {
                                 if (!mergedLogs.salesLog.some(s => s.saleId === sale.saleId)) {
                                     mergedLogs.salesLog.push(sale);
                                 }
                             });
                             
-                            // Добавляем уникальные действия
                             logs.appLog.forEach(action => {
                                 if (!mergedLogs.appLog.some(a => 
                                     a.timestamp === action.timestamp && 
@@ -1541,19 +1163,15 @@
                         }
                     });
                     
-                    // Сортируем по времени
                     mergedLogs.salesLog.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
                     mergedLogs.appLog.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
                     
-                    // Обрезаем до последних 1000 записей
                     mergedLogs.salesLog = mergedLogs.salesLog.slice(-1000);
                     mergedLogs.appLog = mergedLogs.appLog.slice(-1000);
                     
-                    // Обновляем локальные данные
                     this.salesLog = mergedLogs.salesLog;
                     this.appLog = mergedLogs.appLog;
                     
-                    // Сохраняем объединенные логи
                     this.saveToStorage();
                     
                     console.log(`🔄 Синхронизировано логов: продаж - ${this.salesLog.length}, действий - ${this.appLog.length}`);
@@ -1654,7 +1272,6 @@
 
             loadFromStorage() {
                 try {
-                    // Загружаем логи с этого устройства
                     const storageKey = `gamezone_logs_${this.deviceId}`;
                     const saved = localStorage.getItem(storageKey);
                     
@@ -1666,141 +1283,6 @@
                 } catch (error) {
                     console.error('❌ Ошибка загрузки логов:', error);
                 }
-            }
-
-            downloadLogs() {
-                try {
-                    const today = new Date().toISOString().split('T')[0];
-                    const filename = `gamezone_sales_all_${today}.txt`;
-                    
-                    let logContent = '═══════════════════════════════════════════════════════════════\n';
-                    logContent += '                     GAME ZONE - ПОЛНЫЕ ЛОГИ ПРОДАЖ v5.0\n';
-                    logContent += `          Сформировано: ${new Date().toLocaleString('ru-RU')}\n`;
-                    logContent += `          Устройство: ${this.deviceId}\n`;
-                    logContent += '═══════════════════════════════════════════════════════════════\n\n';
-                    
-                    const stats = this.getStats();
-                    logContent += '📊 ПОЛНАЯ СТАТИСТИКА ПРОДАЖ (ВСЕ УСТРОЙСТВА):\n';
-                    logContent += '───────────────────────────────────────────────────────────────\n';
-                    logContent += `Всего продаж: ${stats.totalSales}\n`;
-                    logContent += `Всего товаров: ${stats.totalItems} шт\n`;
-                    logContent += `Общая выручка: ${stats.totalRevenue} руб\n\n`;
-                    
-                    // Статистика по дням
-                    const salesByDate = {};
-                    this.salesLog.forEach(sale => {
-                        const date = new Date(sale.timestamp).toLocaleDateString('ru-RU');
-                        if (!salesByDate[date]) {
-                            salesByDate[date] = {
-                                count: 0,
-                                revenue: 0,
-                                items: 0
-                            };
-                        }
-                        salesByDate[date].count++;
-                        salesByDate[date].revenue += sale.totalAmount;
-                        salesByDate[date].items += sale.totalItems;
-                    });
-                    
-                    logContent += '📅 СТАТИСТИКА ПО ДНЯМ:\n';
-                    logContent += '───────────────────────────────────────────────────────────────\n';
-                    Object.keys(salesByDate).sort().reverse().forEach(date => {
-                        const stats = salesByDate[date];
-                        logContent += `${date}: ${stats.count} продаж, ${stats.items} шт, ${stats.revenue} руб\n`;
-                    });
-                    
-                    logContent += '\n═══════════════════════════════════════════════════════════════\n';
-                    logContent += '                     ПОЛНАЯ ИСТОРИЯ ПРОДАЖ\n';
-                    logContent += '═══════════════════════════════════════════════════════════════\n\n';
-                    
-                    // Группируем продажи по дням
-                    const groupedSales = {};
-                    this.salesLog.forEach(sale => {
-                        const date = new Date(sale.timestamp).toLocaleDateString('ru-RU');
-                        if (!groupedSales[date]) {
-                            groupedSales[date] = [];
-                        }
-                        groupedSales[date].push(sale);
-                    });
-                    
-                    // Сортируем дни по убыванию
-                    const sortedDates = Object.keys(groupedSales).sort().reverse();
-                    
-                    sortedDates.forEach((date, dateIndex) => {
-                        const daySales = groupedSales[date];
-                        const dayRevenue = daySales.reduce((sum, sale) => sum + sale.totalAmount, 0);
-                        const dayItems = daySales.reduce((sum, sale) => sum + sale.totalItems, 0);
-                        
-                        logContent += `\n${'═'.repeat(60)}\n`;
-                        logContent += `  ДЕНЬ: ${date} (${daySales.length} продаж, ${dayItems} шт, ${dayRevenue} руб)\n`;
-                        logContent += `${'═'.repeat(60)}\n\n`;
-                        
-                        daySales.forEach((sale, saleIndex) => {
-                            const saleDate = new Date(sale.timestamp).toLocaleString('ru-RU');
-                            const deviceInfo = sale.deviceId ? ` [Устройство: ${sale.deviceId}]` : '';
-                            
-                            logContent += `┌─────────────────────────────────────────────────────────────┐\n`;
-                            logContent += `│ ПРОДАЖА: ${sale.saleId}${deviceInfo}\n`;
-                            logContent += `│ ВРЕМЯ:  ${saleDate}\n`;
-                            logContent += `├─────────────────────────────────────────────────────────────┤\n`;
-                            
-                            sale.items.forEach((item, itemIndex) => {
-                                logContent += `│ ${itemIndex + 1}. ${item.name} (${item.platform})\n`;
-                                logContent += `│    ${item.quantity} шт × ${item.price} руб = ${item.total} руб\n`;
-                            });
-                            
-                            logContent += `├─────────────────────────────────────────────────────────────┤\n`;
-                            logContent += `│ ИТОГО: ${sale.totalItems} шт на сумму ${sale.totalAmount} руб\n`;
-                            logContent += `└─────────────────────────────────────────────────────────────┘\n\n`;
-                        });
-                    });
-                    
-                    const blob = new Blob(['\uFEFF' + logContent], { 
-                        type: 'text/plain;charset=utf-8' 
-                    });
-                    const url = URL.createObjectURL(blob);
-                    
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = filename;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    
-                    console.log('📥 Полные логи скачаны');
-                    return true;
-                    
-                } catch (error) {
-                    console.error('❌ Ошибка скачивания логов:', error);
-                    alert('Ошибка при скачивании логов');
-                    return false;
-                }
-            }
-
-            clearLogs() {
-                if (confirm('Вы уверены, что хотите удалить ВСЕ логи со ВСЕХ устройств?')) {
-                    try {
-                        // Удаляем все логи всех устройств
-                        for (let i = 0; i < localStorage.length; i++) {
-                            const key = localStorage.key(i);
-                            if (key.startsWith('gamezone_logs_')) {
-                                localStorage.removeItem(key);
-                            }
-                        }
-                        
-                        this.appLog = [];
-                        this.salesLog = [];
-                        
-                        console.log('🗑️ Все логи очищены');
-                        alert('Все логи успешно очищены');
-                        return true;
-                    } catch (error) {
-                        console.error('❌ Ошибка очистки логов:', error);
-                        return false;
-                    }
-                }
-                return false;
             }
 
             getStats() {
@@ -1875,13 +1357,12 @@
                 this.scannedGames = [];
                 
                 this.cameraStream = null;
-                this.quaggaInitialized =
-				                this.quaggaInitialized = false;
+                this.quaggaInitialized = false;
                 this.isScanning = false;
                 this.lastScannedCode = null;
                 this.scanCooldown = false;
                 
-                this.appVersion = "5.0"; // ВЕРСИЯ 5.0 - ФИНАЛЬНАЯ ИСПРАВЛЕННАЯ
+                this.appVersion = "5.1"; // ВЕРСИЯ 5.1 - ИСПРАВЛЕНА ПРОБЛЕМА С ПОИСКОМ
                 this.isClientMode = isClientMode;
                 this.logger = new SimpleLogger();
                 
@@ -1910,7 +1391,6 @@
                 this.updateStatus(`✅ Готов! ${this.gamesData.length} игр в базе`, 'success');
             }
 
-            // Установка режима (клиентский/полный) с возможностью возврата
             setMode(isClientMode) {
                 this.isClientMode = isClientMode;
                 localStorage.setItem('gamezone_mode', isClientMode ? 'client' : 'full');
@@ -1926,10 +1406,9 @@
                     container.classList.add('client-mode');
                     modeIndicator.style.display = 'block';
                     modeStatus.textContent = 'КЛИЕНТ';
-                    appSubtitle.textContent = 'Сканер цен для клиентов v5.0';
+                    appSubtitle.textContent = 'Сканер цен для клиентов v5.1';
                     scannerText.textContent = 'Наведите камеру на штрих-код игры';
                     
-                    // В клиентском режиме кнопка переключения всегда видна и называется "Вернуться в режим разработчика"
                     switchBtn.style.display = 'block';
                     switchBtn.textContent = '👨‍💻 Режим разработчика';
                     switchBtn.classList.remove('switch-mode');
@@ -1939,7 +1418,7 @@
                     container.classList.remove('client-mode');
                     modeIndicator.style.display = 'none';
                     modeStatus.textContent = 'ПОЛНЫЙ';
-                    appSubtitle.textContent = 'Сканер игровых дисков v5.0';
+                    appSubtitle.textContent = 'Сканер игровых дисков v5.1';
                     scannerText.textContent = 'Нажмите для запуска сканера';
                     switchBtn.style.display = 'block';
                     switchBtn.textContent = '👤 Переключить на клиентский режим';
@@ -1953,14 +1432,11 @@
                 });
             }
 
-            // Переключение режима
             toggleMode() {
                 if (this.isClientMode) {
-                    // Если в клиентском режиме - переключаемся в полный
                     this.setMode(false);
                     this.updateStatus('✅ Переключен в режим разработчика', 'success');
                 } else {
-                    // Если в полном режиме - переключаемся в клиентский
                     this.setMode(true);
                     this.updateStatus('✅ Переключен в клиентский режим', 'success');
                 }
@@ -1988,20 +1464,14 @@
             }
 
             setupEventListeners() {
-                // Сканер
                 document.getElementById('scanner-container').addEventListener('click', () => this.startScanner());
-                
-                // Кнопки модальных окон
                 document.getElementById('open-search-btn').addEventListener('click', () => this.openSearchModal());
                 document.getElementById('sale-btn').addEventListener('click', () => this.openCartModal());
                 document.getElementById('stats-btn').addEventListener('click', () => this.openStatsModal());
                 document.getElementById('switch-mode-btn').addEventListener('click', () => this.toggleMode());
-                
-                // Управление логами
                 document.getElementById('download-logs-btn').addEventListener('click', () => this.downloadLogs());
                 document.getElementById('clear-logs-btn').addEventListener('click', () => this.clearLogs());
                 
-                // Закрытие модальных окон
                 document.getElementById('close-cart-btn').addEventListener('click', () => this.closeModal('cart-modal'));
                 document.getElementById('close-search-btn').addEventListener('click', () => this.closeModal('search-modal'));
                 document.getElementById('close-camera-btn').addEventListener('click', () => this.stopScanner());
@@ -2010,19 +1480,16 @@
                 document.getElementById('close-stats-detail-btn').addEventListener('click', () => this.closeModal('stats-detail-modal'));
                 document.getElementById('modal-overlay').addEventListener('click', () => this.closeAllModals());
                 
-                // Кнопка назад в детальной статистике
                 document.getElementById('back-to-stats-btn').addEventListener('click', () => {
                     this.closeModal('stats-detail-modal');
                     this.openModal('stats-modal');
                 });
                 
-                // Камера
                 document.getElementById('restart-camera').addEventListener('click', () => {
                     console.log('🔄 Перезапуск камеры');
                     this.restartCamera();
                 });
                 
-                // Поиск - ВНИМАНИЕ: autofocus УБРАН, фокусировка только при явном открытии
                 document.getElementById('smart-search-input').addEventListener('input', (e) => {
                     this.performSmartSearch(e.target.value);
                 });
@@ -2038,30 +1505,17 @@
                     }
                 });
                 
-                // Корзина
                 document.getElementById('clear-cart-btn').addEventListener('click', () => this.clearCart());
                 document.getElementById('process-sale-btn').addEventListener('click', () => this.processSaleFromCart());
-                
-                // Кликабельная статистика
-                document.addEventListener('click', (e) => {
-                    if (e.target.closest('.stat-card')) {
-                        const card = e.target.closest('.stat-card');
-                        const statType = card.getAttribute('data-stat');
-                        if (statType) {
-                            this.showStatDetails(statType);
-                        }
-                    }
-                });
             }
 
+            // ИСПРАВЛЕНИЕ: Теперь поиск открывается только при явном вызове
             openModal(modalId) {
                 document.getElementById(modalId).style.display = 'block';
                 document.getElementById('modal-overlay').style.display = 'block';
                 document.body.style.overflow = 'hidden';
                 
-                // ФОКУС ТОЛЬКО ДЛЯ ПОИСКА И ТОЛЬКО КОГДА ЕГО ЯВНО ОТКРЫВАЕМ
                 if (modalId === 'search-modal') {
-                    // Небольшая задержка для корректного фокуса
                     setTimeout(() => {
                         document.getElementById('smart-search-input').focus();
                     }, 100);
@@ -2082,211 +1536,25 @@
                 document.body.style.overflow = 'auto';
             }
 
-            // Окно статистики
-            openStatsModal() {
-                const stats = this.logger.getStats();
-                const today = new Date().toLocaleDateString('ru-RU');
-                
-                document.getElementById('stats-date').textContent = today;
-                document.getElementById('today-sales').textContent = stats.todaySales;
-                document.getElementById('today-revenue').textContent = stats.todayRevenue + ' руб';
-                document.getElementById('today-items').textContent = stats.todayItems;
-                document.getElementById('total-sales').textContent = stats.totalSales;
-                document.getElementById('total-revenue').textContent = stats.totalRevenue + ' руб';
-                document.getElementById('total-items').textContent = stats.totalItems;
-                
-                this.openModal('stats-modal');
-            }
-
-            showStatDetails(statType) {
-                const stats = this.logger.getStats();
-                const sales = this.logger.getSalesByPeriod(statType);
-                
-                let title = '';
-                let periodText = '';
-                
-                switch(statType) {
-                    case 'today-sales':
-                        title = '📋 Продажи за сегодня';
-                        periodText = `Сегодня (${new Date().toLocaleDateString('ru-RU')})`;
-                        break;
-                    case 'today-revenue':
-                        title = '💰 Выручка за сегодня';
-                        periodText = `Сегодня (${new Date().toLocaleDateString('ru-RU')})`;
-                        break;
-                    case 'today-items':
-                        title = '🛍️ Товары за сегодня';
-                        periodText = `Сегодня (${new Date().toLocaleDateString('ru-RU')})`;
-                        break;
-                    case 'total-sales':
-                        title = '📊 Все продажи';
-                        periodText = 'За все время';
-                        break;
-                    case 'total-revenue':
-                        title = '💵 Общая выручка';
-                        periodText = 'За все время';
-                        break;
-                    case 'total-items':
-                        title = '📦 Все товары';
-                        periodText = 'За все время';
-                        break;
-                    default:
-                        title = '📋 Детали продаж';
-                        periodText = 'Детали';
-                }
-                
-                document.getElementById('stats-detail-title').textContent = title;
-                document.getElementById('stats-detail-period').textContent = periodText;
-                
-                const detailContent = document.getElementById('stats-detail-content');
-                detailContent.innerHTML = '';
-                
-                if (sales.length === 0) {
-                    detailContent.innerHTML = `
-                        <div style="padding: 30px; text-align: center; color: #c0c0e0;">
-                            <div style="font-size: 48px; margin-bottom: 15px;">📭</div>
-                            <div style="font-size: 16px; margin-bottom: 10px;">Нет данных</div>
-                            <div style="font-size: 14px; color: #888;">Продажи за этот период отсутствуют</div>
-                        </div>
-                    `;
-                } else {
-                    sales.forEach(sale => {
-                        const saleDate = new Date(sale.timestamp).toLocaleString('ru-RU');
-                        const item = document.createElement('div');
-                        item.className = 'sale-detail-item';
-                        
-                        let itemsHtml = '';
-                        sale.items.forEach((game, idx) => {
-                            itemsHtml += `
-                                <div class="sale-detail-game">
-                                    <span>${idx + 1}.</span>
-                                    ${this.getPlatformIconOnly(game.platform)}
-                                    <span>${game.name}</span>
-                                    <span style="margin-left: auto; font-weight: bold;">${game.total} руб</span>
-                                </div>
-                            `;
-                        });
-                        
-                        item.innerHTML = `
-                            <div class="sale-detail-header">
-                                <div class="sale-detail-id">${sale.saleId}</div>
-                                <div class="sale-detail-date">${saleDate}</div>
-                            </div>
-                            <div class="sale-detail-items">
-                                ${itemsHtml}
-                            </div>
-                            <div class="sale-detail-total">
-                                ИТОГО: ${sale.totalItems} шт на сумму ${sale.totalAmount} руб
-                            </div>
-                        `;
-                        
-                        detailContent.appendChild(item);
-                    });
-                }
-                
-                this.closeModal('stats-modal');
-                this.openModal('stats-detail-modal');
-            }
-
-            openCartModal() {
-                if (this.scannedGames.length === 0) {
-                    alert('🛒 Корзина пуста');
-                    return;
-                }
-                
-                this.renderCart();
-                this.openModal('cart-modal');
-            }
-
-            renderCart() {
-                const cartItems = document.getElementById('cart-items');
-                cartItems.innerHTML = '';
-                
-                let total = 0;
-                let totalItems = 0;
-                
-                this.scannedGames.forEach((game, index) => {
-                    const quantity = game.quantity || 1;
-                    const itemTotal = game.price * quantity;
-                    total += itemTotal;
-                    totalItems += quantity;
-                    
-                    const item = document.createElement('div');
-                    item.className = 'cart-item';
-                    item.innerHTML = `
-                        <div class="cart-item-header">
-                            <div class="cart-item-info">
-                                <div class="cart-item-name">
-                                    ${this.getPlatformIconOnly(game.platform)}
-                                    <span>${game.name}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="cart-item-controls">
-                            <div class="cart-item-quantity">
-                                <button class="quantity-btn minus" data-index="${index}">-</button>
-                                <span class="quantity-value">${quantity}</span>
-                                <button class="quantity-btn plus" data-index="${index}">+</button>
-                            </div>
-                            <div style="display: flex; align-items: center;">
-                                <div class="cart-item-price">${itemTotal} руб</div>
-                                <button class="cart-remove" data-index="${index}">×</button>
-                            </div>
-                        </div>
-                    `;
-                    
-                    const minusBtn = item.querySelector('.minus');
-                    const plusBtn = item.querySelector('.plus');
-                    const removeBtn = item.querySelector('.cart-remove');
-                    
-                    minusBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        this.updateCartItem(index, -1);
-                    });
-                    
-                    plusBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        this.updateCartItem(index, 1);
-                    });
-                    
-                    removeBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        this.removeFromCart(index);
-                    });
-                    
-                    item.addEventListener('click', (e) => {
-                        if (!e.target.classList.contains('quantity-btn') && !e.target.classList.contains('cart-remove')) {
-                            this.displayGameInfo(game.fullInfo);
-                            this.closeModal('cart-modal');
-                        }
-                    });
-                    
-                    cartItems.appendChild(item);
-                });
-                
-                document.getElementById('cart-total-amount').textContent = total;
-                document.getElementById('sale-btn').textContent = `💰 ОФОРМИТЬ ПРОДАЖУ (${totalItems} шт - ${total} руб)`;
-            }
-
             openSearchModal() {
                 this.openModal('search-modal');
                 document.getElementById('smart-search-input').value = '';
                 document.getElementById('smart-search-results').innerHTML = 
-                    '<div style="padding: 20px; text-align: center; color: #c0c0e0;">Введите запрос для поиска игр</div>';
+                    '<div style="padding: 20px; text-align: center; color: #d0d0f0;">Введите запрос для поиска игр</div>';
             }
 
             performSmartSearch(query) {
                 const resultsContainer = document.getElementById('smart-search-results');
                 
                 if (!query || query.length < 2) {
-                    resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #c0c0e0;">Введите минимум 2 символа</div>';
+                    resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #d0d0f0;">Введите минимум 2 символа</div>';
                     return [];
                 }
                 
                 const results = this.logger.smartSearch(this.gamesData, query);
                 
                 if (results.length === 0) {
-                    resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #c0c0e0;">Игры не найдены</div>';
+                    resultsContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #d0d0f0;">Игры не найдены</div>';
                     return [];
                 }
                 
@@ -2346,625 +1614,12 @@
                 });
             }
 
-            updateCartItem(index, change) {
-                if (index >= 0 && index < this.scannedGames.length) {
-                    const currentQuantity = this.scannedGames[index].quantity || 1;
-                    const newQuantity = currentQuantity + change;
-                    
-                    if (newQuantity < 1) {
-                        this.removeFromCart(index);
-                    } else {
-                        this.scannedGames[index].quantity = newQuantity;
-                        this.saveCart();
-                        this.renderCart();
-                    }
-                }
-            }
-
-            removeFromCart(index) {
-                if (index >= 0 && index < this.scannedGames.length) {
-                    this.scannedGames.splice(index, 1);
-                    this.saveCart();
-                    this.renderCart();
-                }
-            }
-
-            clearCart() {
-                if (this.scannedGames.length === 0) return;
-                
-                if (confirm('Очистить всю корзину?')) {
-                    this.scannedGames = [];
-                    this.saveCart();
-                    this.renderCart();
-                    this.closeModal('cart-modal');
-                    this.updateStatus('✅ Корзина очищена', 'success');
-                }
-            }
-
-            processSaleFromCart() {
-                const totalAmount = this.scannedGames.reduce((sum, game) => sum + (game.price * (game.quantity || 1)), 0);
-                const totalItems = this.scannedGames.reduce((sum, game) => sum + (game.quantity || 1), 0);
-                
-                const confirmText = `Подтвердить продажу?\n\n` +
-                    `Товаров: ${totalItems} шт\n` +
-                    `Сумма: ${totalAmount} руб`;
-                
-                if (!confirm(confirmText)) {
-                    return;
-                }
-                
-                const saleData = {
-                    items: this.scannedGames.map(game => ({
-                        name: game.name,
-                        platform: game.platform,
-                        price: game.price,
-                        quantity: game.quantity || 1,
-                        total: game.price * (game.quantity || 1)
-                    })),
-                    totalAmount: totalAmount,
-                    totalItems: totalItems
-                };
-                
-                const saleEntry = this.logger.logSale(saleData);
-                
-                alert(`✅ Продажа оформлена!\n\n` +
-                      `ID: ${saleEntry.saleId}\n` +
-                      `Товаров: ${totalItems} шт\n` +
-                      `Сумма: ${totalAmount} руб`);
-                
-                this.scannedGames = [];
-                this.saveCart();
-                this.closeModal('cart-modal');
-                this.updateStatus('✅ Продажа завершена', 'success');
-            }
-
-            downloadLogs() {
-                const success = this.logger.downloadLogs();
-                if (success) {
-                    this.updateStatus('✅ Все логи скачаны', 'success');
-                }
-            }
-
-            clearLogs() {
-                const success = this.logger.clearLogs();
-                if (success) {
-                    this.updateStatus('✅ Все логи очищены', 'success');
-                }
-            }
-
-            async loadGamesData() {
-                try {
-                    this.loadFromLocalStorage();
-                    
-                    if (this.gamesData.length === 0) {
-                        this.createSampleData();
-                        this.updateStatus('✅ Загружены демо-данные', 'success');
-                    } else {
-                        this.updateStatus(`✅ Готов! ${this.gamesData.length} игр в базе`, 'success');
-                    }
-                    
-                    setTimeout(() => this.checkForUpdates(), 1000);
-                    
-                } catch (error) {
-                    console.error('Ошибка загрузки данных:', error);
-                    if (this.gamesData.length === 0) {
-                        this.createSampleData();
-                        this.updateStatus('⚠️ Нет интернета. Используем демо-данные', 'error');
-                    }
-                }
-            }
-
-            loadFromLocalStorage() {
-                try {
-                    const savedData = localStorage.getItem(this.localDataKey);
-                    const savedCart = localStorage.getItem(this.scannedGamesKey);
-                    
-                    if (savedData) {
-                        this.gamesData = JSON.parse(savedData);
-                        console.log(`📊 Загружено ${this.gamesData.length} игр`);
-                    }
-                    
-                    if (savedCart) {
-                        this.scannedGames = JSON.parse(savedCart);
-                        console.log(`🛒 Загружено ${this.scannedGames.length} товаров в корзине`);
-                    }
-                } catch (error) {
-                    console.error('Ошибка загрузки данных:', error);
-                    this.gamesData = [];
-                    this.scannedGames = [];
-                }
-            }
-
-            saveCart() {
-                try {
-                    localStorage.setItem(this.scannedGamesKey, JSON.stringify(this.scannedGames));
-                } catch (error) {
-                    console.error('Ошибка сохранения корзины:', error);
-                }
-            }
-
-            createSampleData() {
-                this.gamesData = [
-                    {
-                        platform: 'PS4',
-                        barcode: '711719803278',
-                        name: 'The Last of Us Part II',
-                        code: 'CUSA-18278',
-                        language: 'RUS',
-                        optPrice: '1999',
-                        marketplace: '2499',
-                        codeType: 'CUSA'
-                    },
-                    {
-                        platform: 'PS5',
-                        barcode: '711719998653',
-                        name: 'Spider-Man: Miles Morales',
-                        code: 'PPSA-01462',
-                        language: 'RUS',
-                        optPrice: '2499',
-                        marketplace: '3499',
-                        codeType: 'PPSA'
-                    },
-                    {
-                        platform: 'NS',
-                        barcode: '045496873285',
-                        name: 'The Legend of Zelda: Breath of the Wild',
-                        code: '',
-                        language: 'ENG',
-                        optPrice: '2999',
-                        marketplace: '3999',
-                        codeType: ''
-                    },
-                    {
-                        platform: 'XBOX ONE',
-                        barcode: '889842414205',
-                        name: 'Halo Infinite',
-                        code: '',
-                        language: 'RUS',
-                        optPrice: '2299',
-                        marketplace: '3299',
-                        codeType: ''
-                    }
-                ];
-                
-                this.saveToLocalStorage();
-            }
-
-            async checkForUpdates() {
-                try {
-                    console.log('🔄 Проверяем обновления...');
-                    
-                    const response = await fetch(this.sheetsUrl + '&t=' + Date.now());
-                    if (!response.ok) throw new Error('Ошибка сети');
-                    
-                    const csvText = await response.text();
-                    if (!csvText || csvText.length < 100) throw new Error('Пустые данные');
-                    
-                    const newData = this.parseCSV(csvText);
-                    if (newData.length > 0) {
-                        this.gamesData = newData;
-                        this.saveToLocalStorage();
-                        console.log(`🔄 Обновлено ${this.gamesData.length} игр`);
-                    }
-                    
-                } catch (error) {
-                    console.log('⚠️ Не удалось обновить данные:', error);
-                }
-            }
-
-            parseCSV(csvText) {
-                const games = [];
-                const rows = csvText.split('\n');
-                
-                for (let i = 1; i < rows.length; i++) {
-                    if (!rows[i].trim()) continue;
-                    
-                    try {
-                        const cells = this.parseCSVRow(rows[i]);
-                        if (cells.length < 29) continue;
-
-                        if (cells[0] && cells[0].includes('PS4') && cells[1] && cells[2]) {
-                            games.push({
-                                platform: cells[0],
-                                barcode: cells[1],
-                                name: cells[2],
-                                code: cells[3] || '',
-                                language: cells[4] || '',
-                                optPrice: cells[5] || '',
-                                marketplace: cells[6] || '',
-                                codeType: 'CUSA'
-                            });
-                        }
-                        
-                        if (cells[8] && cells[8].includes('PS5') && cells[9] && cells[10]) {
-                            games.push({
-                                platform: cells[8],
-                                barcode: cells[9],
-                                name: cells[10],
-                                code: cells[11] || '',
-                                language: cells[12] || '',
-                                optPrice: cells[13] || '',
-                                marketplace: cells[14] || '',
-                                codeType: 'PPSA'
-                            });
-                        }
-                        
-                        if (cells[16] && (cells[16].includes('NS') || cells[16].includes('Switch')) && cells[17] && cells[18]) {
-                            let barcodes = cells[17];
-                            if (barcodes.includes('/')) {
-                                barcodes = barcodes.split('/').map(b => b.trim()).join('/');
-                            }
-                            
-                            games.push({
-                                platform: cells[16],
-                                barcode: barcodes,
-                                name: cells[18],
-                                code: '',
-                                language: cells[19] || '',
-                                optPrice: cells[20] || '',
-                                marketplace: cells[21] || '',
-                                codeType: ''
-                            });
-                        }
-                        
-                        if (cells[23] && cells[23].includes('XBOX') && cells[24] && cells[25]) {
-                            games.push({
-                                platform: cells[23],
-                                barcode: cells[24],
-                                name: cells[25],
-                                code: '',
-                                language: cells[26] || '',
-                                optPrice: cells[27] || '',
-                                marketplace: cells[28] || '',
-                                codeType: ''
-                            });
-                        }
-                    } catch (error) {
-                        console.log('Ошибка парсинга строки', i, error);
-                    }
-                }
-                
-                return games;
-            }
-
-            parseCSVRow(row) {
-                const cells = [];
-                let current = '';
-                let inQuotes = false;
-                
-                for (let char of row) {
-                    if (char === '"') {
-                        inQuotes = !inQuotes;
-                    } else if (char === ',' && !inQuotes) {
-                        cells.push(current.trim());
-                        current = '';
-                    } else {
-                        current += char;
-                    }
-                }
-                cells.push(current.trim());
-                return cells;
-            }
-
-            saveToLocalStorage() {
-                try {
-                    localStorage.setItem(this.localDataKey, JSON.stringify(this.gamesData));
-                } catch (error) {
-                    console.error('Ошибка сохранения данных:', error);
-                }
-            }
-
-            // ========== СТАБИЛЬНАЯ КАМЕРА - НЕ ИЗМЕНЯЛАСЬ ==========
-            async startScanner() {
-                if (this.gamesData.length === 0) {
-                    alert('❌ Нет данных об играх');
-                    return;
-                }
-                
-                this.logger.logAppAction('SCANNER_STARTED', { deviceId: DEVICE_ID });
-                this.resetScannerState();
-                this.showCameraModal();
-            }
-
-            showCameraModal() {
-                document.getElementById('modal-overlay').style.display = 'block';
-                document.getElementById('camera-modal').style.display = 'block';
-                this.initializeCamera();
-            }
-
-            updateCameraStatus(message, type = '') {
-                const statusEl = document.getElementById('camera-status');
-                statusEl.textContent = message;
-                statusEl.className = `scanning-status ${type}`;
-                statusEl.style.display = 'block';
-            }
-
-            async initializeCamera() {
-                try {
-                    console.log('📷 Инициализация камеры...');
-                    
-                    await this.stopCamera();
-                    
-                    const constraints = {
-                        video: {
-                            facingMode: "environment",
-                            width: { ideal: 640 },
-                            height: { ideal: 480 }
-                        }
-                    };
-                    
-                    this.cameraStream = await navigator.mediaDevices.getUserMedia(constraints);
-                    document.getElementById('camera-view').srcObject = this.cameraStream;
-                    
-                    this.updateCameraStatus('🔍 Камера запущена, инициализируем сканер...');
-                    
-                    setTimeout(() => {
-                        this.startQuaggaScanner();
-                    }, 1000);
-                    
-                } catch (error) {
-                    console.error('❌ Ошибка камеры:', error);
-                    this.handleCameraError(error);
-                }
-            }
-
-            startQuaggaScanner() {
-                if (this.isScanning) {
-                    return;
-                }
-                
-                console.log('🎯 Запуск Quagga сканера');
-                
-                this.stopQuagga();
-                
-                const config = {
-                    inputStream: {
-                        name: "Live",
-                        type: "LiveStream",
-                        target: document.getElementById('camera-view'),
-                        constraints: {
-                            width: 640,
-                            height: 480
-                        }
-                    },
-                    decoder: {
-                        readers: ["ean_reader", "ean_8_reader", "code_128_reader"]
-                    },
-                    locate: true,
-                    frequency: 10
-                };
-                
-                Quagga.init(config, (err) => {
-                    if (err) {
-                        console.error('❌ Ошибка инициализации Quagga:', err);
-                        this.updateCameraStatus('❌ Ошибка сканера', 'scanning-error');
-                        this.safeRestartScanner();
-                        return;
-                    }
-                    
-                    console.log('✅ Quagga успешно инициализирован');
-                    this.quaggaInitialized = true;
-                    this.isScanning = true;
-                    
-                    Quagga.start();
-                    this.updateCameraStatus('🔍 Сканирую штрих-коды...');
-                    
-                    Quagga.onDetected((result) => {
-                        if (this.isScanning && !this.scanCooldown) {
-                            this.handleBarcodeDetection(result);
-                        }
-                    });
-                });
-            }
-
-            handleBarcodeDetection(result) {
-                if (!result.codeResult?.code) {
-                    return;
-                }
-                
-                const code = result.codeResult.code.toString().trim();
-                console.log('📷 Сканирован код:', code);
-                
-                if (code.length < 6) {
-                    return;
-                }
-                
-                if (this.lastScannedCode === code) {
-                    console.log('🔄 Повторный код, пропускаем');
-                    return;
-                }
-                
-                this.scanCooldown = true;
-                this.lastScannedCode = code;
-                this.stopQuagga();
-                
-                this.updateCameraStatus(`📷 Найден код: ${code}`, 'scanning-success');
-                this.processScannedBarcode(code);
-            }
-
-            async processScannedBarcode(barcode) {
-                const code = barcode.toString().trim();
-                
-                console.log('🔍 Ищем игру для кода:', code);
-                const game = this.findGameByBarcode(code);
-                
-                if (game) {
-                    console.log('✅ Найдена игра:', game.name);
-                    
-                    if (this.isClientMode) {
-                        this.displayGameInfo(game);
-                        this.updateCameraStatus('✅ Цена найдена!', 'scanning-success');
-                    } else {
-                        this.addGameToCart(game);
-                        this.updateCameraStatus('✅ Игра найдена!', 'scanning-success');
-                    }
-                    
-                    if (navigator.vibrate) navigator.vibrate(100);
-                    
-                    setTimeout(() => {
-                        this.stopScanner();
-                        this.scanCooldown = false;
-                        this.lastScannedCode = null;
-                    }, 1000);
-                    
-                } else {
-                    console.log('❌ Игра не найдена для кода:', code);
-                    this.updateCameraStatus('❌ Игра не найдена', 'scanning-error');
-                    
-                    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-                    
-                    setTimeout(() => {
-                        this.resetScannerStateForRestart();
-                        this.safeRestartScanner();
-                    }, 300);
-                }
-            }
-
-            resetScannerStateForRestart() {
-                this.scanCooldown = false;
-                this.lastScannedCode = null;
-                this.stopQuagga();
-                this.isScanning = false;
-            }
-
-            findGameByBarcode(barcode) {
-                const cleanBarcode = barcode.toString().trim();
-                
-                let game = this.gamesData.find(g => {
-                    if (!g.barcode) return false;
-                    if (g.barcode.includes('/')) {
-                        const barcodes = g.barcode.split('/').map(b => b.trim());
-                        return barcodes.includes(cleanBarcode);
-                    }
-                    return g.barcode === cleanBarcode;
-                });
-                
-                if (!game) {
-                    game = this.gamesData.find(g => {
-                        if (!g.barcode) return false;
-                        if (g.barcode.includes('/')) {
-                            const barcodes = g.barcode.split('/').map(b => b.trim());
-                            return barcodes.some(b => cleanBarcode.includes(b) || b.includes(cleanBarcode));
-                        }
-                        return g.barcode.includes(cleanBarcode) || cleanBarcode.includes(g.barcode);
-                    });
-                }
-                
-                return game;
-            }
-
-            async safeRestartScanner() {
-                console.log('🔄 Безопасный перезапуск сканера');
-                this.updateCameraStatus('🔍 Перезапуск сканера...');
-                
-                try {
-                    this.stopQuagga();
-                    
-                    await new Promise(resolve => setTimeout(resolve, 200));
-                    
-                    if (!this.cameraStream || this.cameraStream.getTracks().every(track => track.readyState === 'ended')) {
-                        console.log('⚠️ Камера перестала работать, перезапускаем полностью');
-                        await this.restartCamera();
-                        return;
-                    }
-                    
-                    this.startQuaggaScanner();
-                    
-                } catch (e) {
-                    console.error('❌ Ошибка безопасного перезапуска:', e);
-                    this.restartCamera();
-                }
-            }
-
-            async restartCamera() {
-                console.log('🔄 Полный перезапуск камеры');
-                this.updateCameraStatus('🔄 Перезапускаем камеру...');
-                
-                this.stopQuagga();
-                await this.stopCamera();
-                
-                await new Promise(resolve => setTimeout(resolve, 300));
-                
-                await this.initializeCamera();
-            }
-
-            stopQuagga() {
-                try {
-                    if (this.quaggaInitialized) {
-                        Quagga.offDetected();
-                        Quagga.stop();
-                        console.log('✅ Quagga остановлен');
-                    }
-                    this.quaggaInitialized = false;
-                } catch (e) {
-                    console.log('ℹ️ Quagga уже остановлен или не был инициализирован');
-                }
-            }
-
-            async stopCamera() {
-                if (this.cameraStream) {
-                    this.cameraStream.getTracks().forEach(track => {
-                        track.stop();
-                    });
-                    this.cameraStream = null;
-                    console.log('✅ Камера остановлена');
-                }
-            }
-
-            stopScanner() {
-                console.log('🛑 Полная остановка сканера');
-                
-                this.resetScannerState();
-                
-                this.stopQuagga();
-                this.stopCamera();
-                
-                document.getElementById('modal-overlay').style.display = 'none';
-                document.getElementById('camera-modal').style.display = 'none';
-                document.getElementById('camera-status').style.display = 'none';
-                
-                console.log('✅ Сканер полностью остановлен');
-                this.logger.logAppAction('SCANNER_STOPPED', { deviceId: DEVICE_ID });
-            }
-
-            handleCameraError(error) {
-                let errorMessage = 'Неизвестная ошибка камеры';
-                
-                switch (error.name) {
-                    case 'NotAllowedError':
-                        errorMessage = '❌ Доступ к камере запрещен. Разрешите доступ в настройках браузера.';
-                        break;
-                    case 'NotFoundError':
-                        errorMessage = '❌ Камера не найдена. Убедитесь, что камера подключена.';
-                        break;
-                    case 'NotSupportedError':
-                        errorMessage = '❌ Ваш браузер не поддерживает доступ к камере.';
-                        break;
-                    case 'NotReadableError':
-                        errorMessage = '❌ Камера уже используется другим приложением.';
-                        break;
-                }
-                
-                this.updateCameraStatus(errorMessage, 'scanning-error');
-                setTimeout(() => this.stopScanner(), 3000);
-            }
-
-            resetScannerState() {
-                console.log('🔄 Сброс состояния сканера');
-                this.isScanning = false;
-                this.lastScannedCode = null;
-                this.scanCooldown = false;
-            }
-
-            // ========== ОТОБРАЖЕНИЕ ИНФОРМАЦИИ ОБ ИГРЕ ==========
             displayGameInfo(game) {
                 const price = this.calculateFinalPrice(game.optPrice);
                 
-                // Обновляем ОДНО ЕДИНОЕ поле цены вверху
                 document.getElementById('current-price-value').textContent = price || '0';
                 document.getElementById('current-price').classList.add('visible');
                 
-                // Показываем платформу и название под ценой
                 const priceDetails = document.getElementById('price-details');
                 const priceDetailsPlatform = document.getElementById('price-details-platform');
                 const priceDetailsName = document.getElementById('price-details-name');
@@ -2973,7 +1628,6 @@
                 priceDetailsName.textContent = game.name;
                 priceDetails.style.display = 'block';
                 
-                // В режиме разработчика показываем дополнительную информацию
                 if (!this.isClientMode) {
                     document.getElementById('game-language').textContent = this.getLanguageText(game.language) || '—';
                     document.getElementById('game-platform').innerHTML = this.getPlatformIconOnly(game.platform);
@@ -3010,7 +1664,6 @@
                 }
             }
 
-            // ИСПРАВЛЕННЫЕ ИКОНКИ ПЛАТФОРМ - XBOX как XB
             getPlatformIconOnly(platform) {
                 let platformText = '';
                 let platformClass = '';
@@ -3025,7 +1678,7 @@
                     platformText = 'NS';
                     platformClass = 'ns-icon';
                 } else if (platform.includes('XBOX')) {
-                    platformText = 'XB'; // Изменено обратно на XB
+                    platformText = 'XB';
                     platformClass = 'xbox-icon';
                 } else {
                     platformText = platform;
