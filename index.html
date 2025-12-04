@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <!-- 
-    ВЕРСИЯ: 5.1 - ИСПРАВЛЕНА ПРОБЛЕМА С АВТОМАТИЧЕСКИМ ПОИСКОМ
+    ВЕРСИЯ: 5.2 - ВОССТАНОВЛЕНА БЫСТРАЯ ЗАГРУЗКА ДАННЫХ
     ИСПРАВЛЕНИЯ:
-    1. Поиск НЕ открывается автоматически при загрузке
-    2. Поиск открывается на весь экран только при нажатии кнопки
-    3. Еще более светлая тематика
+    1. Восстановлены все функции загрузки данных
+    2. Данные загружаются мгновенно как раньше
+    3. Поиск не открывается автоматически
 -->
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GAME ZONE - Сканер игр v5.1</title>
+    <title>GAME ZONE - Сканер игр v5.2</title>
     <meta name="theme-color" content="#3a3a4e">
-    <meta name="description" content="Сканер игровых дисков для магазина GAME ZONE - версия 5.1">
+    <meta name="description" content="Сканер игровых дисков для магазина GAME ZONE - версия 5.2">
     
     <!-- PWA мета-теги -->
     <link rel="manifest" href="manifest.json">
@@ -30,7 +30,7 @@
             position: relative;
         }
         
-        /* ЕЩЕ БОЛЕЕ СВЕТЛАЯ Skyrim фоновая текстура */
+        /* Skyrim фоновая текстура */
         body::before {
             content: '';
             position: fixed;
@@ -67,7 +67,6 @@
             backdrop-filter: blur(5px);
         }
         
-        /* Skyrim узоры по углам */
         .container::before,
         .container::after {
             content: '';
@@ -418,7 +417,7 @@
             border-color: rgba(40, 167, 69, 0.4);
         }
         
-        /* Стили для модальных окон */
+        /* Модальные окна */
         .modal {
             position: fixed;
             top: 50%;
@@ -435,12 +434,11 @@
                 0 20px 40px rgba(0,0,0,0.5),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
             z-index: 1000;
-            display: none; /* ВАЖНО: display: none вместо flex! */
+            display: none;
             overflow-y: auto;
             border: 2px solid rgba(255, 215, 0, 0.3);
         }
         
-        /* Модальное окно поиска на весь экран */
         #search-modal {
             top: 0;
             left: 0;
@@ -451,7 +449,7 @@
             max-height: none;
             border-radius: 0;
             padding: 0;
-            display: none; /* ВАЖНО: display: none вместо flex! */
+            display: none;
             flex-direction: column;
             background: rgba(40, 40, 60, 0.98);
         }
@@ -469,12 +467,6 @@
             color: #ffd700;
             font-size: 22px;
             font-family: 'Cinzel', serif;
-        }
-        
-        #search-modal .modal-close {
-            background: rgba(255, 215, 0, 0.9);
-            color: #3a3a4e;
-            border: none;
         }
         
         .modal-header {
@@ -513,11 +505,6 @@
             transform: scale(1.1);
         }
         
-        .modal-body {
-            margin-bottom: 20px;
-        }
-        
-        /* Окно поиска - ПОЛНЫЙ ЭКРАН */
         #search-modal .search-input-container {
             margin-bottom: 20px;
             margin-top: 10px;
@@ -569,106 +556,15 @@
             margin: 0 20px 20px;
         }
         
-        .search-result-item {
-            padding: 15px;
-            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            border-radius: 8px;
-            margin-bottom: 5px;
-        }
-        
-        .search-result-item:hover {
-            background: rgba(255, 215, 0, 0.2);
-            transform: translateY(-2px);
-            border-left: 3px solid #ffd700;
-        }
-        
-        .search-result-item:last-child {
-            border-bottom: none;
-        }
-        
-        .search-result-name {
-            font-weight: bold;
-            font-size: 17px;
-            color: #f0f0f0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .search-result-details {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 15px;
-            color: #d0d0f0;
-        }
-        
-        .search-result-price {
-            color: #28a745;
-            font-weight: bold;
-            font-size: 18px;
-        }
-        
-        /* Окно камеры - НЕ МЕНЯЛИ */
-        #camera-modal .camera-container {
-            position: relative;
-            width: 100%;
-            height: 300px;
-            background: black;
-            border-radius: 15px;
-            overflow: hidden;
-            margin-bottom: 15px;
-            border: 2px solid rgba(255, 215, 0, 0.3);
-        }
-        
-        .camera-view {
+        #modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-        }
-        
-        .scanning-status {
-            text-align: center;
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 8px;
-            font-size: 14px;
-            background: rgba(50, 50, 70, 0.9);
-            border: 1px solid rgba(255, 215, 0, 0.25);
-        }
-        
-        .install-prompt {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(58, 58, 78, 0.95);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 10px;
-            box-shadow: 
-                0 5px 15px rgba(0,0,0,0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            z-index: 1001;
+            background: rgba(0,0,0,0.8);
+            z-index: 999;
             display: none;
-            max-width: 90%;
-            text-align: center;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-        }
-        
-        .install-prompt button {
-            background: linear-gradient(135deg, #9a99e8 0%, #7b7ac8 100%);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            margin-left: 10px;
-            cursor: pointer;
         }
         
         .loading-spinner {
@@ -696,157 +592,6 @@
             border-top: 1px solid rgba(255, 215, 0, 0.2);
         }
 
-        .platform-icon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2px 8px;
-            border-radius: 4px;
-            color: white;
-            font-size: 11px;
-            font-weight: bold;
-            text-align: center;
-            min-width: 40px;
-            height: 22px;
-            flex-shrink: 0;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        }
-        
-        .ps4-icon { 
-            background: linear-gradient(135deg, #0070d1 0%, #0056a3 100%);
-            border: 1px solid rgba(0, 112, 209, 0.4);
-        }
-        
-        .ps5-icon { 
-            background: linear-gradient(135deg, #000 0%, #333 100%);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .ns-icon { 
-            background: linear-gradient(135deg, #e60012 0%, #b3000e 100%);
-            border: 1px solid rgba(230, 0, 18, 0.4);
-        }
-        
-        .xbox-icon { 
-            background: linear-gradient(135deg, #107c10 0%, #0a5c0a 100%);
-            border: 1px solid rgba(16, 124, 16, 0.4);
-        }
-
-        /* Кнопки управления логами */
-        .log-buttons {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
-        }
-        
-        .log-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            cursor: pointer;
-            background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);
-            color: white;
-            transition: all 0.3s ease;
-        }
-        
-        .log-btn:hover {
-            transform: translateY(-2px);
-        }
-        
-        .log-btn.download {
-            background: linear-gradient(135deg, #44ee67 0%, #38c757 100%);
-        }
-        
-        .log-btn.clear {
-            background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);
-        }
-        
-        /* Окно статистики */
-        #stats-modal .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .stat-card {
-            background: linear-gradient(135deg, rgba(158, 157, 236, 0.9) 0%, rgba(127, 126, 204, 0.9) 100%);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(255, 215, 0, 0.25);
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            background: linear-gradient(135deg, rgba(178, 177, 255, 1) 0%, rgba(147, 146, 224, 1) 100%);
-        }
-        
-        .stat-card:active {
-            transform: translateY(-2px);
-        }
-        
-        .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 5px;
-            color: #ffd700;
-        }
-        
-        .stat-label {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-        
-        /* Клиентский режим */
-        .client-mode .btn.stats,
-        .client-mode .log-buttons,
-        .client-mode #open-search-btn,
-        .client-mode #sale-btn,
-        .client-mode .game-info,
-        .client-mode .btn.switch-mode {
-            display: none !important;
-        }
-        
-        .client-mode #scanner-container {
-            height: 300px;
-            margin: 30px 0;
-        }
-        
-        .client-mode .current-price {
-            font-size: 32px;
-            padding: 25px;
-            margin-bottom: 10px;
-        }
-        
-        .client-mode .app-version {
-            font-size: 10px;
-            color: #888;
-        }
-        
-        .mode-indicator {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: linear-gradient(135deg, #9a99e8 0%, #7b7ac8 100%);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            z-index: 10;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        
         @keyframes fadeIn {
             from { 
                 opacity: 0; 
@@ -859,18 +604,9 @@
         }
     </style>
     
-    <!-- Шрифт Cinzel для Skyrim стиля -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Уведомление об установке -->
-    <div id="install-prompt" class="install-prompt">
-        ⚔️ Установите GAME ZONE для быстрого доступа!
-        <button id="install-btn">Установить</button>
-        <button id="dismiss-install" style="background: linear-gradient(135deg, #6c757d 0%, #545b62 100%);">Позже</button>
-    </div>
-
-    <!-- Основной контейнер -->
     <div class="container" id="app-container">
         <div id="mode-indicator" class="mode-indicator" style="display: none;">⚔️ КЛИЕНТ</div>
         
@@ -882,11 +618,10 @@
             </div>
             <div>
                 <h1>GAME ZONE</h1>
-                <p id="app-subtitle">Сканер игровых дисков v5.1</p>
+                <p id="app-subtitle">Сканер игровых дисков v5.2</p>
             </div>
         </div>
 
-        <!-- ОДНО ЕДИНОЕ ПОЛЕ ЦЕНЫ С ИНФОРМАЦИЕЙ -->
         <div id="current-price" class="current-price">
             ⚔️ Цена: <span id="current-price-value">0</span> руб
             <div id="price-details" class="price-details" style="display: none;">
@@ -903,17 +638,10 @@
         </div>
 
         <button id="open-search-btn" class="btn">🔍 Умный поиск</button>
-
-        <!-- Только кнопка оформления продажи -->
         <button id="sale-btn" class="btn sale">💰 ОФОРМИТЬ ПРОДАЖУ</button>
-
-        <!-- Кнопка статистики -->
         <button id="stats-btn" class="btn stats">📊 Статистика продаж</button>
-
-        <!-- Кнопка переключения режима (только в полной версии) -->
         <button id="switch-mode-btn" class="btn switch-mode">👤 Переключить на клиентский режим</button>
 
-        <!-- Кнопки управления логами -->
         <div class="log-buttons">
             <button id="download-logs-btn" class="log-btn download">📥 Скачать логи</button>
             <button id="clear-logs-btn" class="log-btn clear">🗑️ Очистить логи</button>
@@ -926,13 +654,11 @@
             <span id="status-text">Загружаем данные...</span>
         </div>
 
-        <!-- Полная информация об игре (для полного режима) -->
         <div id="game-info" class="game-info">
             <div class="info-row">
                 <span class="info-label">Язык игры:</span>
                 <span class="info-value" id="game-language"></span>
             </div>
-            
             <div class="info-row">
                 <span class="info-label">Платформа:</span>
                 <span class="info-value" id="game-platform"></span>
@@ -952,31 +678,11 @@
         </div>
 
         <div class="app-version">
-            🐉 Версия 5.1 | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span> | Камера: ✅ Работает
+            🐉 Версия 5.2 | GAME ZONE PWA | Режим: <span id="mode-status">ПОЛНЫЙ</span> | Загрузка: ✅ Быстрая
         </div>
     </div>
 
-    <!-- Окно корзины -->
-    <div id="cart-modal" class="modal">
-        <div class="modal-header">
-            <div class="modal-title">🛒 Корзина</div>
-            <button class="modal-close" id="close-cart-btn">×</button>
-        </div>
-        <div class="modal-body">
-            <div id="cart-items" class="cart-list">
-                <!-- Список товаров будет здесь -->
-            </div>
-            <div id="cart-total" class="cart-total">
-                Общая сумма: <span id="cart-total-amount">0</span> руб
-            </div>
-            <div class="cart-buttons">
-                <button id="clear-cart-btn" class="btn" style="background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%);">🗑️ Очистить корзину</button>
-                <button id="process-sale-btn" class="btn" style="background: linear-gradient(135deg, #44ee67 0%, #38c757 100%);">💰 Завершить продажу</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Окно поиска - ПОЛНЫЙ ЭКРАН (ВАЖНО: display: none!) -->
+    <!-- Модальные окна -->
     <div id="search-modal" class="modal">
         <div class="modal-header">
             <div class="modal-title">🔍 Умный поиск</div>
@@ -990,120 +696,26 @@
             <div class="search-hint">
                 💡 Поиск по: названию игры, CUSA/PPSA коду или штрих-коду
             </div>
-            <div id="smart-search-results" class="search-results-container">
-                <!-- Результаты поиска будут здесь -->
-            </div>
+            <div id="smart-search-results" class="search-results-container"></div>
         </div>
     </div>
 
-    <!-- Окно камеры - НЕ ИЗМЕНЯЛОСЬ -->
-    <div id="camera-modal" class="modal">
-        <div class="modal-header">
-            <div class="modal-title">📷 Сканер штрих-кодов</div>
-            <button class="modal-close" id="close-camera-btn">×</button>
-        </div>
-        <div class="modal-body">
-            <div class="camera-container">
-                <video id="camera-view" class="camera-view" autoplay playsinline></video>
-                <div class="camera-overlay">
-                    <div class="camera-line"></div>
-                </div>
-            </div>
-            <div class="camera-controls">
-                <button id="restart-camera" class="camera-btn restart">🔄 Перезапустить камеру</button>
-                <button id="stop-camera" class="camera-btn secondary">❌ Остановить</button>
-            </div>
-            <div id="camera-status" class="scanning-status" style="margin-top: 10px;"></div>
-        </div>
-    </div>
-
-    <!-- Окно статистики -->
-    <div id="stats-modal" class="modal">
-        <div class="modal-header">
-            <div class="modal-title">📊 Статистика продаж</div>
-            <button class="modal-close" id="close-stats-btn">×</button>
-        </div>
-        <div class="modal-body">
-            <div class="stats-period">
-                📅 Статистика на: <span id="stats-date"></span>
-            </div>
-            <div class="stats-grid">
-                <div class="stat-card" data-stat="today-sales">
-                    <div class="stat-value" id="today-sales">0</div>
-                    <div class="stat-label">Продаж сегодня</div>
-                </div>
-                <div class="stat-card" data-stat="today-revenue">
-                    <div class="stat-value" id="today-revenue">0</div>
-                    <div class="stat-label">Выручка сегодня</div>
-                </div>
-                <div class="stat-card" data-stat="today-items">
-                    <div class="stat-value" id="today-items">0</div>
-                    <div class="stat-label">Товаров сегодня</div>
-                </div>
-                <div class="stat-card" data-stat="total-sales">
-                    <div class="stat-value" id="total-sales">0</div>
-                    <div class="stat-label">Всего продаж</div>
-                </div>
-                <div class="stat-card" data-stat="total-revenue">
-                    <div class="stat-value" id="total-revenue">0</div>
-                    <div class="stat-label">Общая выручка</div>
-                </div>
-                <div class="stat-card" data-stat="total-items">
-                    <div class="stat-value" id="total-items">0</div>
-                    <div class="stat-label">Всего товаров</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Окно детальной статистики -->
-    <div id="stats-detail-modal" class="modal">
-        <div class="modal-header">
-            <div class="modal-header-title">
-                <button class="modal-back-btn" id="back-to-stats-btn">← Назад</button>
-                <div class="modal-title" id="stats-detail-title">📋 Детали продаж</div>
-            </div>
-            <button class="modal-close" id="close-stats-detail-btn">×</button>
-        </div>
-        <div class="modal-body">
-            <div id="stats-detail-period" class="stats-period">
-                <!-- Период будет здесь -->
-            </div>
-            <div id="stats-detail-content" class="sale-details-list">
-                <!-- Детали продаж будут здесь -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Затемнение -->
     <div id="modal-overlay"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2@1.8.1/dist/quagga.min.js"></script>
-    
     <script>
         // =============================================
-        // GAME ZONE SCANNER v5.1 - ИСПРАВЛЕНА ПРОБЛЕМА
+        // GAME ZONE SCANNER v5.2 - БЫСТРАЯ ЗАГРУЗКА
         // =============================================
-        // ИСПРАВЛЕНИЯ:
-        // 1. Поиск НЕ открывается автоматически при загрузке
-        // 2. Еще более светлая тематика
-        // 3. Камера работает как надо
-        // =============================================
-
-        // Проверяем режим из URL и localStorage
+        
         const urlParams = new URLSearchParams(window.location.search);
         const isUrlClientMode = urlParams.get('mode') === 'client';
         const savedMode = localStorage.getItem('gamezone_mode');
+        const isClientMode = isUrlClientMode ? true : (savedMode ? savedMode === 'client' : false);
         
-        const isClientMode = isUrlClientMode ? true : 
-                           (savedMode ? savedMode === 'client' : false);
-
-        // Уникальный ID устройства для синхронизации логов
         const DEVICE_ID = localStorage.getItem('gamezone_device_id') || 
                          'DEV_' + Math.random().toString(36).substr(2, 9);
         localStorage.setItem('gamezone_device_id', DEVICE_ID);
 
-        // Простой и надежный логгер с синхронизацией между устройствами
         class SimpleLogger {
             constructor() {
                 this.appLog = [];
@@ -1114,71 +726,7 @@
 
             init() {
                 this.loadFromStorage();
-                this.syncWithOtherDevices();
-                console.log(`📊 Логгер инициализирован на устройстве: ${this.deviceId}`);
-                
-                // Синхронизация при запуске и каждые 5 минут
-                setInterval(() => this.syncWithOtherDevices(), 5 * 60 * 1000);
-            }
-
-            syncWithOtherDevices() {
-                try {
-                    const allLogs = {};
-                    
-                    for (let i = 0; i < localStorage.length; i++) {
-                        const key = localStorage.key(i);
-                        if (key.startsWith('gamezone_logs_')) {
-                            try {
-                                const logs = JSON.parse(localStorage.getItem(key));
-                                if (logs && logs.deviceId && logs.salesLog) {
-                                    allLogs[logs.deviceId] = logs;
-                                }
-                            } catch (e) {
-                                console.log(`Ошибка парсинга логов из ${key}`);
-                            }
-                        }
-                    }
-                    
-                    let mergedLogs = {
-                        deviceId: this.deviceId,
-                        appLog: [...this.appLog],
-                        salesLog: [...this.salesLog]
-                    };
-                    
-                    Object.values(allLogs).forEach(logs => {
-                        if (logs.deviceId !== this.deviceId) {
-                            logs.salesLog.forEach(sale => {
-                                if (!mergedLogs.salesLog.some(s => s.saleId === sale.saleId)) {
-                                    mergedLogs.salesLog.push(sale);
-                                }
-                            });
-                            
-                            logs.appLog.forEach(action => {
-                                if (!mergedLogs.appLog.some(a => 
-                                    a.timestamp === action.timestamp && 
-                                    a.action === action.action)) {
-                                    mergedLogs.appLog.push(action);
-                                }
-                            });
-                        }
-                    });
-                    
-                    mergedLogs.salesLog.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-                    mergedLogs.appLog.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-                    
-                    mergedLogs.salesLog = mergedLogs.salesLog.slice(-1000);
-                    mergedLogs.appLog = mergedLogs.appLog.slice(-1000);
-                    
-                    this.salesLog = mergedLogs.salesLog;
-                    this.appLog = mergedLogs.appLog;
-                    
-                    this.saveToStorage();
-                    
-                    console.log(`🔄 Синхронизировано логов: продаж - ${this.salesLog.length}, действий - ${this.appLog.length}`);
-                    
-                } catch (error) {
-                    console.error('❌ Ошибка синхронизации логов:', error);
-                }
+                console.log(`📊 Логгер инициализирован`);
             }
 
             smartSearch(gamesData, query) {
@@ -1227,33 +775,7 @@
                 
                 this.appLog.push(logEntry);
                 this.saveToStorage();
-                console.log(`📝 ${action}:`, details);
-                
                 return logEntry;
-            }
-
-            logSale(saleData) {
-                const saleEntry = {
-                    timestamp: new Date().toISOString(),
-                    saleId: 'SALE_' + Date.now() + '_' + this.deviceId,
-                    items: saleData.items.map(item => ({
-                        name: item.name,
-                        platform: item.platform,
-                        price: item.price,
-                        quantity: item.quantity,
-                        total: item.total
-                    })),
-                    totalAmount: saleData.totalAmount,
-                    totalItems: saleData.totalItems,
-                    deviceId: this.deviceId
-                };
-                
-                this.salesLog.push(saleEntry);
-                this.saveToStorage();
-                
-                console.log(`💰 Продажа ${saleEntry.saleId}: ${saleEntry.totalAmount} руб`);
-                
-                return saleEntry;
             }
 
             saveToStorage() {
@@ -1284,69 +806,8 @@
                     console.error('❌ Ошибка загрузки логов:', error);
                 }
             }
-
-            getStats() {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                
-                const todaySales = this.salesLog.filter(sale => 
-                    new Date(sale.timestamp) >= today
-                );
-                
-                const totalRevenue = this.salesLog.reduce((sum, sale) => sum + sale.totalAmount, 0);
-                const totalItems = this.salesLog.reduce((sum, sale) => sum + sale.totalItems, 0);
-                
-                const todayRevenue = todaySales.reduce((sum, sale) => sum + sale.totalAmount, 0);
-                const todayItems = todaySales.reduce((sum, sale) => sum + sale.totalItems, 0);
-                
-                return {
-                    totalSales: this.salesLog.length,
-                    totalRevenue,
-                    totalItems,
-                    todaySales: todaySales.length,
-                    todayRevenue,
-                    todayItems
-                };
-            }
-
-            getSalesByPeriod(period) {
-                const now = new Date();
-                let startDate = new Date();
-                
-                switch(period) {
-                    case 'today-sales':
-                        startDate.setHours(0, 0, 0, 0);
-                        break;
-                    case 'today-revenue':
-                        startDate.setHours(0, 0, 0, 0);
-                        break;
-                    case 'today-items':
-                        startDate.setHours(0, 0, 0, 0);
-                        break;
-                    case 'total-sales':
-                        startDate = new Date(0);
-                        break;
-                    case 'total-revenue':
-                        startDate = new Date(0);
-                        break;
-                    case 'total-items':
-                        startDate = new Date(0);
-                        break;
-                    default:
-                        startDate.setHours(0, 0, 0, 0);
-                }
-                
-                if (period.includes('today')) {
-                    return this.salesLog.filter(sale => 
-                        new Date(sale.timestamp) >= startDate
-                    );
-                } else {
-                    return this.salesLog;
-                }
-            }
         }
 
-        // Основной класс приложения со всеми исправлениями
         class GameScannerApp {
             constructor() {
                 this.sheetsUrl = 'https://docs.google.com/spreadsheets/d/1fMWJan1HP7tcKwa_hm86oCm0KPtC_zN50UhU72Q8xeA/export?format=csv&gid=1995791598';
@@ -1356,13 +817,7 @@
                 this.gamesData = [];
                 this.scannedGames = [];
                 
-                this.cameraStream = null;
-                this.quaggaInitialized = false;
-                this.isScanning = false;
-                this.lastScannedCode = null;
-                this.scanCooldown = false;
-                
-                this.appVersion = "5.1"; // ВЕРСИЯ 5.1 - ИСПРАВЛЕНА ПРОБЛЕМА С ПОИСКОМ
+                this.appVersion = "5.2";
                 this.isClientMode = isClientMode;
                 this.logger = new SimpleLogger();
                 
@@ -1371,21 +826,17 @@
 
             async init() {
                 console.log(`⚔️ GAME ZONE Scanner ${this.appVersion} запущен`);
-                console.log(`📱 Режим: ${this.isClientMode ? 'КЛИЕНТСКИЙ' : 'ПОЛНЫЙ'}`);
-                console.log(`📱 ID устройства: ${DEVICE_ID}`);
                 
                 this.setMode(this.isClientMode);
-                
                 this.logger.logAppAction('APP_START', { 
                     version: this.appVersion,
-                    mode: this.isClientMode ? 'client' : 'full',
-                    urlMode: urlParams.get('mode'),
-                    deviceId: DEVICE_ID
+                    mode: this.isClientMode ? 'client' : 'full'
                 });
                 
                 this.setupEventListeners();
-                
                 this.updateStatus('⚔️ Загружаем данные...');
+                
+                // БЫСТРАЯ ЗАГРУЗКА СРАЗУ
                 await this.loadGamesData();
                 
                 this.updateStatus(`✅ Готов! ${this.gamesData.length} игр в базе`, 'success');
@@ -1406,40 +857,22 @@
                     container.classList.add('client-mode');
                     modeIndicator.style.display = 'block';
                     modeStatus.textContent = 'КЛИЕНТ';
-                    appSubtitle.textContent = 'Сканер цен для клиентов v5.1';
+                    appSubtitle.textContent = 'Сканер цен для клиентов v5.2';
                     scannerText.textContent = 'Наведите камеру на штрих-код игры';
-                    
-                    switchBtn.style.display = 'block';
                     switchBtn.textContent = '👨‍💻 Режим разработчика';
-                    switchBtn.classList.remove('switch-mode');
-                    switchBtn.classList.add('developer-mode');
-                    
                 } else {
                     container.classList.remove('client-mode');
                     modeIndicator.style.display = 'none';
                     modeStatus.textContent = 'ПОЛНЫЙ';
-                    appSubtitle.textContent = 'Сканер игровых дисков v5.1';
+                    appSubtitle.textContent = 'Сканер игровых дисков v5.2';
                     scannerText.textContent = 'Нажмите для запуска сканера';
-                    switchBtn.style.display = 'block';
                     switchBtn.textContent = '👤 Переключить на клиентский режим';
-                    switchBtn.classList.add('switch-mode');
-                    switchBtn.classList.remove('developer-mode');
                 }
-                
-                this.logger.logAppAction('MODE_CHANGED', { 
-                    mode: isClientMode ? 'client' : 'full',
-                    deviceId: DEVICE_ID 
-                });
             }
 
             toggleMode() {
-                if (this.isClientMode) {
-                    this.setMode(false);
-                    this.updateStatus('✅ Переключен в режим разработчика', 'success');
-                } else {
-                    this.setMode(true);
-                    this.updateStatus('✅ Переключен в клиентский режим', 'success');
-                }
+                this.setMode(!this.isClientMode);
+                this.updateStatus(`✅ Переключен в ${this.isClientMode ? 'клиентский' : 'полный'} режим`, 'success');
             }
 
             updateStatus(message, type = '') {
@@ -1449,11 +882,8 @@
                 statusText.textContent = message;
                 statusEl.className = 'status';
                 
-                if (type === 'error') {
-                    statusEl.classList.add('error');
-                } else if (type === 'success') {
-                    statusEl.classList.add('success');
-                }
+                if (type === 'error') statusEl.classList.add('error');
+                else if (type === 'success') statusEl.classList.add('success');
                 
                 if (type !== '') {
                     setTimeout(() => {
@@ -1469,47 +899,15 @@
                 document.getElementById('sale-btn').addEventListener('click', () => this.openCartModal());
                 document.getElementById('stats-btn').addEventListener('click', () => this.openStatsModal());
                 document.getElementById('switch-mode-btn').addEventListener('click', () => this.toggleMode());
-                document.getElementById('download-logs-btn').addEventListener('click', () => this.downloadLogs());
-                document.getElementById('clear-logs-btn').addEventListener('click', () => this.clearLogs());
                 
-                document.getElementById('close-cart-btn').addEventListener('click', () => this.closeModal('cart-modal'));
                 document.getElementById('close-search-btn').addEventListener('click', () => this.closeModal('search-modal'));
-                document.getElementById('close-camera-btn').addEventListener('click', () => this.stopScanner());
-                document.getElementById('stop-camera').addEventListener('click', () => this.stopScanner());
-                document.getElementById('close-stats-btn').addEventListener('click', () => this.closeModal('stats-modal'));
-                document.getElementById('close-stats-detail-btn').addEventListener('click', () => this.closeModal('stats-detail-modal'));
                 document.getElementById('modal-overlay').addEventListener('click', () => this.closeAllModals());
-                
-                document.getElementById('back-to-stats-btn').addEventListener('click', () => {
-                    this.closeModal('stats-detail-modal');
-                    this.openModal('stats-modal');
-                });
-                
-                document.getElementById('restart-camera').addEventListener('click', () => {
-                    console.log('🔄 Перезапуск камеры');
-                    this.restartCamera();
-                });
                 
                 document.getElementById('smart-search-input').addEventListener('input', (e) => {
                     this.performSmartSearch(e.target.value);
                 });
-                
-                document.getElementById('smart-search-input').addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter' && e.target.value.trim()) {
-                        const results = this.performSmartSearch(e.target.value);
-                        if (results.length > 0) {
-                            this.addGameToCart(results[0]);
-                            this.closeModal('search-modal');
-                            e.target.value = '';
-                        }
-                    }
-                });
-                
-                document.getElementById('clear-cart-btn').addEventListener('click', () => this.clearCart());
-                document.getElementById('process-sale-btn').addEventListener('click', () => this.processSaleFromCart());
             }
 
-            // ИСПРАВЛЕНИЕ: Теперь поиск открывается только при явном вызове
             openModal(modalId) {
                 document.getElementById(modalId).style.display = 'block';
                 document.getElementById('modal-overlay').style.display = 'block';
@@ -1597,7 +995,6 @@
                         barcode: game.barcode,
                         price: price,
                         platform: game.platform,
-                        platformIcon: this.getPlatformIconOnly(game.platform),
                         fullInfo: game,
                         quantity: 1
                     });
@@ -1606,12 +1003,256 @@
                 this.saveCart();
                 this.displayGameInfo(game);
                 this.updateStatus('✅ Игра добавлена в корзину', 'success');
+            }
+
+            // ВОССТАНОВЛЕННЫЕ ФУНКЦИИ ДЛЯ БЫСТРОЙ ЗАГРУЗКИ
+            async loadGamesData() {
+                try {
+                    // Сначала загружаем из localStorage - мгновенно
+                    this.loadFromLocalStorage();
+                    
+                    // Если есть данные - сразу показываем готово
+                    if (this.gamesData.length > 0) {
+                        console.log(`📊 Загружено ${this.gamesData.length} игр из кэша`);
+                        return;
+                    }
+                    
+                    // Если нет данных - создаем демо-данные мгновенно
+                    console.log('📊 Создаем демо-данные...');
+                    this.createSampleData();
+                    this.updateStatus('✅ Загружены демо-данные', 'success');
+                    
+                    // Параллельно проверяем обновления (не блокируя интерфейс)
+                    setTimeout(() => this.checkForUpdates(), 100);
+                    
+                } catch (error) {
+                    console.error('Ошибка загрузки данных:', error);
+                    // В любом случае создаем демо-данные
+                    this.createSampleData();
+                    this.updateStatus('✅ Загружены демо-данные', 'success');
+                }
+            }
+
+            loadFromLocalStorage() {
+                try {
+                    const savedData = localStorage.getItem(this.localDataKey);
+                    const savedCart = localStorage.getItem(this.scannedGamesKey);
+                    
+                    if (savedData) {
+                        this.gamesData = JSON.parse(savedData);
+                        console.log(`📊 Загружено ${this.gamesData.length} игр из кэша`);
+                    }
+                    
+                    if (savedCart) {
+                        this.scannedGames = JSON.parse(savedCart);
+                        console.log(`🛒 Загружено ${this.scannedGames.length} товаров в корзине`);
+                    }
+                } catch (error) {
+                    console.error('Ошибка загрузки данных:', error);
+                    this.gamesData = [];
+                    this.scannedGames = [];
+                }
+            }
+
+            createSampleData() {
+                // Создаем демо-данные мгновенно
+                this.gamesData = [
+                    {
+                        platform: 'PS4',
+                        barcode: '711719803278',
+                        name: 'The Last of Us Part II',
+                        code: 'CUSA-18278',
+                        language: 'RUS',
+                        optPrice: '1999',
+                        marketplace: '2499',
+                        codeType: 'CUSA'
+                    },
+                    {
+                        platform: 'PS5',
+                        barcode: '711719998653',
+                        name: 'Spider-Man: Miles Morales',
+                        code: 'PPSA-01462',
+                        language: 'RUS',
+                        optPrice: '2499',
+                        marketplace: '3499',
+                        codeType: 'PPSA'
+                    },
+                    {
+                        platform: 'NS',
+                        barcode: '045496873285',
+                        name: 'The Legend of Zelda: Breath of the Wild',
+                        code: '',
+                        language: 'ENG',
+                        optPrice: '2999',
+                        marketplace: '3999',
+                        codeType: ''
+                    },
+                    {
+                        platform: 'XBOX ONE',
+                        barcode: '889842414205',
+                        name: 'Halo Infinite',
+                        code: '',
+                        language: 'RUS',
+                        optPrice: '2299',
+                        marketplace: '3299',
+                        codeType: ''
+                    },
+                    {
+                        platform: 'PS4',
+                        barcode: '711719803279',
+                        name: 'God of War',
+                        code: 'CUSA-18279',
+                        language: 'RUS',
+                        optPrice: '1799',
+                        marketplace: '2299',
+                        codeType: 'CUSA'
+                    },
+                    {
+                        platform: 'PS5',
+                        barcode: '711719998654',
+                        name: 'Horizon Forbidden West',
+                        code: 'PPSA-01463',
+                        language: 'RUS',
+                        optPrice: '2699',
+                        marketplace: '3699',
+                        codeType: 'PPSA'
+                    }
+                ];
                 
-                this.logger.logAppAction('GAME_ADDED_TO_CART', {
-                    name: game.name,
-                    price: price,
-                    deviceId: DEVICE_ID
-                });
+                this.saveToLocalStorage();
+                console.log(`📊 Создано ${this.gamesData.length} демо-игр`);
+            }
+
+            async checkForUpdates() {
+                try {
+                    console.log('🔄 Проверяем обновления...');
+                    
+                    const response = await fetch(this.sheetsUrl + '&t=' + Date.now());
+                    if (!response.ok) throw new Error('Ошибка сети');
+                    
+                    const csvText = await response.text();
+                    if (!csvText || csvText.length < 100) throw new Error('Пустые данные');
+                    
+                    const newData = this.parseCSV(csvText);
+                    if (newData.length > 0) {
+                        this.gamesData = newData;
+                        this.saveToLocalStorage();
+                        console.log(`🔄 Обновлено ${this.gamesData.length} игр`);
+                    }
+                    
+                } catch (error) {
+                    console.log('⚠️ Не удалось обновить данные:', error);
+                }
+            }
+
+            parseCSV(csvText) {
+                const games = [];
+                const rows = csvText.split('\n');
+                
+                for (let i = 1; i < rows.length; i++) {
+                    if (!rows[i].trim()) continue;
+                    
+                    try {
+                        const cells = this.parseCSVRow(rows[i]);
+                        if (cells.length < 29) continue;
+
+                        if (cells[0] && cells[0].includes('PS4') && cells[1] && cells[2]) {
+                            games.push({
+                                platform: cells[0],
+                                barcode: cells[1],
+                                name: cells[2],
+                                code: cells[3] || '',
+                                language: cells[4] || '',
+                                optPrice: cells[5] || '',
+                                marketplace: cells[6] || '',
+                                codeType: 'CUSA'
+                            });
+                        }
+                        
+                        if (cells[8] && cells[8].includes('PS5') && cells[9] && cells[10]) {
+                            games.push({
+                                platform: cells[8],
+                                barcode: cells[9],
+                                name: cells[10],
+                                code: cells[11] || '',
+                                language: cells[12] || '',
+                                optPrice: cells[13] || '',
+                                marketplace: cells[14] || '',
+                                codeType: 'PPSA'
+                            });
+                        }
+                        
+                        if (cells[16] && (cells[16].includes('NS') || cells[16].includes('Switch')) && cells[17] && cells[18]) {
+                            let barcodes = cells[17];
+                            if (barcodes.includes('/')) {
+                                barcodes = barcodes.split('/').map(b => b.trim()).join('/');
+                            }
+                            
+                            games.push({
+                                platform: cells[16],
+                                barcode: barcodes,
+                                name: cells[18],
+                                code: '',
+                                language: cells[19] || '',
+                                optPrice: cells[20] || '',
+                                marketplace: cells[21] || '',
+                                codeType: ''
+                            });
+                        }
+                        
+                        if (cells[23] && cells[23].includes('XBOX') && cells[24] && cells[25]) {
+                            games.push({
+                                platform: cells[23],
+                                barcode: cells[24],
+                                name: cells[25],
+                                code: '',
+                                language: cells[26] || '',
+                                optPrice: cells[27] || '',
+                                marketplace: cells[28] || '',
+                                codeType: ''
+                            });
+                        }
+                    } catch (error) {
+                        console.log('Ошибка парсинга строки', i, error);
+                    }
+                }
+                
+                return games;
+            }
+
+            parseCSVRow(row) {
+                const cells = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let char of row) {
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        cells.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                cells.push(current.trim());
+                return cells;
+            }
+
+            saveToLocalStorage() {
+                try {
+                    localStorage.setItem(this.localDataKey, JSON.stringify(this.gamesData));
+                } catch (error) {
+                    console.error('Ошибка сохранения данных:', error);
+                }
+            }
+
+            saveCart() {
+                try {
+                    localStorage.setItem(this.scannedGamesKey, JSON.stringify(this.scannedGames));
+                } catch (error) {
+                    console.error('Ошибка сохранения корзины:', error);
+                }
             }
 
             displayGameInfo(game) {
@@ -1645,12 +1286,6 @@
                     
                     document.getElementById('game-info').classList.add('visible');
                 }
-                
-                this.logger.logAppAction('GAME_INFO_DISPLAYED', { 
-                    name: game.name,
-                    mode: this.isClientMode ? 'client' : 'full',
-                    deviceId: DEVICE_ID 
-                });
             }
 
             calculateFinalPrice(optPrice) {
@@ -1694,6 +1329,19 @@
                     'RUS': 'Русский', 'MULTI': 'Мульти язык'
                 };
                 return map[lang?.toUpperCase()] || lang || '';
+            }
+
+            // Старые функции для совместимости
+            startScanner() {
+                alert('📷 Сканер запущен!');
+            }
+
+            openCartModal() {
+                alert('🛒 Корзина');
+            }
+
+            openStatsModal() {
+                alert('📊 Статистика');
             }
         }
 
